@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.Server", "CalDavServer\CalDav.Server.csproj", "{DDB10A63-4724-4729-8082-77A73F87CB4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.Server", "CalDav.Server\CalDav.Server.csproj", "{DDB10A63-4724-4729-8082-77A73F87CB4A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{EE946C60-392B-4A4F-B0A5-9D9A32C283DD}"
 EndProject

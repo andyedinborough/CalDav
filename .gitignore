@@ -3,13 +3,14 @@ packages/
 CalDav.Client/bin/
 CalDav.Client/obj/
 CalDav/obj/
-CalDavServer/bin/
 CalDav/bin/
 *.user
-CalDavServer/obj/
 Tests/bin/
 Tests/obj/
 Console/obj/
 Console/bin/
 TestResults/
 CalDavServer/App_Data/
+CalDav.Server/bin/
+CalDav.Server/obj/
+CalDav.Server/App_Data/

@@ -9,7 +9,7 @@ using System.Xml.Linq;
 namespace CalDav.Server.Controllers {
 	public class CalDavController : Controller {
 
-		[Route("caldav/", "options")]
+		[Route("caldav/{*path}", "options")]
 		public ActionResult Options(string name) {
 			var xdoc = GetRequestXml();
 			if (xdoc != null) {
@@ -45,7 +45,7 @@ namespace CalDav.Server.Controllers {
 			var calendar = repo.GetCalendarByPath(path);
 			var input = GetRequestCalendar();
 			var e = input.Events.FirstOrDefault();
-			e.LastModified =  new DDay.iCal.iCalDateTime( DateTime.UtcNow);
+			e.LastModified = new DDay.iCal.iCalDateTime(DateTime.UtcNow);
 			repo.Save(calendar, e);
 
 			return new Result {
