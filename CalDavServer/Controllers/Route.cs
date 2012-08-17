@@ -1,5 +1,5 @@
 ﻿
-namespace CalDavServer.Controllers {
+namespace CalDav.Server.Controllers {
 	public class Route : AttributeRouting.Web.Mvc.RouteAttribute {
 		public Route(string path, string verb = null)
 			: base(path) {

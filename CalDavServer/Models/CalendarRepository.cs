@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Security.Principal;
 
-namespace CalDavServer.Models {
+namespace CalDav.Server.Models {
 	public interface ICalendarRepository {
 		IQueryable<IICalendar> List();
 		IICalendar GetCalendarByName(string name);

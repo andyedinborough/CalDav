@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-namespace CalDav.Server {
+namespace CalDav {
 	public class Filter {
 		private static readonly XNamespace xDAV = XNamespace.Get("DAV");
 		private static readonly XNamespace xCaldav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
@@ -44,21 +45,28 @@ namespace CalDav.Server {
 				case "time-range":
 					return new TimeRangeFilter(elm);
 				case "prop-filter":
-					return new ValueFilter(elm);
+					return new PropFilter(elm);
 			}
 			return null;
+		}
+
+		public static explicit operator XElement(Filter a) {
+			return new XElement(Common.xCaldav.GetName("filter"),
+				a.Filters == null || a.Filters.Length == 0 ? null : a.Filters.Select(f => (XElement)f)
+			);
 		}
 
 		public class CompFilter {
 			public string Name { get; set; }
 			public CompFilter[] Filters { get; set; }
-			public ValueFilter[] Properties { get; set; }
+			public PropFilter[] Properties { get; set; }
 			public TimeRangeFilter TimeRange { get; set; }
 			public bool? IsDefined { get; set; }
 
+			public CompFilter() { }
 			public CompFilter(XElement filter) {
 				Name = (string)filter.Attribute("name");
-				var props = new List<ValueFilter>();
+				var props = new List<PropFilter>();
 				var filters = new List<CompFilter>();
 				foreach (var elm in filter.Elements()) {
 					switch (elm.Name.LocalName) {
@@ -68,8 +76,8 @@ namespace CalDav.Server {
 					}
 					var obj = Create(elm);
 					if (obj == null) continue;
-					if (obj is ValueFilter)
-						props.Add((ValueFilter)obj);
+					if (obj is PropFilter)
+						props.Add((PropFilter)obj);
 					if (obj is TimeRangeFilter)
 						TimeRange = (TimeRangeFilter)obj;
 					if (obj is CompFilter)
@@ -78,12 +86,35 @@ namespace CalDav.Server {
 				Properties = props.ToArray();
 				Filters = filters.ToArray();
 			}
+
+			public static explicit operator XElement(CompFilter a) {
+				return new XElement(Common.xCaldav.GetName("comp-filter"),
+					new XAttribute("name", a.Name),
+					a.IsDefined != true ? null : new XElement(Common.xCaldav.GetName("is-defined")),
+					a.TimeRange == null ? null : (XElement)a.TimeRange,
+					a.Properties == null || a.Properties.Length == 0 ? null : a.Properties.Select(f => (XElement)f),
+					a.Filters == null || a.Filters.Length == 0 ? null : a.Filters.Select(f => (XElement)f)
+				);
+			}
 		}
 
-		public class ValueFilter {
+		public class PropFilter : ValueFilter {
+			public PropFilter() { }
+			public PropFilter(XElement filter)
+				: base(filter) {
+			}
+		}
+		public class ParamFilter : ValueFilter {
+			public ParamFilter() { }
+			public ParamFilter(XElement filter)
+				: base(filter) {
+			}
+		}
+		public abstract class ValueFilter {
+			public ValueFilter() { }
 			public ValueFilter(XElement filter) {
 				Name = (string)filter.Attribute("name");
-				var paramfilters = new List<ValueFilter>();
+				var paramfilters = new List<ParamFilter>();
 				foreach (var elm in filter.Elements()) {
 					switch (elm.Name.LocalName) {
 						case "text-match":
@@ -91,7 +122,7 @@ namespace CalDav.Server {
 							IgnoreCase = (string)elm.Attribute("caseless") == "yes";
 							break;
 						case "param-filter":
-							paramfilters.Add(new ValueFilter(elm));
+							paramfilters.Add(new ParamFilter(elm));
 							break;
 					}
 					Parameters = paramfilters.ToArray();
@@ -100,10 +131,20 @@ namespace CalDav.Server {
 			public string Name { get; set; }
 			public bool? IgnoreCase { get; set; }
 			public string Text { get; set; }
-			public ValueFilter[] Parameters { get; set; }
+			public ParamFilter[] Parameters { get; set; }
+
+			public static explicit operator XElement(ValueFilter a) {
+				return new XElement(Common.xCaldav.GetName((a is PropFilter ? "prop" : "param") + "-filter"),
+					string.IsNullOrEmpty(a.Name) ? null : new XAttribute("name", a.Name),
+					string.IsNullOrEmpty(a.Text) ? null : new XElement(Common.xCaldav.GetName("text-match"),
+					new XAttribute("caseless", a.IgnoreCase == true ? "yes" : "no"), a.Text),
+					a.Parameters == null || a.Parameters.Length == 0 ? null : a.Parameters.Select(f => (XElement)f)
+				);
+			}
 		}
 
 		public class TimeRangeFilter {
+			public TimeRangeFilter() { }
 			public TimeRangeFilter(XElement elm) {
 				var attr = elm.Attribute("start");
 				if (attr != null) Start = ParseDate((string)attr);
@@ -113,6 +154,13 @@ namespace CalDav.Server {
 			}
 			public DateTime? Start { get; set; }
 			public DateTime? End { get; set; }
+
+			public static explicit operator XElement(TimeRangeFilter a) {
+				return new XElement(Common.xCaldav.GetName("time-range"),
+					a.Start == null ? null : new XAttribute("start", a.Start.Value.ToString("yyyyMMddTHHmmssZ")),
+					a.End == null ? null : new XAttribute("end", a.End.Value.ToString("yyyyMMddTHHmmssZ"))
+					);
+			}
 		}
 	}
 }

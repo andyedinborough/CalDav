@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Web.Mvc;
 
-namespace CalDavServer.Controllers {
+namespace CalDav.Server.Controllers {
 	public class LambdaResult : ActionResult {
 		List<Action<ControllerContext>> _action = new List<Action<ControllerContext>>();
 		public LambdaResult(Action<ControllerContext> action) {

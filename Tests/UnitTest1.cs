@@ -21,10 +21,12 @@ namespace Tests {
   </C:filter>
 </C:calendar-query>");
 
-			var filter = new CalDavServer.Filter(xdoc.Root.Elements().First());
-			filter.Filters[0].Name.ShouldBe("VCALENDAR");
-			filter.Filters[0].Filters[0].Name.ShouldBe("VTIMEZONE");
-			filter.Filters[0].Filters[0].IsDefined.ShouldBe(true);
+			var f = new CalDav.Filter(xdoc.Root.Elements().First());
+			Test(f, x => {
+				x.Filters[0].Name.ShouldBe("VCALENDAR");
+				x.Filters[0].Filters[0].Name.ShouldBe("VTIMEZONE");
+				x.Filters[0].Filters[0].IsDefined.ShouldBe(true);
+			});
 		}
 
 		[TestMethod]
@@ -47,16 +49,18 @@ namespace Tests {
   </C:filter>
 </C:calendar-query>");
 
-			var filter = new CalDavServer.Filter(xdoc.Root.Elements().First());
-			filter.Filters[0].Name.ShouldBe("VCALENDAR");
-			filter.Filters[0].Filters[0].Name.ShouldBe("VEVENT");
-			var prop = filter.Filters[0].Filters[0].Properties[0];
-			prop.Name.ShouldBe("ATTENDEE");
-			prop.IgnoreCase.ShouldBe(true);
-			prop.Text.ShouldBe("mailto:jsmith@foo.org");
-			prop.Parameters[0].Name.ShouldBe("PARTSTAT");
-			prop.Parameters[0].Text.ShouldBe("NEEDS-ACTION");
-			prop.Parameters[0].IgnoreCase.ShouldBe(false);
+			var f = new CalDav.Filter(xdoc.Root.Elements().First());
+			Test(f, x => {
+				x.Filters[0].Name.ShouldBe("VCALENDAR");
+				x.Filters[0].Filters[0].Name.ShouldBe("VEVENT");
+				var prop = x.Filters[0].Filters[0].Properties[0];
+				prop.Name.ShouldBe("ATTENDEE");
+				prop.IgnoreCase.ShouldBe(true);
+				prop.Text.ShouldBe("mailto:jsmith@foo.org");
+				prop.Parameters[0].Name.ShouldBe("PARTSTAT");
+				prop.Parameters[0].Text.ShouldBe("NEEDS-ACTION");
+				prop.Parameters[0].IgnoreCase.ShouldBe(false);
+			});
 		}
 
 		[TestMethod]
@@ -75,13 +79,15 @@ namespace Tests {
   </C:filter>
 </C:calendar-query>");
 
-			var filter = new CalDavServer.Filter(xdoc.Root.Elements().First());
-			filter.Filters[0].Name.ShouldBe("VCALENDAR");
-			filter.Filters[0].Filters[0].Name.ShouldBe("VEVENT");
-			var prop = filter.Filters[0].Filters[0].Properties[0];
-			prop.Name.ShouldBe("UID");
-			prop.IgnoreCase.ShouldBe(false);
-			prop.Text.ShouldBe("20041121-FEEBDAED@foo.org");
+			var f = new CalDav.Filter(xdoc.Root.Elements().First());
+			Test(f, x => {
+				x.Filters[0].Name.ShouldBe("VCALENDAR");
+				x.Filters[0].Filters[0].Name.ShouldBe("VEVENT");
+				var prop = x.Filters[0].Filters[0].Properties[0];
+				prop.Name.ShouldBe("UID");
+				prop.IgnoreCase.ShouldBe(false);
+				prop.Text.ShouldBe("20041121-FEEBDAED@foo.org");
+			});
 		}
 
 		[TestMethod]
@@ -100,13 +106,21 @@ namespace Tests {
   </C:filter>
 </C:calendar-query>");
 
-			var filter = new CalDavServer.Filter(xdoc.Root.Elements().First());
-			filter.Filters[0].Name.ShouldBe("VCALENDAR");
-			filter.Filters[0].Filters[0].Name.ShouldBe("VTODO");
-			filter.Filters[0].Filters[0].Filters[0].Name.ShouldBe("VALARM");
-			var timerange = filter.Filters[0].Filters[0].Filters[0].TimeRange;
-			timerange.Start.ShouldBe(new DateTime(2004, 11, 21, 0, 0, 0, DateTimeKind.Utc));
-			timerange.End.ShouldBe(new DateTime(2004, 11, 21, 23, 59, 59, DateTimeKind.Utc));
+			var f = new CalDav.Filter(xdoc.Root.Elements().First());
+			Test(f, x => {
+				x.Filters[0].Name.ShouldBe("VCALENDAR");
+				x.Filters[0].Filters[0].Name.ShouldBe("VTODO");
+				x.Filters[0].Filters[0].Filters[0].Name.ShouldBe("VALARM");
+				var timerange = x.Filters[0].Filters[0].Filters[0].TimeRange;
+				timerange.Start.ShouldBe(new DateTime(2004, 11, 21, 0, 0, 0, DateTimeKind.Utc));
+				timerange.End.ShouldBe(new DateTime(2004, 11, 21, 23, 59, 59, DateTimeKind.Utc));
+			});
+		}
+
+		private static void Test(CalDav.Filter filter, Action<CalDav.Filter> test){
+			test(filter);
+			filter = new CalDav.Filter((XElement)filter);
+			test(filter);
 		}
 	}
 }

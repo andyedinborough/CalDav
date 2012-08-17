@@ -1,3 +1,14 @@
-﻿*/bin/*
-*.suo
-packages/*
+﻿*.suo
+packages/
+CalDav.Client/bin/
+CalDav.Client/obj/
+CalDav/obj/
+CalDavServer/bin/
+CalDav/bin/
+*.user
+CalDavServer/obj/
+Tests/bin/
+Tests/obj/
+Console/obj/
+Console/bin/
+TestResults/

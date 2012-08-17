@@ -3,11 +3,8 @@ using DDay.iCal.Serialization.iCalendar;
 using System;
 using System.Xml.Linq;
 
-namespace ConsoleApp {
-	internal static class Utilities {
-		public static XNamespace xDAV = XNamespace.Get("DAV");
-		public static XNamespace xCaldav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
-
+namespace CalDav.Client {
+	internal static class Common { 
 		public static Tuple<System.Net.HttpStatusCode, string, System.Net.WebHeaderCollection> Request(Uri url, string method, XDocument content) {
 			return Request(url, method, (req, str) => {
 				req.ContentType = "text/xml";

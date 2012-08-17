@@ -1,4 +1,4 @@
-﻿using CalDavServer.Models;
+﻿using CalDav.Server.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,10 +6,8 @@ using System.Web.Mvc;
 using System.Xml.Linq;
 //http://greenbytes.de/tech/webdav/draft-dusseault-caldav-05.html
 
-namespace CalDavServer.Controllers {
+namespace CalDav.Server.Controllers {
 	public class CalDavController : Controller {
-		private static readonly XNamespace xDAV = XNamespace.Get("DAV");
-		private static readonly XNamespace xCaldav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
 
 		[Route("caldav/", "options")]
 		public ActionResult Options(string name) {
@@ -67,7 +65,7 @@ namespace CalDavServer.Controllers {
 			if (xdoc == null) return Empty();
 
 			var request = xdoc.Root.Elements().FirstOrDefault();
-			var filter = request.Element(xCaldav.GetName("filter"));
+			var filter = request.Element(CalDav.Common.xCaldav.GetName("filter"));
 
 
 			return Empty();
@@ -79,9 +77,9 @@ namespace CalDavServer.Controllers {
 			if (calendars.Length == 0)
 				calendars = new[] { repo.CreateCalendar("me") };
 
-			return AsResult(new XElement(xDAV.GetName("options-response"),
-					new XElement(xCaldav.GetName("calendar-collection-set"),
-						calendars.Select(calendar => new XElement(xDAV.GetName("href"), new Uri(Request.Url, Url.Action("Report", new { name = calendar.Name }))))
+			return AsResult(new XElement(CalDav.Common.xDAV.GetName("options-response"),
+					new XElement(CalDav.Common.xCaldav.GetName("calendar-collection-set"),
+						calendars.Select(calendar => new XElement(CalDav.Common.xDAV.GetName("href"), new Uri(Request.Url, Url.Action("Report", new { name = calendar.Name }))))
 					)
 				));
 		}
