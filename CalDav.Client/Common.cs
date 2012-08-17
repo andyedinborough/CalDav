@@ -4,7 +4,8 @@ using System;
 using System.Xml.Linq;
 
 namespace CalDav.Client {
-	internal static class Common { 
+	internal static class Common {
+
 		public static Tuple<System.Net.HttpStatusCode, string, System.Net.WebHeaderCollection> Request(Uri url, string method, XDocument content) {
 			return Request(url, method, (req, str) => {
 				req.ContentType = "text/xml";

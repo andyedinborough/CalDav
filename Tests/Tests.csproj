@@ -62,7 +62,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CalDavServer\CalDav.Server.csproj">
+    <ProjectReference Include="..\CalDav.Server\CalDav.Server.csproj">
       <Project>{ddb10a63-4724-4729-8082-77a73f87cb4a}</Project>
       <Name>CalDav.Server</Name>
     </ProjectReference>
