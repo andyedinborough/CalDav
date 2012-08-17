@@ -19,56 +19,53 @@ namespace CalDav.Server.Controllers {
 				}
 			}
 
-			return Empty()
-				.WithHeader("Allow", "OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, COPY, MOVE")
-				.WithHeader("Allow", "MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, REPORT")
-				.WithHeader("Allow", "MKCALENDAR, ACL")
-				.WithHeader("DAV", "1, 2, access-control, calendar-access");
+			return new Result {
+				Headers = new Dictionary<string, string> {
+					{"Allow", "OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, COPY, MOVE, MKCOL, PROPFIND, PROPPATCH, LOCK, UNLOCK, REPORT, KCALENDAR, ACL" },
+					{"DAV", "1, 2, access-control, calendar-access"}
+				}
+			};
 		}
 
-		[Route("caldav/", "mkcalendar")]
-		public ActionResult MakeCalendar(string name) {
+		[Route("caldav/{*path}", "mkcalendar")]
+		public ActionResult MakeCalendar(string path) {
 			var repo = GetService<ICalendarRepository>();
-			repo.CreateCalendar(name);
-			return AsResult(string.Empty).WithHeaders(System.Net.HttpStatusCode.Created);
+			repo.CreateCalendar(path);
+			return new Result { Status = System.Net.HttpStatusCode.Created };
 		}
 
-		[Route("caldav/{name}/event.ics", "get")]
-		public ActionResult Get(string name, string filename) {
-			return Empty();
+		[Route("caldav/{*path}", "get")]
+		public ActionResult Get(string path) {
+			return new Result();
 		}
 
-		[Route("caldav/{name}/event.ics", "put")]
-		public ActionResult Put(string name, string filename) {
+		[Route("caldav/{*path}", "put")]
+		public ActionResult Put(string path, string filename) {
 			var repo = GetService<ICalendarRepository>();
-			var calendar = repo.GetCalendarByName(name);
+			var calendar = repo.GetCalendarByPath(path);
 			var input = GetRequestCalendar();
 			var e = input.Events.FirstOrDefault();
+			e.LastModified =  new DDay.iCal.iCalDateTime( DateTime.UtcNow);
 			repo.Save(calendar, e);
 
-			return Empty()
-				.WithHeader("Location", Url.Action("GetEvent", new { name, uid = e.UID }))
-				.WithHeader("ETag", e.Sequence + "-" + e.LastModified.ToString())
-				.WithHeaders(System.Net.HttpStatusCode.Created);
+			return new Result {
+				Headers = new Dictionary<string, string> {
+					{"Location",  Url.Action("Get", new { path = calendar.Path + "/" + e.UID + ".ics" })},
+					{"ETag", e.Sequence + "-" + e.LastModified.ToString() }
+				},
+				Status = System.Net.HttpStatusCode.Created
+			};
 		}
 
-		[Route("caldav/{name}/event/{uid}.ics", "get")]
-		public ActionResult GetEvent(string name, string uid) {
-			var repo = GetService<ICalendarRepository>();
-			var e = repo.GetEventByUID(uid);
-			return AsResult(e);
-		}
-
-		[Route("caldav/{name}/", "report")]
-		public ActionResult Report(string name) {
+		[Route("caldav/{*path}", "report")]
+		public ActionResult Report(string path) {
 			var xdoc = GetRequestXml();
-			if (xdoc == null) return Empty();
+			if (xdoc == null) return new Result();
 
 			var request = xdoc.Root.Elements().FirstOrDefault();
-			var filter = request.Element(CalDav.Common.xCaldav.GetName("filter"));
+			var filter = new Filter(request.Element(CalDav.Common.xCaldav.GetName("filter")));
 
-
-			return Empty();
+			return new Result();
 		}
 
 		private ActionResult Options_CalendarCollectionSet() {
@@ -77,11 +74,16 @@ namespace CalDav.Server.Controllers {
 			if (calendars.Length == 0)
 				calendars = new[] { repo.CreateCalendar("me") };
 
-			return AsResult(new XElement(CalDav.Common.xDAV.GetName("options-response"),
-					new XElement(CalDav.Common.xCaldav.GetName("calendar-collection-set"),
-						calendars.Select(calendar => new XElement(CalDav.Common.xDAV.GetName("href"), new Uri(Request.Url, Url.Action("Report", new { name = calendar.Name }))))
-					)
-				));
+			return new Result {
+				Content = new XElement(CalDav.Common.xDAV.GetName("options-response"),
+				 new XElement(CalDav.Common.xCaldav.GetName("calendar-collection-set"),
+					 calendars.Select(calendar =>
+						 new XElement(CalDav.Common.xDAV.GetName("href"),
+							 new Uri(Request.Url, Url.Action("Report", new { path = calendar.Path }) + "/")
+							 ))
+				 )
+			 )
+			};
 		}
 
 		private List<IDisposable> _Disposables = new List<IDisposable>();
@@ -123,27 +125,13 @@ namespace CalDav.Server.Controllers {
 			}
 		}
 
-		public LambdaResult AsResult(DDay.iCal.IEvent e) {
+		public Result AsResult(DDay.iCal.IEvent e) {
 			var serializer = new DDay.iCal.Serialization.iCalendar.iCalendarSerializer();
 			var ical = new DDay.iCal.iCalendar();
 			ical.Events.Add(e);
-			return new LambdaResult(ctx => serializer.Serialize(ical, ctx.HttpContext.Response.OutputStream, ctx.HttpContext.Response.ContentEncoding ?? System.Text.Encoding.Default));
+			return new Result(ctx => serializer.Serialize(ical, ctx.HttpContext.Response.OutputStream, ctx.HttpContext.Response.ContentEncoding ?? System.Text.Encoding.Default));
 		}
 
-		public LambdaResult AsResult(XDocument xdoc) {
-			return AsResult(xdoc.Root);
-		}
 
-		public LambdaResult AsResult(XElement xdoc) {
-			return new LambdaResult(ctx => xdoc.Save(ctx.HttpContext.Response.OutputStream));
-		}
-
-		public LambdaResult AsResult(string content) {
-			return new LambdaResult(ctx => ctx.HttpContext.Response.Write(content));
-		}
-
-		public LambdaResult Empty() {
-			return AsResult(string.Empty);
-		}
 	}
 }

@@ -23,7 +23,7 @@ namespace CalDav.Client {
 		}
 
 		public void CreateCalendar(string name) {
-			var result = Common.Request(Url, "mkcalendar");
+			var result = Common.Request(new Uri(Url, name), "mkcalendar");
 			if (result.Item1 != System.Net.HttpStatusCode.Created)
 				throw new Exception("Unable to create calendar");
 		}

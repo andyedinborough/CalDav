@@ -12,6 +12,7 @@ namespace CalDav.Server {
 
 		public Filter() { }
 		public Filter(XElement filter) {
+			if (filter == null) return;
 			var filters = new List<CompFilter>();
 			foreach (var elm in filter.Elements()) {
 				var obj = Create(elm);
@@ -57,6 +58,7 @@ namespace CalDav.Server {
 			public bool? IsDefined { get; set; }
 
 			public CompFilter(XElement filter) {
+				if (filter == null) return;
 				Name = (string)filter.Attribute("name");
 				var props = new List<ValueFilter>();
 				var filters = new List<CompFilter>();
@@ -82,6 +84,7 @@ namespace CalDav.Server {
 
 		public class ValueFilter {
 			public ValueFilter(XElement filter) {
+				if (filter == null) return;
 				Name = (string)filter.Attribute("name");
 				var paramfilters = new List<ValueFilter>();
 				foreach (var elm in filter.Elements()) {
@@ -105,6 +108,7 @@ namespace CalDav.Server {
 
 		public class TimeRangeFilter {
 			public TimeRangeFilter(XElement elm) {
+				if (elm == null) return;
 				var attr = elm.Attribute("start");
 				if (attr != null) Start = ParseDate((string)attr);
 

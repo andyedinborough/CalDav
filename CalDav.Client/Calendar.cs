@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace CalDav.Client {
-	public class Calendar {
+	public class Calendar  {
 		public Uri Url { get; set; }
 
 		public void Save(DDay.iCal.IEvent e) {

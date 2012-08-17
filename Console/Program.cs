@@ -5,7 +5,7 @@ namespace ConsoleApp {
 	class Program {
 
 		static void Main(string[] args) {
-			var server = new CalDav.Client.Server("http://localhost:60399/caldav");
+			var server = new CalDav.Client.Server("http://localhost:60399/caldav/");
 			server.GetOptions();
 
 			server.CreateCalendar("me");

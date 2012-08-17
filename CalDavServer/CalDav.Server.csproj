@@ -122,10 +122,12 @@
     <Compile Include="App_Start\AttributeRouting.cs" />
     <Compile Include="Controllers\CalDavController.cs" />
     <Compile Include="Controllers\LambdaResult.cs" />
+    <Compile Include="Controllers\Result.cs" />
     <Compile Include="Controllers\Route.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Calendar.cs" />
     <Compile Include="Models\CalendarRepository.cs" />
     <Compile Include="Controllers\Filter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

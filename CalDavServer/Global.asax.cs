@@ -15,8 +15,9 @@ namespace CalDav.Server {
 
 			var @base = System.Web.Mvc.DependencyResolver.Current;
 			System.Web.Mvc.DependencyResolver.SetResolver(type => {
+				var ctx = System.Web.HttpContext.Current;
 				if (type == typeof(Models.ICalendarRepository))
-					return new Models.CalendarRepository(User);
+					return new Models.CalendarRepository(ctx.User);
 
 				return @base.GetService(type);
 			}, types => {
