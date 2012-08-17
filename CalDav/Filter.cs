@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace CalDav {
@@ -21,19 +20,6 @@ namespace CalDav {
 					filters.Add((CompFilter)obj);
 			}
 			Filters = filters.ToArray();
-		}
-
-		internal static DateTime ParseDate(string value) {
-			var match = Regex.Match(value, @"(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z");
-			if (match.Success)
-				return new DateTime(
-					int.Parse(match.Groups[1].Value),
-					int.Parse(match.Groups[2].Value),
-					int.Parse(match.Groups[3].Value),
-					int.Parse(match.Groups[4].Value),
-					int.Parse(match.Groups[5].Value),
-					int.Parse(match.Groups[6].Value), DateTimeKind.Utc);
-			return DateTime.Parse(value);
 		}
 
 		private static object Create(XElement elm) {
@@ -147,10 +133,10 @@ namespace CalDav {
 			public TimeRangeFilter() { }
 			public TimeRangeFilter(XElement elm) {
 				var attr = elm.Attribute("start");
-				if (attr != null) Start = ParseDate((string)attr);
+				if (attr != null) Start = ((string)attr).ToDateTime();
 
 				attr = elm.Attribute("end");
-				if (attr != null) End = ParseDate((string)attr);
+				if (attr != null) End = ((string)attr).ToDateTime();
 			}
 			public DateTime? Start { get; set; }
 			public DateTime? End { get; set; }
