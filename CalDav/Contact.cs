@@ -1,5 +1,6 @@
-﻿
+﻿using System.Collections.Specialized;
 using System.Net.Mail;
+
 namespace CalDav {
 	public class Contact : IHasParameters {
 		public Contact() { }
@@ -13,18 +14,30 @@ namespace CalDav {
 		public string SentBy { get; set; }
 		public string Directory { get; set; }
 
-		public static  implicit operator MailAddress(Contact c){
+		public static implicit operator MailAddress(Contact c) {
 			return new MailAddress(c.Email, c.Name);
-		} 
+		}
 
-		public string GetParameterString() {
-			return (Name == null ? null : (";CN=\"" + Common.ParamEncode(Name) + "\""))
-				+ (Directory == null ? null : (";DIR=\"" + Common.ParamEncode(Directory) + "\""))
-				+ (SentBy == null ? null : (";SENT-BY=\"MAILTO:" + SentBy + "\""));
+		public NameValueCollection GetParameters() {
+			var values = new NameValueCollection();
+			if (!string.IsNullOrEmpty(Name)) values["CN"] = Name;
+			if (!string.IsNullOrEmpty(Directory)) values["DIR"] = Directory;
+			if (!string.IsNullOrEmpty(SentBy)) values["SENT-BY"] = SentBy;
+			return values;
 		}
 
 		public override string ToString() {
-			return Email;
+			return "MAILTO:" + Email;
+		}
+
+		public void Deserialize(string value, System.Collections.Specialized.NameValueCollection parameters) {
+			Email = value.Substring(value.IndexOf(':') + 1);
+			Name = parameters["CN"];
+			SentBy = parameters["SENT-BY"];
+			if (!string.IsNullOrEmpty(SentBy)) {
+				SentBy = SentBy.Substring(SentBy.IndexOf(':') + 1);
+			}
+			Directory = parameters["DIR"];
 		}
 	}
 }

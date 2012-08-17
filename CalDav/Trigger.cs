@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections.Specialized;
 
 namespace CalDav {
 	public class Trigger : IHasParameters {
@@ -12,11 +10,12 @@ namespace CalDav {
 		public TimeSpan? Duration { get; set; }
 		public DateTime? DateTime { get; set; }
 
-		public string GetParameterString() {
-			return
-				(DateTime == null ? null : (";VALUE=DATE-TIME" ))
-				+ (DateTime != null || Related == Relateds.Start ? null : (";RELATED=END"))
-				;
+		public NameValueCollection GetParameters() {
+			var values = new NameValueCollection();
+			if (DateTime != null) values["VALUE"] = "DATE-TIME";
+			if (DateTime == null || Related != Relateds.Start)
+				values["RELATED"] = Related.ToString().ToUpper();
+			return values;
 		}
 
 		public override string ToString() {
@@ -25,6 +24,10 @@ namespace CalDav {
 				 (Duration.Value < TimeSpan.Zero ? "-" : null)
 				 + "P" + Duration.Value.TotalMinutes + "M";
 			return null;
+		}
+
+		public void Deserialize(string value, System.Collections.Specialized.NameValueCollection parameters) {
+			throw new NotImplementedException();
 		}
 	}
 }

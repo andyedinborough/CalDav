@@ -52,7 +52,7 @@
     <Compile Include="Filter.cs" />
     <Compile Include="FreeBusy.cs" />
     <Compile Include="ISerializeToICAL.cs" />
-    <Compile Include="IToICalString.cs" />
+    <Compile Include="IHasParameters.cs" />
     <Compile Include="JournalEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serializer.cs" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 
 namespace CalDav {
@@ -17,9 +18,9 @@ namespace CalDav {
 			wrtr.WriteLine("End:" + name);
 		}
 		internal static void Property(this System.IO.TextWriter wrtr, string name, IEnumerable<string> value) {
-			wrtr.Property(name, string.Join(",", value.Select(Encode)), true);
+			wrtr.Property(name, string.Join(",", value.Select(PropertyEncode)), true);
 		}
-		private static string Encode(string value) {
+		private static string PropertyEncode(string value) {
 			return value
 				.Replace("\n", "\\n")
 				.Replace("\r", "\\r")
@@ -36,10 +37,10 @@ namespace CalDav {
 				.Replace("\\;", ";")
 				.Replace("\\,", ",");
 		}
-		internal static void Property(this System.IO.TextWriter wrtr, string name, string value, bool encoded = false, string parameters = null) {
+		internal static void Property(this System.IO.TextWriter wrtr, string name, string value, bool encoded = false, NameValueCollection parameters = null) {
 			if (value == null) return;
 
-			value = name.ToUpper() + parameters + ":" + (encoded ? value : Encode(value));
+			value = name.ToUpper() + FormatParameters(parameters) + ":" + (encoded ? value : PropertyEncode(value));
 			while (value.Length > 75) {
 				wrtr.Write(value.Substring(0, 75));
 				value = "\t" + value.Substring(75);
@@ -56,7 +57,18 @@ namespace CalDav {
 			if (value == null) return;
 			wrtr.Property(name,
 				Convert.ToString(value),
-				parameters: value is IHasParameters ? ((IHasParameters)value).GetParameterString() : null);
+				parameters: value is IHasParameters ? ((IHasParameters)value).GetParameters() : null);
+		}
+
+		internal static string FormatParameters(NameValueCollection parameters) {
+			if (parameters == null || parameters.Count == 0) return string.Empty;
+
+			var sb = new StringBuilder();
+			foreach (var key in parameters.AllKeys) {
+				sb.AppendFormat(";{0}={1}", key, ParamEncode(parameters[key]));
+			}
+
+			return sb.ToString();
 		}
 
 		internal static void Property(this System.IO.TextReader rdr, out string name, out string value, NameValueCollection parameters) {
@@ -68,29 +80,50 @@ namespace CalDav {
 			if (parameters != null) parameters.Clear();
 
 			value = name = null;
-			var colon = line.IndexOf(':');
-			if (colon == -1) return;
+			var i = 0;
+			var separators = new[] { ':', ';', '=' };
+			string part, paramValue;
+			char sep;
 
-			name = line.Substring(0, colon);
-			value = line.Substring(colon + 1);
+			while (line.Length > 0) {
+				i = line.IndexOfAny(separators);
+				if (i == -1) {
+					value = line;
+					return;
+				}
+				sep = line[i];
+				part = line.Substring(0, i);
+				line = line.Substring(i + 1);
 
-			var semicolon = name.IndexOf(';');
-			if (semicolon == -1) return;
-			var ps = name.Substring(semicolon + 1);
-			name = name.Substring(0, semicolon);
+				if (name == null) {
+					name = part;
 
-			while (ps.Length > 0) {
-				var eq = ps.IndexOf('=');
-				semicolon = ps.IndexOf(';');
-				if (semicolon == -1) semicolon = ps.Length;
-				parameters[ps.Substring(0, eq)] = ps.Substring(eq + 1, semicolon - eq - 1);
-				if (semicolon >= ps.Length) break;
-				ps = ps.Substring(semicolon + 1);
+				} else if (sep == ':') {
+					value = line;
+					return;
+
+				} else if (sep == '=') {
+					if (line.Length > 1 && line[0] == '"') {
+						paramValue = line.Substring(1, line.IndexOf('"', 1) - 1);
+						line = line.Substring(paramValue.Length + 2);
+						if (line.Length > 0 && line[0] == ';') line = line.Substring(1);
+
+					} else {
+						paramValue = line.Substring(0, line.IndexOfAny(separators));
+						line = line.Substring(paramValue.Length + 1);
+					}
+
+					paramValue = paramValue.Replace("=3D", "=").Replace("\\;", ";");
+					parameters[part] = paramValue;
+				}
 			}
 		}
 
-		internal static string ParamEncode(string Name) {
-			return Uri.EscapeDataString(Name);
+		internal static string ParamEncode(string value) {
+			if (value == null) return null;
+			if (value.Contains('=') || value.Contains(';'))
+				return '"' + value.Replace("=", "=3D") + '"';
+			return value;
 		}
 
 		internal static string FormatDate(DateTime dateTime) {
