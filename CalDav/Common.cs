@@ -9,7 +9,7 @@ using System.Xml.Linq;
 namespace CalDav {
 	public static class Common {
 		public const string PROGID = "-//tracky/CalDav//FUBU v1.0//EN";
-		public static readonly XNamespace xDAV = XNamespace.Get("DAV");
+		public static readonly XNamespace xDAV = XNamespace.Get("DAV:");
 		public static readonly XNamespace xCaldav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
 
 		internal static void BeginBlock(this System.IO.TextWriter wrtr, string name) {
@@ -28,6 +28,8 @@ namespace CalDav {
 
 		private static Regex rxDate = new Regex(@"(\d{4})(\d{2})(\d{2})T?(\d{2}?)(\d{2}?)(\d{2}?)(Z?)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 		public static DateTime? ToDateTime(this string value) {
+			if (string.IsNullOrEmpty(value))
+				return null;
 			DateTime ret;
 			var match = rxDate.Match(value);
 			if (match.Success)
@@ -43,6 +45,28 @@ namespace CalDav {
 				return ret;
 
 			return (DateTime?)null;
+		}
+
+		private static Regex rxOffset = new Regex(@"((\+|\-)?)(\d{1,2})\:?(\d{2})?", RegexOptions.Compiled);
+		public static TimeSpan? ToOffset(this string input) {
+			if (string.IsNullOrEmpty(input)) return null;
+			var match = rxOffset.Match(input);
+			if (!match.Success) return null;
+			var neg = match.Groups[1].Value == "-";
+			var hours = match.Groups[2].Value.ToInt() ?? 0;
+			var minutes = match.Groups[3].Value.ToInt() ?? 0;
+			var off = TimeSpan.FromHours(hours + ((double)minutes / 60));
+			return neg ? -off : off;
+		}
+
+		public static Uri ToUri(this string input, Uri @base = null, UriKind kind = UriKind.Absolute) {
+			Uri uri;
+			if (@base != null) {
+				if (Uri.TryCreate(@base, input, out uri))
+					return uri;
+			} else if (Uri.TryCreate(input, kind, out uri))
+				return uri;
+			return null;
 		}
 
 		public static int? ToInt(this string input) {
@@ -103,15 +127,32 @@ namespace CalDav {
 			return sb.ToString();
 		}
 
-		internal static void Property(this System.IO.TextReader rdr, out string name, out string value, NameValueCollection parameters) {
+		internal static IEnumerable<string> SplitEscaped(this string input, char split = ',', char escape = '\\') {
+			if (input == null)
+				yield break;
+			char c0 = '\0';
+			string part = string.Empty;
+			foreach (var c in input) {
+				if (c == split && c0 != escape) {
+					yield return part;
+					part = string.Empty;
+				} else part += c;
+				c0 = c;
+			}
+		}
+
+		internal static bool Property(this System.IO.TextReader rdr, out string name, out string value, NameValueCollection parameters) {
 			var line = rdr.ReadLine();
+			var oline = line;
+			value = name = null;
+			if (line == null)
+				return false;
 			int peek;
 			while ((peek = rdr.Peek()) == 9 || peek == 32)
 				line += rdr.ReadLine().Substring(1);
 
 			if (parameters != null) parameters.Clear();
 
-			value = name = null;
 			var i = 0;
 			var separators = new[] { ':', ';', '=' };
 			string part, paramValue;
@@ -121,7 +162,7 @@ namespace CalDav {
 				i = line.IndexOfAny(separators);
 				if (i == -1) {
 					value = line;
-					return;
+					return true;
 				}
 				sep = line[i];
 				part = line.Substring(0, i);
@@ -132,7 +173,7 @@ namespace CalDav {
 
 				} else if (sep == ':') {
 					value = line;
-					return;
+					return true;
 
 				} else if (sep == '=') {
 					if (line.Length > 1 && line[0] == '"') {
@@ -141,14 +182,17 @@ namespace CalDav {
 						if (line.Length > 0 && line[0] == ';') line = line.Substring(1);
 
 					} else {
-						paramValue = line.Substring(0, line.IndexOfAny(separators));
-						line = line.Substring(paramValue.Length + 1);
+						i = line.IndexOfAny(separators);
+						if (i == -1) i = line.Length;
+						paramValue = line.Substring(0, i);
+						line = line.Substring((int)Math.Min(line.Length, paramValue.Length + 1));
 					}
 
 					paramValue = paramValue.Replace("=3D", "=").Replace("\\;", ";");
 					parameters[part] = paramValue;
 				}
 			}
+			return true;
 		}
 
 		internal static string ParamEncode(string value) {
@@ -158,8 +202,17 @@ namespace CalDav {
 			return value;
 		}
 
-		internal static string FormatDate(DateTime dateTime) {
+		internal static string FormatDate(this DateTime dateTime) {
 			return dateTime.ToString("yyyyMMddTHHmmss") + (dateTime.Kind == DateTimeKind.Utc ? "Z" : "");
+		}
+
+		internal static string FormatOffset(this TimeSpan offset) {
+			var neg = offset < TimeSpan.Zero;
+			var minutes = (int)offset.TotalMinutes;
+			var hours = (int)Math.Floor((double)minutes / 60);
+			minutes -= hours * 60;
+
+			return (neg ? "-" : null) + hours.ToString("00") + minutes.ToString("00");
 		}
 	}
 }

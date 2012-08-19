@@ -131,7 +131,6 @@
     </Compile>
     <Compile Include="Models\Calendar.cs" />
     <Compile Include="Models\CalendarRepository.cs" />
-    <Compile Include="Controllers\Filter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

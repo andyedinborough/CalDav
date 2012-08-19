@@ -46,6 +46,8 @@
   <ItemGroup>
     <Compile Include="Alarm.cs" />
     <Compile Include="Calendar.cs" />
+    <Compile Include="CalendarCollection.cs" />
+    <Compile Include="CalendarQuery.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Contact.cs" />
     <Compile Include="Event.cs" />
@@ -55,7 +57,9 @@
     <Compile Include="IHasParameters.cs" />
     <Compile Include="JournalEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Recurrence.cs" />
     <Compile Include="Serializer.cs" />
+    <Compile Include="TimeZone.cs" />
     <Compile Include="ToDo.cs" />
     <Compile Include="Trigger.cs" />
   </ItemGroup>

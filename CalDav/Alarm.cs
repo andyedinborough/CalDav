@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace CalDav {
 	public class Alarm : ISerializeToICAL {
 		public string Action { get; set; }
 		public string Description { get; set; }
-		public Trigger Trigger {get;set;}
+		public Trigger Trigger { get; set; }
 
 		public void Deserialize(System.IO.TextReader rdr) {
-			throw new NotImplementedException();
+			string name, value;
+			var parameters = new System.Collections.Specialized.NameValueCollection();
+			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
+				switch (name) {
+					case "ACTION": Action = value; break;
+					case "DESCRIPTION": Description = value; break;
+					case "TRIGGER": Trigger = new Trigger(); Trigger.Deserialize(value, parameters); break;
+				}
+			}
 		}
 
 		public void Serialize(System.IO.TextWriter wrtr) {
