@@ -1,6 +1,4 @@
-﻿using DDay.iCal;
-using DDay.iCal.Serialization.iCalendar;
-using System;
+﻿using System;
 using System.Net;
 using System.Xml.Linq;
 
@@ -61,15 +59,15 @@ namespace CalDav.Client {
 			}
 		}
 
-		public static void Serialize(System.IO.Stream stream, DDay.iCal.IEvent e, System.Text.Encoding encoding = null) {
-			var ical = new iCalendar();
+		public static void Serialize(System.IO.Stream stream, Event e, System.Text.Encoding encoding = null) {
+			var ical = new CalDav.Calendar();
 			ical.Events.Add(e);
 			Serialize(stream, ical, encoding);
 		}
 
-		public static void Serialize(System.IO.Stream stream, DDay.iCal.iCalendar ical, System.Text.Encoding encoding = null) {
-			var serializer = new iCalendarSerializer(ical);
-			serializer.Serialize(ical, stream, encoding ?? System.Text.Encoding.Default);
+		public static void Serialize(System.IO.Stream stream, CalDav.Calendar ical, System.Text.Encoding encoding = null) {
+			var serializer = new CalDav.Serializer();
+			serializer.Serialize(stream, ical, encoding);
 		}
 	}
 }

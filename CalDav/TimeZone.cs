@@ -1,24 +1,6 @@
-﻿/*BEGIN:VTIMEZONE
-TZID:America/Chicago
-X-LIC-LOCATION:America/Chicago
-BEGIN:DAYLIGHT
-TZOFFSETFROM:-0600
-TZOFFSETTO:-0500
-TZNAME:CDT
-DTSTART:19700308T020000
-RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:-0500
-TZOFFSETTO:-0600
-TZNAME:CST
-DTSTART:19701101T020000
-RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
-END:STANDARD
-END:VTIMEZONE
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
+
 namespace CalDav {
 	public class TimeZone : List<TimeZone.TimeZoneDetail>, ISerializeToICAL {
 		public class TimeZoneDetail : ISerializeToICAL {
@@ -32,7 +14,7 @@ namespace CalDav {
 			public TimeSpan? OffsetTo { get; set; }
 			public ICollection<Recurrence> Recurrences { get; set; }
 
-			public void Deserialize(System.IO.TextReader rdr) {
+			public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 				string name, value;
 				var parameters = new System.Collections.Specialized.NameValueCollection();
 				while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
@@ -40,7 +22,7 @@ namespace CalDav {
 						case "TZNAME": Name = value; break;
 						case "DTSTART": Start = value.ToDateTime(); break;
 						case "RRULE":
-							var rule = new Recurrence();
+							var rule =  serializer.GetService< Recurrence>();
 							rule.Deserialize(value, parameters);
 							Recurrences.Add(rule);
 							break;
@@ -66,14 +48,15 @@ namespace CalDav {
 			}
 		}
 
-		public void Deserialize(System.IO.TextReader rdr) {
+		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
 				switch (name) {
 					case "BEGIN":
-						var detail = new TimeZoneDetail { Type = value };
-						detail.Deserialize(rdr);
+						var detail =  serializer.GetService< TimeZoneDetail >();
+						detail.Type = value;
+						detail.Deserialize(rdr, serializer);
 						Add(detail);
 						break;
 					case "END":

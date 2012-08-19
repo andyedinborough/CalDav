@@ -1,6 +1,6 @@
 ﻿
 namespace CalDav.Server.Models {
-	public class Calendar : DDay.iCal.iCalendar {
+	public class Calendar : CalDav.Calendar {
 		public string Path { get; set; }
 
 	}

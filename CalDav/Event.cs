@@ -37,7 +37,7 @@ namespace CalDav {
 
 		public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
-		public void Deserialize(System.IO.TextReader rdr) {
+		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
@@ -45,8 +45,8 @@ namespace CalDav {
 					case "BEGIN":
 						switch (value) {
 							case "VALARM":
-								var a = new Alarm();
-								a.Deserialize(rdr);
+								var a = serializer.GetService< Alarm>();
+								a.Deserialize(rdr, serializer);
 								Alarms.Add(a);
 								break;
 						}
@@ -68,7 +68,7 @@ namespace CalDav {
 					case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
 					case "LOCATION": Location = value; break;
 					case "ORGANIZER":
-						Organizer = new Contact();
+						Organizer = serializer.GetService< Contact>();
 						Organizer.Deserialize(value, parameters);
 						break;
 					case "PRIORITY": Priority = value.ToInt(); break;
@@ -78,7 +78,7 @@ namespace CalDav {
 					case "UID": UID = value; break;
 					case "URL": Url = value.ToUri(); break;
 					case "RRULE":
-						var rule = new Recurrence();
+						var rule = serializer.GetService< Recurrence>();
 						rule.Deserialize(null, parameters);
 						Recurrences.Add(rule);
 						break;
@@ -91,7 +91,6 @@ namespace CalDav {
 		}
 
 		public void Serialize(System.IO.TextWriter wrtr) {
-			var d = new DDay.iCal.Event();
 			wrtr.BeginBlock("VEVENT");
 			if (Attendees != null)
 				foreach (var attendee in Attendees)

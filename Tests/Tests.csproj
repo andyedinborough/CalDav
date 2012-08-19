@@ -37,9 +37,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DDay.iCal">
-      <HintPath>..\packages\DDay.iCal.1.0.1\lib\DDay.iCal.dll</HintPath>
-    </Reference>
     <Reference Include="Shouldly">
       <HintPath>..\packages\Shouldly.1.1.1.1\lib\35\Shouldly.dll</HintPath>
     </Reference>
@@ -63,7 +60,7 @@
     <Compile Include="ParsingFilters.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ParsingBasic.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="IRLTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CalDav.Client\CalDav.Client.csproj">

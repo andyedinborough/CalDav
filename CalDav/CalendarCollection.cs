@@ -2,16 +2,17 @@
 
 namespace CalDav {
 	public class CalendarCollection : List<Calendar>, ISerializeToICAL {
-
-		public void Deserialize(System.IO.TextReader rdr) {
+		public CalendarCollection() { }
+		public CalendarCollection(IEnumerable<Calendar> calendars) : base(calendars) { }
+		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
 				switch (name.ToUpper()) {
 					case "BEGIN":
 						if (value == "VCALENDAR") {
-							var e = new Calendar();
-							e.Deserialize(rdr);
+							var e = serializer.GetService<Calendar>();
+							e.Deserialize(rdr, serializer);
 							this.Add(e);
 						}
 						break;

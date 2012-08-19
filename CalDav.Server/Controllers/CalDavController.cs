@@ -27,6 +27,27 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
+		[Route("caldav/{*path}", "propfind")]
+		public ActionResult PropFind(string path) {
+			var repo = GetService<ICalendarRepository>();
+			var calendar = repo.GetCalendarByPath(path);
+
+			return new Result {
+				Content = Common.xDAV.GetElement("multistatus",
+					Common.xDAV.GetElement("response",
+					Common.xDAV.GetElement("href", Request.RawUrl),
+					Common.xDAV.GetElement("propstat",
+								Common.xDAV.GetElement("status", "HTTP/1.1 200 OK"),
+								Common.xDAV.GetElement("prop",
+									Common.xCaldav.GetElement("calendar-description", path),
+									Common.xApple.GetElement("calendar-color", "ff0000")
+								)
+							)
+					 )
+				 )
+			};
+		}
+
 		[Route("caldav/{*path}", "mkcalendar")]
 		public ActionResult MakeCalendar(string path) {
 			var repo = GetService<ICalendarRepository>();
@@ -45,7 +66,7 @@ namespace CalDav.Server.Controllers {
 			var calendar = repo.GetCalendarByPath(path);
 			var input = GetRequestCalendar();
 			var e = input.Events.FirstOrDefault();
-			e.LastModified = new DDay.iCal.iCalDateTime(DateTime.UtcNow);
+			e.LastModified = DateTime.UtcNow;
 			repo.Save(calendar, e);
 
 			return new Result {
@@ -115,21 +136,21 @@ namespace CalDav.Server.Controllers {
 				return XDocument.Load(str);
 		}
 
-		DDay.iCal.IICalendar GetRequestCalendar() {
+		Models.Calendar GetRequestCalendar() {
 			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("calendar"))
 				return null;
-			var serializer = new DDay.iCal.Serialization.iCalendar.iCalendarSerializer();
+			var serializer = new Models.Serializer();
 			using (var str = Request.GetBufferlessInputStream()) {
-				var ical = serializer.Deserialize(str, Request.ContentEncoding ?? System.Text.Encoding.Default);
-				return (ical as DDay.iCal.IICalendarCollection)[0];
+				var ical = serializer.Deserialize<CalDav.CalendarCollection>(str, Request.ContentEncoding ?? System.Text.Encoding.Default);
+				return (Models.Calendar)ical.FirstOrDefault();
 			}
 		}
 
-		public Result AsResult(DDay.iCal.IEvent e) {
-			var serializer = new DDay.iCal.Serialization.iCalendar.iCalendarSerializer();
-			var ical = new DDay.iCal.iCalendar();
+		public Result AsResult(Event e) {
+			var serializer = new Models.Serializer();
+			var ical = new Calendar();
 			ical.Events.Add(e);
-			return new Result(ctx => serializer.Serialize(ical, ctx.HttpContext.Response.OutputStream, ctx.HttpContext.Response.ContentEncoding ?? System.Text.Encoding.Default));
+			return new Result(ctx => serializer.Serialize(ctx.HttpContext.Response.OutputStream, ical, ctx.HttpContext.Response.ContentEncoding ?? System.Text.Encoding.Default));
 		}
 
 

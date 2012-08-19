@@ -2,7 +2,7 @@
 
 namespace CalDav {
 	public class JournalEntry : ISerializeToICAL {
-		public void Deserialize(System.IO.TextReader rdr) {
+		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			throw new NotImplementedException();
 		}
 

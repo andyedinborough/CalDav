@@ -10,7 +10,7 @@ namespace CalDav {
 		public virtual ICollection<Event> Events { get; set; }
 		public virtual ICollection<TimeZone> TimeZones { get; set; }
 
-		public void Deserialize(System.IO.TextReader rdr) {
+		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
@@ -18,13 +18,13 @@ namespace CalDav {
 					case "BEGIN":
 						switch (value) {
 							case "VEVENT":
-								var e = new Event();
-								e.Deserialize(rdr);
+								var e = serializer.GetService< Event>();
+								e.Deserialize(rdr, serializer);
 								Events.Add(e);
 								break;
 							case "VTIMEZONE":
-								var tz = new TimeZone();
-								tz.Deserialize(rdr);
+								var tz = serializer.GetService< TimeZone>();
+								tz.Deserialize(rdr, serializer);
 								TimeZones.Add(tz);
 								break;
 						}

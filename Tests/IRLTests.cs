@@ -29,7 +29,6 @@ namespace Tests {
 			var calendars = server.GetCalendars();
 			calendars.ShouldNotBeEmpty();
 
-
 			var calendar = calendars[0];
 			var events = calendar.Search(CalendarQuery.SearchEvents(new DateTime(2012, 8, 1), new DateTime(2012, 8, 31))).ToArray();
 			events.Length.ShouldBeGreaterThan(0);

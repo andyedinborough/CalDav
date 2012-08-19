@@ -9,23 +9,21 @@ namespace CalDav.Client {
 		public Uri Url { get; set; }
 		public NetworkCredential Credentials { get; set; }
 
-		public IEnumerable<Event> Search(CalDav.CalendarQuery query) {
+		public CalendarCollection Search(CalDav.CalendarQuery query) {
 			var result = Common.Request(Url, "REPORT", (XElement)query, Credentials, new Dictionary<string, string> {
 				{ "Depth", "1" }
 			});
 			var xdoc = XDocument.Parse(result.Item2);
 			var data = xdoc.Descendants(CalDav.Common.xCaldav.GetName("calendar-data"));
-			return data.SelectMany(x => {
+			var serializer = new Serializer();
+			return new CalendarCollection(data.SelectMany(x => {
 				using (var rdr = new System.IO.StringReader(x.Value)) {
-					var calendar = new CalDav.CalendarCollection();
-					calendar.Deserialize(rdr);
-					return calendar.SelectMany(c => c.Events);
+					return serializer.Deserialize<CalendarCollection>(rdr);
 				}
-			})
-			.ToArray();
+			}));
 		}
 
-		public void Save(DDay.iCal.IEvent e) {
+		public void Save(Event e) {
 			var result = Common.Request(new Uri(Url, "event.ics"), "PUT", (req, str) => {
 				req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
 				req.ContentType = "text/calendar";

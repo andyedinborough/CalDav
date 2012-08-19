@@ -11,6 +11,7 @@ namespace CalDav {
 		public const string PROGID = "-//tracky/CalDav//FUBU v1.0//EN";
 		public static readonly XNamespace xDAV = XNamespace.Get("DAV:");
 		public static readonly XNamespace xCaldav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
+		public static readonly XNamespace xApple = XNamespace.Get("http://apple.com/ns/ical/");
 
 		internal static void BeginBlock(this System.IO.TextWriter wrtr, string name) {
 			wrtr.WriteLine("BEGIN:" + name);
@@ -213,6 +214,10 @@ namespace CalDav {
 			minutes -= hours * 60;
 
 			return (neg ? "-" : null) + hours.ToString("00") + minutes.ToString("00");
+		}
+
+		public static XElement GetElement(this XNamespace ns, string name, params object[] inner) {
+			return new XElement(ns.GetName(name), inner);
 		}
 	}
 }

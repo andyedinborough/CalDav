@@ -1,4 +1,5 @@
-﻿using Shouldly;
+﻿using CalDav;
+using Shouldly;
 using System;
 
 namespace ConsoleApp {
@@ -13,7 +14,7 @@ namespace ConsoleApp {
 			sets.ShouldContain(x => x.Url.AbsolutePath.EndsWith("/caldav/me/"));
 
 			var calendar = sets[0];
-			var e = new DDay.iCal.Event {
+			var e = new Event {
 				Description = "this is a description",
 				Summary = "summary",
 				Sequence = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,

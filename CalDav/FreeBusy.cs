@@ -2,7 +2,7 @@
 
 namespace CalDav {
 	public class FreeBusy : ISerializeToICAL {
-		public void Deserialize(System.IO.TextReader rdr) {
+		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			throw new NotImplementedException();
 		}
 

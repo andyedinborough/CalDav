@@ -1,5 +1,4 @@
-﻿using DDay.iCal;
-using System.Linq;
+﻿using System.Linq;
 using System.Security.Principal;
 
 namespace CalDav.Server.Models {
@@ -7,8 +6,8 @@ namespace CalDav.Server.Models {
 		IQueryable<Calendar> List();
 		Calendar GetCalendarByPath(string path);
 		Calendar CreateCalendar(string path);
-		IEvent GetEventByUID(string uid);
-		void Save(Calendar calendar, IEvent e);
+		Event GetEventByUID(string uid);
+		void Save(Calendar calendar, Event e);
 	}
 
 	public class CalendarRepository : ICalendarRepository {
@@ -19,21 +18,13 @@ namespace CalDav.Server.Models {
 			System.IO.Directory.CreateDirectory(_Directory);
 		}
 
-		private class Service : DDay.iCal.Serialization.SerializationContext {
-			public override object GetService(System.Type serviceType) {
-				if (serviceType == typeof(DDay.iCal.Serialization.ISerializationSettings))
-					return new DDay.iCal.Serialization.SerializationSettings { iCalendarType = typeof(Calendar) };
-
-				return base.GetService(serviceType);
-			}
-		}
-
 		public IQueryable<Calendar> List() {
 			var files = System.IO.Directory.GetFiles(_Directory, "*.ical");
-			var serializer = new DDay.iCal.Serialization.iCalendar.iCalendarSerializer(new Service());
 			return files.Select(x => {
 				using (var file = System.IO.File.OpenText(x)) {
-					var cal = ((iCalendarCollection)serializer.Deserialize(file)).OfType<Calendar>().FirstOrDefault();
+					var serializer = new CalDav.Server.Models.Serializer();
+					var col = serializer.Deserialize<CalDav.CalendarCollection>(file);
+					var cal = (Models.Calendar)col.FirstOrDefault();
 					if (cal != null) {
 						var path = x.Substring(_Directory.Length);
 						path = path.Substring(0, path.Length - 5);
@@ -48,8 +39,9 @@ namespace CalDav.Server.Models {
 			path = path.Trim('/').Split('/')[0];
 			var filename = System.IO.Path.Combine(_Directory, path + ".ical");
 			var ical = new Calendar();
-			var serializer = new DDay.iCal.Serialization.iCalendar.iCalendarSerializer(new Service());
-			serializer.Serialize(ical, filename);
+			var serializer = new Models.Serializer();
+			using (var file = System.IO.File.OpenWrite(filename))
+				serializer.Serialize(file, ical);
 			ical.Path = path;
 			return ical;
 		}
@@ -58,27 +50,31 @@ namespace CalDav.Server.Models {
 			path = path.Trim('/').Split('/')[0];
 			var filename = System.IO.Path.Combine(_Directory, path + ".ical");
 			if (!System.IO.File.Exists(filename)) return null;
-			var serializer = new DDay.iCal.Serialization.iCalendar.iCalendarSerializer(new Service());
+			var serializer = new Models.Serializer();
 
 			using (var file = System.IO.File.OpenText(filename)) {
-				var calendar = ((iCalendarCollection)serializer.Deserialize(file))[0] as Calendar;
+				var calendar = (serializer.Deserialize<CalendarCollection>(file))[0] as Models.Calendar;
 				calendar.Path = path;
 				return calendar;
 			}
 		}
 
-		public IEvent GetEventByUID(string uid) {
+		public Event GetEventByUID(string uid) {
 			var filename = System.IO.Path.Combine(_Directory, uid + ".ics");
 			if (!System.IO.File.Exists(filename)) return null;
-			using (var file = System.IO.File.OpenText(filename))
-				return (IEvent)DDay.iCal.Event.LoadFromStream(file);
+			var serializer = new Models.Serializer();
+			using (var file = System.IO.File.OpenText(filename)) {
+				var calendar = (serializer.Deserialize<CalendarCollection>(file))[0] as Models.Calendar;
+				return calendar.Events.FirstOrDefault();
+			}
 		}
 
-		public void Save(Calendar calendar, IEvent e) {
+		public void Save(Calendar calendar, Event e) {
 			var filename = System.IO.Path.Combine(_Directory, e.UID + ".ics");
 			calendar.Events.Add(e);
-			var serializer = new DDay.iCal.Serialization.iCalendar.iCalendarSerializer(new Service());
-			serializer.Serialize(calendar, filename);
+			var serializer = new Models. Serializer( );
+			using(var file =  System.IO.File.OpenWrite(filename))
+			serializer.Serialize(file, calendar);
 		}
 	}
 }

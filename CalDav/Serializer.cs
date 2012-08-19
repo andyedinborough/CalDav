@@ -27,7 +27,7 @@ namespace CalDav {
 
 		public virtual T Deserialize<T>(TextReader rdr) where T : ISerializeToICAL {
 			var obj = GetService<T>();
-			obj.Deserialize(rdr);
+			obj.Deserialize(rdr, this);
 			return obj;
 		}
 
