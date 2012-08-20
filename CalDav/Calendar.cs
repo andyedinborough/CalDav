@@ -38,7 +38,7 @@ namespace CalDav {
 
 		public string Scale { get; set; }
 
-		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
+		public virtual void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
@@ -88,7 +88,7 @@ namespace CalDav {
 			}
 		}
 
-		public void Serialize(System.IO.TextWriter wrtr) {
+		public virtual void Serialize(System.IO.TextWriter wrtr) {
 			wrtr.BeginBlock("VCALENDAR");
 			wrtr.Property("VERSION", Version ?? "2.0");
 			wrtr.Property("PRODID", Common.PRODID);

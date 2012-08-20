@@ -28,7 +28,7 @@ namespace CalDav {
 
 		public T Deserialize<T>(string filename, System.Text.Encoding encoding = null) where T : ISerializeToICAL {
 			using (var file = new System.IO.FileStream(filename, FileMode.Open))
-				return Deserialize<T>(filename, encoding);
+				return Deserialize<T>(file, encoding);
 		}
 
 		public T Deserialize<T>(Stream stream, System.Text.Encoding encoding = null) where T : ISerializeToICAL {

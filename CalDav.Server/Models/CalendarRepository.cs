@@ -4,8 +4,8 @@ using System.Security.Principal;
 
 namespace CalDav.Server.Models {
 	public interface ICalendarRepository {
-		IQueryable<Calendar> List();
-		Calendar GetCalendarByPath(string path);
+		IQueryable<Calendar> GetCalendars();
+		Calendar GetCalendarByName(string path);
 		Calendar CreateCalendar(string path);
 		void Save(Calendar calendar, ICalendarObject e);
 		DateTime GetLastModifiedDate(Calendar Calendar);
@@ -13,6 +13,7 @@ namespace CalDav.Server.Models {
 		ICalendarObject GetObjectByUID(Calendar calendar, string uid);
 		IQueryable<ICalendarObject> GetObjectsByFilter(Filter filter);
 		ICalendarObject GetObjectByPath(string href);
+		IQueryable<ICalendarObject> GetObjects(Calendar calendar);
 	}
 
 	public class CalendarRepository : ICalendarRepository {
@@ -30,7 +31,7 @@ namespace CalDav.Server.Models {
 			return files.Select(x => System.IO.File.GetLastAccessTimeUtc(x)).Max();
 		}
 
-		public IQueryable<Calendar> List() {
+		public IQueryable<Calendar> GetCalendars() {
 			var files = System.IO.Directory.GetDirectories(_Directory, "*.ical", System.IO.SearchOption.AllDirectories);
 			return files.Select(x => {
 				using (var file = System.IO.File.OpenText(x)) {
@@ -59,8 +60,8 @@ namespace CalDav.Server.Models {
 			return ical;
 		}
 
-		public Calendar GetCalendarByPath(string path) {
-			path = path.Trim('/').Split('/')[0];
+		public Calendar GetCalendarByName(string path) {
+			path = path.Trim('/').Split('/').Where(x => x != "calendar" && x != "caldav").FirstOrDefault();
 			var filename = System.IO.Path.Combine(_Directory, path + "\\_.ical");
 			if (!System.IO.File.Exists(filename)) return null;
 			var serializer = new Models.Serializer();
@@ -96,11 +97,21 @@ namespace CalDav.Server.Models {
 
 
 		public IQueryable<ICalendarObject> GetObjectsByFilter(Filter filter) {
-			return null;
+			throw new NotImplementedException();
+		}
+
+		public IQueryable<ICalendarObject> GetObjects(Calendar calendar) {
+			var directory = System.IO.Path.Combine(_Directory, calendar.Path);
+			var files = System.IO.Directory.GetFiles(directory, "*.ics");
+			var serializer = new Models.Serializer();
+			return files
+				.SelectMany(x => serializer.Deserialize<CalendarCollection>(x))
+				.SelectMany(x => x.Items)
+				.AsQueryable();
 		}
 
 		public ICalendarObject GetObjectByPath(string path) {
-			var calendar = GetCalendarByPath(path);
+			var calendar = GetCalendarByName(path);
 			var uid = path.Split('/').Last().Split('.').FirstOrDefault();
 			return GetObjectByUID(calendar, uid);
 		}

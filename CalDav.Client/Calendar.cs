@@ -12,8 +12,8 @@ namespace CalDav.Client {
 		public string Description { get; set; }
 
 		public void Initialize() {
-			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xDAV.GetElement("propfind",
-				CalDav.Common.xDAV.GetElement("allprop")), Credentials, new Dictionary<string, object> {
+			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xDAV.Element("propfind",
+				CalDav.Common.xDAV.Element("allprop")), Credentials, new Dictionary<string, object> {
 					{ "Depth", 0 }
 				});
 			var xdoc = XDocument.Parse(result.Item2);
@@ -65,10 +65,10 @@ namespace CalDav.Client {
 		}
 
 		public CalendarCollection GetAll() {
-			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xCaldav.GetElement("calendar-multiget",
-			CalDav.Common.xDAV.GetElement("prop",
-				CalDav.Common.xDAV.GetElement("getetag"),
-				CalDav.Common.xCaldav.GetElement("calendar-data")
+			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xCaldav.Element("calendar-multiget",
+			CalDav.Common.xDAV.Element("prop",
+				CalDav.Common.xDAV.Element("getetag"),
+				CalDav.Common.xCaldav.Element("calendar-data")
 				)
 			), Credentials, new Dictionary<string, object> { { "Depth", 1 } });
 
@@ -79,12 +79,12 @@ namespace CalDav.Client {
 		}
 
 		public CalendarCollection GetObject(string uid) {
-			var result = Common.Request(Url, "REPORT", CalDav.Common.xCaldav.GetElement("calendar-multiget",
-				CalDav.Common.xDAV.GetElement("prop",
-					CalDav.Common.xDAV.GetElement("getetag"),
-					CalDav.Common.xCaldav.GetElement("calendar-data")
+			var result = Common.Request(Url, "REPORT", CalDav.Common.xCaldav.Element("calendar-multiget",
+				CalDav.Common.xDAV.Element("prop",
+					CalDav.Common.xDAV.Element("getetag"),
+					CalDav.Common.xCaldav.Element("calendar-data")
 					),
-				CalDav.Common.xDAV.GetElement("href", new Uri(Url, uid + ".ics"))
+				CalDav.Common.xDAV.Element("href", new Uri(Url, uid + ".ics"))
 				), Credentials, new Dictionary<string, object> { { "Depth", 1 } });
 
 

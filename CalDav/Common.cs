@@ -239,8 +239,12 @@ namespace CalDav {
 			return (neg ? "-" : null) + hours.ToString("00") + minutes.ToString("00");
 		}
 
-		public static XElement GetElement(this XNamespace ns, string name, params object[] inner) {
+		public static XElement Element(this XNamespace ns, string name, params object[] inner) {
 			return new XElement(ns.GetName(name), inner);
+		}
+
+		public static XElement Element(this XName name, params object[] inner) {
+			return new XElement(name, inner);
 		}
 	}
 }
