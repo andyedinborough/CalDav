@@ -14,3 +14,5 @@ CalDavServer/App_Data/
 CalDav.Server/bin/
 CalDav.Server/obj/
 CalDav.Server/App_Data/
+CalDav.WPF/bin/
+CalDav.WPF/obj/

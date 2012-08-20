@@ -13,7 +13,7 @@ namespace CalDav {
 		public NameValueCollection GetParameters() {
 			var values = new NameValueCollection();
 			if (DateTime != null) values["VALUE"] = "DATE-TIME";
-			if (DateTime == null || Related != Relateds.Start)
+			if (DateTime == null && Related != Relateds.Start)
 				values["RELATED"] = Related.ToString().ToUpper();
 			return values;
 		}

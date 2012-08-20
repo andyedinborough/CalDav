@@ -8,16 +8,17 @@ using System.Xml.Linq;
 
 namespace CalDav {
 	public static class Common {
-		public const string PROGID = "-//tracky/CalDav//FUBU v1.0//EN";
+		public const string PRODID = "-//tracky/CalDav//FUBU v1.0//EN";
 		public static readonly XNamespace xDAV = XNamespace.Get("DAV:");
 		public static readonly XNamespace xCaldav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
 		public static readonly XNamespace xApple = XNamespace.Get("http://apple.com/ns/ical/");
 
 		internal static void BeginBlock(this System.IO.TextWriter wrtr, string name) {
-			wrtr.WriteLine("BEGIN:" + name);
+			wrtr.WriteLine("BEGIN:" + name.ToUpper());
 		}
-		internal static void EndBlock(this System.IO.TextWriter wrtr, string name) {
-			wrtr.WriteLine("End:" + name);
+		internal static void EndBlock(this System.IO.TextWriter wrtr, string name, bool newline = true) {
+			if (newline) wrtr.WriteLine("END:" + name.ToUpper());
+			else wrtr.Write("END:" + name.ToUpper());
 		}
 		internal static void Property(this System.IO.TextWriter wrtr, string name, IEnumerable<string> value) {
 			wrtr.Property(name, string.Join(",", value.Select(PropertyEncode)), true);
@@ -28,6 +29,23 @@ namespace CalDav {
 		}
 
 		private static Regex rxDate = new Regex(@"(\d{4})(\d{2})(\d{2})T?(\d{2}?)(\d{2}?)(\d{2}?)(Z?)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		public static DateTime? ToDateTime(this string value, Calendar calendar, string TimeZoneID) {
+			var date = ToDateTime(value);
+			if (date == null) return null;
+			if (calendar == null) return date;
+			var info = calendar.TimeZones.SelectMany(x => x).Where(x => x.ID == TimeZoneID);
+			if (info == null) return date;
+			throw new NotImplementedException();
+		}
+
+		public static T? ToEnum<T>(this string input) where T : struct, IConvertible {
+			if (string.IsNullOrEmpty(input)) return null;
+			T ret;
+			if (System.Enum.TryParse<T>(input.Replace("-", "_"), true, out ret))
+				return ret;
+			return null;
+		}
+
 		public static DateTime? ToDateTime(this string value) {
 			if (string.IsNullOrEmpty(value))
 				return null;
@@ -96,18 +114,23 @@ namespace CalDav {
 		}
 		internal static void Property(this System.IO.TextWriter wrtr, string name, string value, bool encoded = false, NameValueCollection parameters = null) {
 			if (value == null) return;
-
 			value = name.ToUpper() + FormatParameters(parameters) + ":" + (encoded ? value : PropertyEncode(value));
 			while (value.Length > 75) {
-				wrtr.Write(value.Substring(0, 75));
+				wrtr.WriteLine(value.Substring(0, 75));
 				value = "\t" + value.Substring(75);
 			}
+			if (value.Length > 0) wrtr.WriteLine(value);
 		}
 		internal static void Property(this System.IO.TextWriter wrtr, string name, DateTime? value) {
 			if (value == null
 				|| value < System.Data.SqlTypes.SqlDateTime.MinValue.Value
 				|| value > System.Data.SqlTypes.SqlDateTime.MaxValue.Value) return;
 			wrtr.Property(name, FormatDate(value.Value));
+		}
+
+		internal static void Property(this System.IO.TextWriter wrtr, string name, Enum value) {
+			if (value == null) return;
+			wrtr.Property(name, value.ToString().ToUpper());
 		}
 
 		internal static void Property(this System.IO.TextWriter wrtr, string name, object value) {

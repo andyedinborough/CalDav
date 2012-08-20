@@ -11,9 +11,11 @@ namespace CalDav.Client {
 		public string Name { get; set; }
 		public string Description { get; set; }
 
-		private void PropFind() {
+		public void Initialize() {
 			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xDAV.GetElement("propfind",
-				CalDav.Common.xDAV.GetElement("allprop")), Credentials);
+				CalDav.Common.xDAV.GetElement("allprop")), Credentials, new Dictionary<string, object> {
+					{ "Depth", 0 }
+				});
 			var xdoc = XDocument.Parse(result.Item2);
 			var desc = xdoc.Descendants(CalDav.Common.xCaldav.GetName("calendar-description")).FirstOrDefault();
 			var name = xdoc.Descendants(CalDav.Common.xDAV.GetName("displayname")).FirstOrDefault();
@@ -29,8 +31,8 @@ namespace CalDav.Client {
 		}
 
 		public CalendarCollection Search(CalDav.CalendarQuery query) {
-			var result = Common.Request(Url, "REPORT", (XElement)query, Credentials, new Dictionary<string, string> {
-				{ "Depth", "1" }
+			var result = Common.Request(Url, "REPORT", (XElement)query, Credentials, new Dictionary<string, object> {
+				{ "Depth", 1 }
 			});
 			var xdoc = XDocument.Parse(result.Item2);
 			var data = xdoc.Descendants(CalDav.Common.xCaldav.GetName("calendar-data"));
@@ -43,13 +45,20 @@ namespace CalDav.Client {
 		}
 
 		public void Save(Event e) {
-			var result = Common.Request(new Uri(Url, "event.ics"), "PUT", (req, str) => {
+			if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
+			e.LastModified = DateTime.UtcNow;
+
+			var result = Common.Request(new Uri(Url, e.UID + ".ics"), "PUT", (req, str) => {
 				req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
 				req.ContentType = "text/calendar";
-				Common.Serialize(str, e, System.Text.Encoding.UTF8);
+				var calendar = new CalDav.Calendar();
+				e.Sequence = (e.Sequence ?? 0) + 1;
+				calendar.Events.Add(e);
+				Common.Serialize(str, calendar);
+
 			}, Credentials);
-			if (result.Item1 != System.Net.HttpStatusCode.Created)
-				throw new Exception("Unable to save event.");
+			if (result.Item1 != System.Net.HttpStatusCode.Created && result.Item1 != HttpStatusCode.NoContent)
+				throw new Exception("Unable to save event: " + result.Item1);
 			e.Url = new Uri(Url, result.Item3[System.Net.HttpResponseHeader.Location]);
 		}
 	}

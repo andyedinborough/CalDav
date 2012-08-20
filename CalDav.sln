@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9A2D1E
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.WPF", "CalDav.WPF\CalDav.WPF.csproj", "{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{1B9B42A0-A34B-4BF6-A5D5-21C46ED0D9B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B9B42A0-A34B-4BF6-A5D5-21C46ED0D9B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B9B42A0-A34B-4BF6-A5D5-21C46ED0D9B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

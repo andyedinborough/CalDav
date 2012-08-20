@@ -14,10 +14,11 @@ namespace CalDav {
 			Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
 		}
 
+		public virtual Calendar Calendar { get; set; }
 		public virtual ICollection<Contact> Attendees { get; set; }
 		public virtual ICollection<Alarm> Alarms { get; set; }
 		public virtual ICollection<string> Categories { get; set; }
-		public virtual string Class { get; set; }
+		public virtual Classes? Class { get; set; }
 		public virtual DateTime? Created { get; set; }
 		public virtual string Description { get; set; }
 		public virtual bool IsAllDay { get; set; }
@@ -26,7 +27,7 @@ namespace CalDav {
 		public virtual DateTime? End { get; set; }
 		public virtual string Location { get; set; }
 		public virtual int? Priority { get; set; }
-		public virtual string Status { get; set; }
+		public virtual Statuses? Status { get; set; }
 		public virtual int? Sequence { get; set; }
 		public virtual string Summary { get; set; }
 		public virtual string Transparency { get; set; }
@@ -45,7 +46,7 @@ namespace CalDav {
 					case "BEGIN":
 						switch (value) {
 							case "VALARM":
-								var a = serializer.GetService< Alarm>();
+								var a = serializer.GetService<Alarm>();
 								a.Deserialize(rdr, serializer);
 								Alarms.Add(a);
 								break;
@@ -59,7 +60,7 @@ namespace CalDav {
 					case "CATEGORIES":
 						Categories = value.SplitEscaped().ToList();
 						break;
-					case "CLASS": Class = value; break;
+					case "CLASS": Class = value.ToEnum<Classes>(); break;
 					case "CREATED": Created = value.ToDateTime(); break;
 					case "DESCRIPTION": Description = value; break;
 					case "DTEND": End = value.ToDateTime(); break;
@@ -68,17 +69,18 @@ namespace CalDav {
 					case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
 					case "LOCATION": Location = value; break;
 					case "ORGANIZER":
-						Organizer = serializer.GetService< Contact>();
+						Organizer = serializer.GetService<Contact>();
 						Organizer.Deserialize(value, parameters);
 						break;
 					case "PRIORITY": Priority = value.ToInt(); break;
 					case "SEQUENCE": Sequence = value.ToInt(); break;
-					case "STATUS": Status = value; break;
-					case "TRANSPARENCY": Transparency = value; break;
+					case "STATUS": Status = value.ToEnum<Statuses>(); break;
+					case "SUMMARY": Summary = value; break;
+					case "TRANSP": Transparency = value; break;
 					case "UID": UID = value; break;
 					case "URL": Url = value.ToUri(); break;
 					case "RRULE":
-						var rule = serializer.GetService< Recurrence>();
+						var rule = serializer.GetService<Recurrence>();
 						rule.Deserialize(null, parameters);
 						Recurrences.Add(rule);
 						break;
@@ -88,10 +90,16 @@ namespace CalDav {
 						break;
 				}
 			}
+
+			IsAllDay = Start == End;
 		}
 
 		public void Serialize(System.IO.TextWriter wrtr) {
+			if (End != null && Start != null && End < Start)
+				End = Start;
+
 			wrtr.BeginBlock("VEVENT");
+			wrtr.Property("UID", UID);
 			if (Attendees != null)
 				foreach (var attendee in Attendees)
 					wrtr.Property("ATTENDEE", attendee);
@@ -110,8 +118,7 @@ namespace CalDav {
 			wrtr.Property("SEQUENCE", Sequence);
 			wrtr.Property("STATUS", Status);
 			wrtr.Property("SUMMARY", Summary);
-			wrtr.Property("TRANSPARENCY", Transparency);
-			wrtr.Property("UID", UID);
+			wrtr.Property("TRANSP", Transparency);
 			wrtr.Property("URL", Url);
 
 			if (Alarms != null)
