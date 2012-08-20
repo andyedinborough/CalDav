@@ -8,6 +8,25 @@ namespace CalDav.Client {
 	public class Calendar {
 		public Uri Url { get; set; }
 		public NetworkCredential Credentials { get; set; }
+		public string Name { get; set; }
+		public string Description { get; set; }
+
+		private void PropFind() {
+			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xDAV.GetElement("propfind",
+				CalDav.Common.xDAV.GetElement("allprop")), Credentials);
+			var xdoc = XDocument.Parse(result.Item2);
+			var desc = xdoc.Descendants(CalDav.Common.xCaldav.GetName("calendar-description")).FirstOrDefault();
+			var name = xdoc.Descendants(CalDav.Common.xDAV.GetName("displayname")).FirstOrDefault();
+			if (name != null) Name = name.Value;
+			if (desc != null) Description = desc.Value;
+
+			var resourceTypes = xdoc.Descendants(CalDav.Common.xDAV.GetName("resourcetype"));
+			if (!resourceTypes.Any(
+				r => r.Elements(CalDav.Common.xDAV.GetName("collection")).Any()
+					&& r.Elements(CalDav.Common.xCaldav.GetName("calendar")).Any()
+				))
+				throw new Exception("This server does not appear to support CALDAV");
+		}
 
 		public CalendarCollection Search(CalDav.CalendarQuery query) {
 			var result = Common.Request(Url, "REPORT", (XElement)query, Credentials, new Dictionary<string, string> {

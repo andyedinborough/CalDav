@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 using System;
-using System.Linq;
 
 namespace Tests {
 	[TestClass]
@@ -10,14 +9,14 @@ namespace Tests {
 		[TestMethod]
 		public void ParseFeed() {
 			var calendar = new CalDav.Calendar();
+			var serializer = new Serializer();
 			var req = System.Net.HttpWebRequest.Create("http://www.nasa.gov/templateimages/redesign/calendar/iCal/nasa_calendar.ics");
 			using (var res = req.GetResponse())
 			using (var str = res.GetResponseStream())
 			using (var rdr = new System.IO.StreamReader(str))
-				calendar.Deserialize(rdr);
+				calendar.Deserialize(rdr, serializer);
 
 			calendar.Events.Count.ShouldBeGreaterThan(0);
-
 		}
 
 		[TestMethod]

@@ -33,6 +33,10 @@ namespace CalDav.Server.Controllers {
 			var calendar = repo.GetCalendarByPath(path);
 
 			return new Result {
+				Status = (System.Net.HttpStatusCode)207,
+				Headers = new Dictionary<string, string> {
+					{"DAV","1, calendar-access, calendar-schedule, calendar-proxy" }
+				},
 				Content = Common.xDAV.GetElement("multistatus",
 					Common.xDAV.GetElement("response",
 					Common.xDAV.GetElement("href", Request.RawUrl),
@@ -40,7 +44,13 @@ namespace CalDav.Server.Controllers {
 								Common.xDAV.GetElement("status", "HTTP/1.1 200 OK"),
 								Common.xDAV.GetElement("prop",
 									Common.xCaldav.GetElement("calendar-description", path),
-									Common.xApple.GetElement("calendar-color", "ff0000")
+					//Common.xApple.GetElement("calendar-color", "ff0000"),
+									Common.xDAV.GetElement("getcontenttype", "text/calendar; component=vevent"),
+									Common.xDAV.GetElement("displayname",  calendar.Name ),
+									Common.xDAV.GetElement("resourcetype",
+										Common.xDAV.GetElement("collection"),
+										Common.xCaldav.GetElement("calendar")
+									)
 								)
 							)
 					 )
