@@ -226,7 +226,7 @@ namespace CalDav {
 			return value;
 		}
 
-		internal static string FormatDate(this DateTime dateTime) {
+		public static string FormatDate(this DateTime dateTime) {
 			return dateTime.ToString("yyyyMMddTHHmmss") + (dateTime.Kind == DateTimeKind.Utc ? "Z" : "");
 		}
 

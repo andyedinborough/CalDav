@@ -5,9 +5,6 @@ using System.Xml.Linq;
 
 namespace CalDav {
 	public class Filter {
-		private static readonly XNamespace xDAV = XNamespace.Get("DAV");
-		private static readonly XNamespace xCaldav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
-
 		public CompFilter[] Filters { get; set; }
 
 		public Filter() { }
@@ -37,7 +34,7 @@ namespace CalDav {
 		}
 
 		public static explicit operator XElement(Filter a) {
-			return new XElement(Common.xCaldav.GetName("filter"),
+			return Common.xCaldav.GetElement("filter",
 				a.Filters == null || a.Filters.Length == 0 ? null : a.Filters.Select(f => (XElement)f)
 			);
 		}
@@ -74,9 +71,9 @@ namespace CalDav {
 			}
 
 			public static explicit operator XElement(CompFilter a) {
-				return new XElement(Common.xCaldav.GetName("comp-filter"),
+				return Common.xCaldav.GetElement("comp-filter",
 					new XAttribute("name", a.Name),
-					a.IsDefined != true ? null : new XElement(Common.xCaldav.GetName("is-defined")),
+					a.IsDefined != true ? null : Common.xCaldav.GetElement("is-defined"),
 					a.TimeRange == null ? null : (XElement)a.TimeRange,
 					a.Properties == null || a.Properties.Length == 0 ? null : a.Properties.Select(f => (XElement)f),
 					a.Filters == null || a.Filters.Length == 0 ? null : a.Filters.Select(f => (XElement)f)
@@ -120,7 +117,7 @@ namespace CalDav {
 			public ParamFilter[] Parameters { get; set; }
 
 			public static explicit operator XElement(ValueFilter a) {
-				return new XElement(Common.xCaldav.GetName((a is PropFilter ? "prop" : "param") + "-filter"),
+				return Common.xCaldav.GetElement((a is PropFilter ? "prop" : "param") + "-filter",
 					string.IsNullOrEmpty(a.Name) ? null : new XAttribute("name", a.Name),
 					string.IsNullOrEmpty(a.Text) ? null : new XElement(Common.xCaldav.GetName("text-match"),
 					new XAttribute("caseless", a.IgnoreCase == true ? "yes" : "no"), a.Text),
@@ -142,7 +139,7 @@ namespace CalDav {
 			public DateTime? End { get; set; }
 
 			public static explicit operator XElement(TimeRangeFilter a) {
-				return new XElement(Common.xCaldav.GetName("time-range"),
+				return Common.xCaldav.GetElement("time-range",
 					a.Start == null ? null : new XAttribute("start", a.Start.Value.ToString("yyyyMMddTHHmmssZ")),
 					a.End == null ? null : new XAttribute("end", a.End.Value.ToString("yyyyMMddTHHmmssZ"))
 					);

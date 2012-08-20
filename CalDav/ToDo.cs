@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace CalDav {
-	public class ToDo : ISerializeToICAL {
+	public class ToDo : ICalendarObject {
 		public ToDo() {
 			Categories = new List<string>();
 		}
@@ -17,6 +17,9 @@ namespace CalDav {
 		public virtual ICollection<string> Categories { get; set; }
 		public virtual int? Priority { get; set; }
 		public virtual Statuses? Status { get; set; }
+		public Calendar Calendar { get; set; }
+		public virtual int? Sequence { get; set; }
+		public virtual DateTime? LastModified { get; set; }
 
 		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
@@ -32,6 +35,8 @@ namespace CalDav {
 					case "CATEGORIES": Categories = value.SplitEscaped().ToList(); break;
 					case "PRIORITY": Priority = value.ToInt(); break;
 					case "STATUS": Status = value.ToEnum<Statuses>(); break;
+					case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
+					case "SEQUENCE": Sequence = value.ToInt(); break;
 				}
 			}
 		}
@@ -47,8 +52,10 @@ namespace CalDav {
 			wrtr.Property("CATEGORIES", Categories);
 			wrtr.Property("PRIORITY", Priority);
 			wrtr.Property("STATUS", Status);
-
+			wrtr.Property("SEQUENCE", Sequence);
+			wrtr.Property("LAST-MODIFIED", LastModified);
 			wrtr.BeginBlock("VTODO");
 		}
+
 	}
 }

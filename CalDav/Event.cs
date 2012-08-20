@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace CalDav {
-	public class Event : ISerializeToICAL {
+	public class Event : ICalendarObject {
 		private DateTime DTSTAMP = DateTime.UtcNow;
 
 		public Event() {

@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace CalDav {
-	public class JournalEntry : ISerializeToICAL {
+	public class JournalEntry : ICalendarObject {
 		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			throw new NotImplementedException();
 		}
@@ -9,5 +9,14 @@ namespace CalDav {
 		public void Serialize(System.IO.TextWriter wrtr) {
 			throw new NotImplementedException();
 		}
+
+		public Calendar Calendar { get; set; }
+
+		public string UID { get; set; }
+
+
+		public int? Sequence { get; set; }
+
+		public DateTime? LastModified { get; set; }
 	}
 }

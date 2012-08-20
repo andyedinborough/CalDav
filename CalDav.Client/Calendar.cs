@@ -60,6 +60,36 @@ namespace CalDav.Client {
 			if (result.Item1 != System.Net.HttpStatusCode.Created && result.Item1 != HttpStatusCode.NoContent)
 				throw new Exception("Unable to save event: " + result.Item1);
 			e.Url = new Uri(Url, result.Item3[System.Net.HttpResponseHeader.Location]);
+
+			GetObject(e.UID);
+		}
+
+		public CalendarCollection GetAll() {
+			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xCaldav.GetElement("calendar-multiget",
+			CalDav.Common.xDAV.GetElement("prop",
+				CalDav.Common.xDAV.GetElement("getetag"),
+				CalDav.Common.xCaldav.GetElement("calendar-data")
+				)
+			), Credentials, new Dictionary<string, object> { { "Depth", 1 } });
+
+
+
+
+			return null;
+		}
+
+		public CalendarCollection GetObject(string uid) {
+			var result = Common.Request(Url, "REPORT", CalDav.Common.xCaldav.GetElement("calendar-multiget",
+				CalDav.Common.xDAV.GetElement("prop",
+					CalDav.Common.xDAV.GetElement("getetag"),
+					CalDav.Common.xCaldav.GetElement("calendar-data")
+					),
+				CalDav.Common.xDAV.GetElement("href", new Uri(Url, uid + ".ics"))
+				), Credentials, new Dictionary<string, object> { { "Depth", 1 } });
+
+
+			return null;
+
 		}
 	}
 }

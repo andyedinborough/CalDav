@@ -8,8 +8,10 @@ using System.Xml.Linq;
 
 namespace CalDav.Server.Controllers {
 	public class CalDavController : Controller {
+		const string BASE = "caldav";
+		const string ROUTE = "caldav/{*path}";
 
-		[Route("caldav/{*path}", "options")]
+		[Route(ROUTE, "options")]
 		public ActionResult Options(string name) {
 			var xdoc = GetRequestXml();
 			if (xdoc != null) {
@@ -27,10 +29,38 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		[Route("caldav/{*path}", "propfind")]
+		[Route(ROUTE, "propfind")]
 		public ActionResult PropFind(string path) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByPath(path);
+			var xdoc = GetRequestXml();
+			var props = xdoc.Descendants(CalDav.Common.xDAV.GetName("prop")).FirstOrDefault().Elements();
+
+
+			var allprop = props.Elements(Common.xDAV.GetName("allprops")).Any();
+
+			var resourceTypeName = Common.xDAV.GetName("resourcetype");
+			var resourceType = !allprop && !props.Any(x => x.Name == resourceTypeName) ? null :
+				Common.xDAV.GetElement("resourcetype", Common.xDAV.GetElement("collection"), Common.xCaldav.GetElement("calendar"));
+
+			var ownerName = Common.xDAV.GetName("owner");
+			var owner = !allprop && !props.Any(x => x.Name == ownerName) ? null :
+				Common.xDAV.GetElement("owner", Common.xDAV.GetElement("href", Url.Action("PropFind", new { path = calendar.Path })));
+
+			var supportedComponentsName = Common.xCaldav.GetName("supported-calendar-component-set");
+			var supportedComponents = !allprop && !props.Any(x => x.Name == supportedComponentsName) ? null :
+				new[]{
+					Common.xCaldav.GetElement("comp", new XAttribute("name", "VEVENT")),
+					Common.xCaldav.GetElement("comp", new XAttribute("name", "VTODO"))
+				};
+
+			var supportedProperties = new HashSet<XName> { resourceTypeName, ownerName, supportedComponentsName };
+			var prop404 = Common.xDAV.GetElement("prop", props
+						.Where(p => !supportedProperties.Contains(p.Name))
+						.Select(p => new XElement(p.Name))
+				);
+			var propStat404 = Common.xDAV.GetElement("propstat",
+				Common.xDAV.GetElement("status", "HTTP/1.1 404 Not Found"), prop404);
 
 			return new Result {
 				Status = (System.Net.HttpStatusCode)207,
@@ -43,39 +73,38 @@ namespace CalDav.Server.Controllers {
 					Common.xDAV.GetElement("propstat",
 								Common.xDAV.GetElement("status", "HTTP/1.1 200 OK"),
 								Common.xDAV.GetElement("prop",
-									Common.xCaldav.GetElement("calendar-description", path),
+									resourceType, owner, supportedComponents
+					//Common.xCaldav.GetElement("calendar-description", path),
 					//Common.xApple.GetElement("calendar-color", "ff0000"),
-									Common.xDAV.GetElement("getcontenttype", "text/calendar; component=vevent"),
-									Common.xDAV.GetElement("displayname",  calendar.Name ),
-									Common.xDAV.GetElement("resourcetype",
-										Common.xDAV.GetElement("collection"),
-										Common.xCaldav.GetElement("calendar")
-									)
+					//Common.xDAV.GetElement("getcontenttype", "text/calendar; component=vevent"),
+					//Common.xDAV.GetElement("displayname", calendar.Name),
 								)
-							)
+							),
+
+							(prop404.Elements().Any() ? propStat404 : null)
 					 )
 				 )
 			};
 		}
 
-		[Route("caldav/{*path}", "mkcalendar")]
+		[Route(ROUTE, "mkcalendar")]
 		public ActionResult MakeCalendar(string path) {
 			var repo = GetService<ICalendarRepository>();
 			repo.CreateCalendar(path);
 			return new Result { Status = System.Net.HttpStatusCode.Created };
 		}
 
-		[Route("caldav/{*path}", "get")]
+		[Route(ROUTE, "get")]
 		public ActionResult Get(string path) {
 			return new Result();
 		}
 
-		[Route("caldav/{*path}", "put")]
+		[Route(ROUTE, "put")]
 		public ActionResult Put(string path, string filename) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByPath(path);
 			var input = GetRequestCalendar();
-			var e = input.Events.FirstOrDefault();
+			var e = input.Items.FirstOrDefault();
 			e.LastModified = DateTime.UtcNow;
 			repo.Save(calendar, e);
 
@@ -88,15 +117,52 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		[Route("caldav/{*path}", "report")]
+		[Route(ROUTE, "report")]
 		public ActionResult Report(string path) {
 			var xdoc = GetRequestXml();
 			if (xdoc == null) return new Result();
 
-			var request = xdoc.Root.Elements().FirstOrDefault();
-			var filter = new Filter(request.Element(CalDav.Common.xCaldav.GetName("filter")));
+			var repo = GetService<ICalendarRepository>();
+			var calendar = repo.GetCalendarByPath(path);
 
-			return new Result();
+			var request = xdoc.Root.Elements().FirstOrDefault();
+			var filterElm = request.Element(CalDav.Common.xCaldav.GetName("filter"));
+			var filter = filterElm == null ? null : new Filter(filterElm);
+			var hrefs = xdoc.Descendants(CalDav.Common.xDAV.GetName("href")).Select(x => x.Value).ToArray();
+			var getetag = xdoc.Descendants(CalDav.Common.xDAV.GetName("getetag")).FirstOrDefault();
+			var calendardata = xdoc.Descendants(CalDav.Common.xCaldav.GetName("calendar-data")).FirstOrDefault();
+
+			IQueryable<ICalendarObject> result = null;
+			if (filter != null) result = repo.GetObjectsByFilter(filter);
+			else if (hrefs.Any())
+				result = hrefs.Select(x => repo.GetObjectByPath(x.Substring(BASE.Length + 2))).AsQueryable();
+
+			if (result != null) {
+				return new Result {
+					Status = (System.Net.HttpStatusCode)207,
+					Content = CalDav.Common.xDAV.GetElement("multistatus",
+					result.Select(r =>
+					 CalDav.Common.xDAV.GetElement("response",
+						 CalDav.Common.xDAV.GetElement("href", new Uri(Request.Url, r.UID + ".ics")),
+						 CalDav.Common.xDAV.GetElement("propstat",
+							 CalDav.Common.xDAV.GetElement("status", "HTTP/1.1 200 OK"),
+							 CalDav.Common.xDAV.GetElement("prop",
+								 (getetag == null ? null : CalDav.Common.xDAV.GetElement("getetag")),
+								 (calendardata == null ? null : CalDav.Common.xCaldav.GetElement("calendar-data",
+										ToString(calendar, r)
+								 ))
+							 )
+						 )
+					 )
+					))
+				};
+			}
+
+			return new Result {
+				Headers = new Dictionary<string, string> {
+					{"ETag" , Common.FormatDate( repo.GetLastModifiedDate( calendar)) }
+				}
+			};
 		}
 
 		private ActionResult Options_CalendarCollectionSet() {
@@ -106,15 +172,20 @@ namespace CalDav.Server.Controllers {
 				calendars = new[] { repo.CreateCalendar("me") };
 
 			return new Result {
-				Content = new XElement(CalDav.Common.xDAV.GetName("options-response"),
-				 new XElement(CalDav.Common.xCaldav.GetName("calendar-collection-set"),
+				Content = CalDav.Common.xDAV.GetElement("options-response",
+				 CalDav.Common.xCaldav.GetElement("calendar-collection-set",
 					 calendars.Select(calendar =>
-						 new XElement(CalDav.Common.xDAV.GetName("href"),
+						 CalDav.Common.xDAV.GetElement("href",
 							 new Uri(Request.Url, Url.Action("Report", new { path = calendar.Path }) + "/")
 							 ))
 				 )
 			 )
 			};
+		}
+
+		[Route(ROUTE, null, Precedence = int.MaxValue)]
+		public ActionResult NotImplemented() {
+			return new Result { Status = System.Net.HttpStatusCode.NotImplemented };
 		}
 
 		private List<IDisposable> _Disposables = new List<IDisposable>();
@@ -139,10 +210,12 @@ namespace CalDav.Server.Controllers {
 				?? (T)(HttpContext.Items[name] = GetService<T>());
 		}
 
+		internal System.IO.Stream Stream { get; set; }
+
 		XDocument GetRequestXml() {
 			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("xml"))
 				return null;
-			using (var str = Request.GetBufferlessInputStream())
+			using (var str = (Stream ?? Request.GetBufferlessInputStream()))
 				return XDocument.Load(str);
 		}
 
@@ -150,19 +223,20 @@ namespace CalDav.Server.Controllers {
 			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("calendar"))
 				return null;
 			var serializer = new Models.Serializer();
-			using (var str = Request.GetBufferlessInputStream()) {
+			using (var str = (Stream ?? Request.GetBufferlessInputStream())) {
 				var ical = serializer.Deserialize<CalDav.CalendarCollection>(str, Request.ContentEncoding ?? System.Text.Encoding.Default);
 				return (Models.Calendar)ical.FirstOrDefault();
 			}
 		}
 
-		public Result AsResult(Event e) {
-			var serializer = new Models.Serializer();
-			var ical = new Calendar();
-			ical.Events.Add(e);
-			return new Result(ctx => serializer.Serialize(ctx.HttpContext.Response.OutputStream, ical, ctx.HttpContext.Response.ContentEncoding ?? System.Text.Encoding.Default));
+		private static string ToString(Calendar calendar, ICalendarObject obj) {
+			calendar.AddItem(obj);
+
+			var serializer = new Server.Models.Serializer();
+			using (var str = new System.IO.StringWriter()) {
+				serializer.Serialize(str, calendar);
+				return str.ToString();
+			}
 		}
-
-
 	}
 }

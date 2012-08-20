@@ -52,6 +52,7 @@
     <Compile Include="Filter.cs" />
     <Compile Include="FreeBusy.cs" />
     <Compile Include="Frequencies.cs" />
+    <Compile Include="ICalendarObject.cs" />
     <Compile Include="ISerializeToICAL.cs" />
     <Compile Include="IHasParameters.cs" />
     <Compile Include="JournalEntry.cs" />

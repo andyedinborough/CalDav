@@ -14,6 +14,7 @@ namespace CalDav {
 			public virtual TimeSpan? OffsetFrom { get; set; }
 			public virtual TimeSpan? OffsetTo { get; set; }
 			public virtual ICollection<Recurrence> Recurrences { get; set; }
+			public Calendar Calendar { get; set; }
 
 			public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 				string name, value;
@@ -61,6 +62,7 @@ namespace CalDav {
 					case "BEGIN":
 						var detail = serializer.GetService<TimeZoneDetail>();
 						detail.Type = value;
+						detail.Calendar = Calendar;
 						detail.Deserialize(rdr, serializer);
 						Add(detail);
 						break;
@@ -77,6 +79,7 @@ namespace CalDav {
 			if (Count == 0) return;
 			wrtr.BeginBlock("VTIMEZONE");
 			foreach (var detail in this) {
+				detail.Calendar = Calendar;
 				detail.Serialize(wrtr);
 			}
 			wrtr.EndBlock("VTIMEZONE");
