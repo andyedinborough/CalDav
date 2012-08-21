@@ -120,6 +120,7 @@
   <ItemGroup>
     <Compile Include="App_Start\AttributeRouting.cs" />
     <Compile Include="Controllers\CalDavController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\Result.cs" />
     <Compile Include="Controllers\Route.cs" />
     <Compile Include="Global.asax.cs">
@@ -134,6 +135,56 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Content Include="Content\jqcaldav\dates.js" />
+    <Content Include="Content\jqcaldav\dates.min.js">
+      <DependentUpon>dates.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\de.js" />
+    <Content Include="Content\jqcaldav\de.min.js">
+      <DependentUpon>de.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\en.js" />
+    <Content Include="Content\jqcaldav\en.min.js">
+      <DependentUpon>en.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\fr.js" />
+    <Content Include="Content\jqcaldav\fr.min.js">
+      <DependentUpon>fr.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\ical.js" />
+    <Content Include="Content\jqcaldav\ical.min.js">
+      <DependentUpon>ical.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\index.html" />
+    <Content Include="Content\jqcaldav\jqcaldav.js" />
+    <Content Include="Content\jqcaldav\jqcaldav.min.js">
+      <DependentUpon>jqcaldav.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\jquery-1.6.4.js" />
+    <Content Include="Content\jqcaldav\jquery-1.6.4.min.js">
+      <DependentUpon>jquery-1.6.4.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\jquery-dav.js" />
+    <Content Include="Content\jqcaldav\jquery-dav.min.js">
+      <DependentUpon>jquery-dav.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\jquery.xmlns.js" />
+    <Content Include="Content\jqcaldav\jquery.xmlns.min.js">
+      <DependentUpon>jquery.xmlns.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\nb.js" />
+    <Content Include="Content\jqcaldav\nb.min.js">
+      <DependentUpon>nb.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\styles.js" />
+    <Content Include="Content\jqcaldav\styles.min.js">
+      <DependentUpon>styles.js</DependentUpon>
+    </Content>
+    <Content Include="Content\jqcaldav\SweetAlertSound2.wav" />
+    <Content Include="Content\jqcaldav\translate.js" />
+    <Content Include="Content\jqcaldav\translate.min.js">
+      <DependentUpon>translate.js</DependentUpon>
+    </Content>
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -155,6 +206,13 @@
       <Project>{01a4c4cf-5ad1-4324-a391-dc922c84be1c}</Project>
       <Name>CalDav</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\jqcaldav\README" />
+    <Content Include="Content\jqcaldav\version" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

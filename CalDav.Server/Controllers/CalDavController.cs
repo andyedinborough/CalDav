@@ -5,6 +5,7 @@ using System.Linq;
 using System.Web.Mvc;
 using System.Xml.Linq;
 //http://greenbytes.de/tech/webdav/draft-dusseault-caldav-05.html
+//http://wwcsd.net/principals/__uids__/wiki-ilovemysmartboard/
 
 namespace CalDav.Server.Controllers {
 	public class CalDavController : Controller {
@@ -41,6 +42,11 @@ namespace CalDav.Server.Controllers {
 			var depth = Request.Headers["Depth"].ToInt() ?? 0;
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByName(name);
+			if (calendar == null && name.Is("me")) {
+				MakeCalendar(name);
+				calendar = repo.GetCalendarByName(name);
+			}
+
 			var xdoc = GetRequestXml();
 			var props = xdoc.Descendants(CalDav.Common.xDAV.GetName("prop")).FirstOrDefault().Elements();
 
@@ -255,14 +261,14 @@ namespace CalDav.Server.Controllers {
 		internal System.IO.Stream Stream { get; set; }
 
 		XDocument GetRequestXml() {
-			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("xml"))
+			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("xml") || Request.ContentLength == 0)
 				return null;
 			using (var str = (Stream ?? Request.GetBufferlessInputStream()))
 				return XDocument.Load(str);
 		}
 
 		Models.Calendar GetRequestCalendar() {
-			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("calendar"))
+			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("calendar") || Request.ContentLength == 0)
 				return null;
 			var serializer = new Models.Serializer();
 			using (var str = (Stream ?? Request.GetBufferlessInputStream())) {
