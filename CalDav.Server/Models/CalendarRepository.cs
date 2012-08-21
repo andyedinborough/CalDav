@@ -14,6 +14,8 @@ namespace CalDav.Server.Models {
 		IQueryable<ICalendarObject> GetObjectsByFilter(Filter filter);
 		ICalendarObject GetObjectByPath(string href);
 		IQueryable<ICalendarObject> GetObjects(Calendar calendar);
+
+		void DeleteObject(Calendar calendar, string path);
 	}
 
 	public class CalendarRepository : ICalendarRepository {
@@ -61,6 +63,7 @@ namespace CalDav.Server.Models {
 		}
 
 		public Calendar GetCalendarByName(string path) {
+			if (string.IsNullOrEmpty(path)) return null;
 			path = path.Trim('/').Split('/').Where(x => x != "calendar" && x != "caldav").FirstOrDefault();
 			var filename = System.IO.Path.Combine(_Directory, path + "\\_.ical");
 			if (!System.IO.File.Exists(filename)) return null;
@@ -101,6 +104,7 @@ namespace CalDav.Server.Models {
 		}
 
 		public IQueryable<ICalendarObject> GetObjects(Calendar calendar) {
+			if (calendar == null) return new ICalendarObject[0].AsQueryable();
 			var directory = System.IO.Path.Combine(_Directory, calendar.Path);
 			var files = System.IO.Directory.GetFiles(directory, "*.ics");
 			var serializer = new Models.Serializer();
@@ -114,6 +118,16 @@ namespace CalDav.Server.Models {
 			var calendar = GetCalendarByName(path);
 			var uid = path.Split('/').Last().Split('.').FirstOrDefault();
 			return GetObjectByUID(calendar, uid);
+		}
+
+		public void DeleteObject(Calendar calendar, string path) {
+			var uid = path.Split('/').Last().Split('.').FirstOrDefault();
+			var obj = GetObjectByUID(calendar, uid);
+			if (obj == null) return;
+			var filename = System.IO.Path.Combine(_Directory, calendar.Path, obj.UID + ".ics");
+			if (!System.IO.File.Exists(filename))
+				return;
+			System.IO.File.Delete(filename);
 		}
 	}
 }

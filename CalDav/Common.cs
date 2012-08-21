@@ -9,16 +9,16 @@ using System.Xml.Linq;
 namespace CalDav {
 	public static class Common {
 		public const string PRODID = "-//tracky/CalDav//FUBU v1.0//EN";
-		public static readonly XNamespace xDAV = XNamespace.Get("DAV:");
-		public static readonly XNamespace xCaldav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
+		public static readonly XNamespace xDav = XNamespace.Get("DAV:");
+		public static readonly XNamespace xCalDav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
 		public static readonly XNamespace xApple = XNamespace.Get("http://apple.com/ns/ical/");
+		public static readonly XNamespace xCardDav = XNamespace.Get("urn:ietf:params:xml:ns:carddav");
 
 		internal static void BeginBlock(this System.IO.TextWriter wrtr, string name) {
 			wrtr.WriteLine("BEGIN:" + name.ToUpper());
 		}
-		internal static void EndBlock(this System.IO.TextWriter wrtr, string name, bool newline = true) {
-			if (newline) wrtr.WriteLine("END:" + name.ToUpper());
-			else wrtr.Write("END:" + name.ToUpper());
+		internal static void EndBlock(this System.IO.TextWriter wrtr, string name) {
+			wrtr.WriteLine("END:" + name.ToUpper());
 		}
 		internal static void Property(this System.IO.TextWriter wrtr, string name, IEnumerable<string> value) {
 			wrtr.Property(name, string.Join(",", value.Select(PropertyEncode)), true);
@@ -226,6 +226,10 @@ namespace CalDav {
 			return value;
 		}
 
+		public static string FormatDate(this DateTime? dateTime) {
+			if (dateTime == null) return null;
+			return FormatDate(dateTime.Value);
+		}
 		public static string FormatDate(this DateTime dateTime) {
 			return dateTime.ToString("yyyyMMddTHHmmss") + (dateTime.Kind == DateTimeKind.Utc ? "Z" : "");
 		}

@@ -114,7 +114,7 @@ namespace CalDav {
 				jn.Serialize(wrtr);
 			}
 
-			wrtr.EndBlock("VCALENDAR", false);
+			wrtr.EndBlock("VCALENDAR");
 		}
 	}
 }

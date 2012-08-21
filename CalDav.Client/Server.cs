@@ -49,9 +49,9 @@ namespace CalDav.Client {
 		}
 
 		public Calendar[] GetCalendars() {
-			var xcollectionset = CalDav.Common.xCaldav.GetName("calendar-collection-set");
+			var xcollectionset = CalDav.Common.xCalDav.GetName("calendar-collection-set");
 			var result = Common.Request(Url, "propfind", new XDocument(
-					new XElement(CalDav.Common.xDAV.GetName("options"),
+					new XElement(CalDav.Common.xDav.GetName("options"),
 						new XElement(xcollectionset)
 						)
 				), Credentials, new System.Collections.Generic.Dictionary<string, object> { { "Depth", 0 } });
@@ -62,7 +62,7 @@ namespace CalDav.Client {
 				};
 
 			var xdoc = XDocument.Parse(result.Item2);
-			var hrefs = xdoc.Descendants(xcollectionset).SelectMany(x => x.Descendants(CalDav.Common.xDAV.GetName("href")));
+			var hrefs = xdoc.Descendants(xcollectionset).SelectMany(x => x.Descendants(CalDav.Common.xDav.GetName("href")));
 			return hrefs.Select(x => new Calendar { Url = new Uri(Url, x.Value), Credentials = Credentials }).ToArray();
 		}
 

@@ -7,9 +7,9 @@ namespace ConsoleApp {
 
 		static void Main(string[] args) {
 			var server = new CalDav.Client.Server("http://localhost:60399/caldav/");
-			server.GetOptions();
 
-			server.CreateCalendar("me");
+			if (server.Supports("MKCALENDAR"))
+				server.CreateCalendar("me");
 			var sets = server.GetCalendars();
 			sets.ShouldContain(x => x.Url.AbsolutePath.EndsWith("/caldav/me/"));
 

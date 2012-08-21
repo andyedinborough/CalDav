@@ -16,8 +16,6 @@ namespace CalDav.Server.Controllers {
 		public override void ExecuteResult(System.Web.Mvc.ControllerContext context) {
 			var res = context.HttpContext.Response;
 			res.StatusCode = (int)(Status ?? System.Net.HttpStatusCode.OK);
-			if (ContentType != null)
-				res.ContentType = ContentType;
 
 			if (Headers != null && Headers.Count > 0)
 				foreach (var header in Headers)
@@ -26,12 +24,14 @@ namespace CalDav.Server.Controllers {
 			var content = Content;
 			if (content is XDocument) content = ((XDocument)content).Root;
 			if (content is XElement) {
+				ContentType = "text/xml";
 				((XElement)content).Save(res.Output);
 			} else if (content is string) res.Write(content as string);
 			else if (content is byte[]) res.BinaryWrite(content as byte[]);
-			//else if (content is Action<Stream>) ((Action<Stream>)content)(res.OutputStream);
-			//else if (content is Action<TextWriter>) ((Action<TextWriter>)content)(res.Output);
 			else if (content is Action<ControllerContext>) ((Action<ControllerContext>)content)(context);
+
+			if (ContentType != null)
+				res.ContentType = ContentType;
 		}
 	}
 }

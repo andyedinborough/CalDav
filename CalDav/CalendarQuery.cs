@@ -7,7 +7,7 @@ namespace CalDav {
 	public class CalendarQuery {
 		public class CalendarData : Property {
 			internal override XElement Serialize() {
-				return Common.xCaldav.Element("calendar-data");
+				return Common.xCalDav.Element("calendar-data");
 			}
 		}
 
@@ -46,8 +46,8 @@ namespace CalDav {
 		}
 
 		public static implicit operator XElement(CalendarQuery query) {
-			return Common.xCaldav.Element("calendar-query",
-					Common.xDAV.Element("prop", query.Properties.Select(x => (XElement)x)),
+			return Common.xCalDav.Element("calendar-query",
+					Common.xDav.Element("prop", query.Properties.Select(x => (XElement)x)),
 					(XElement)query.Filter
 				);
 		}

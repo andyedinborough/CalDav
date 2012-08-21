@@ -34,7 +34,7 @@ namespace CalDav {
 		}
 
 		public static explicit operator XElement(Filter a) {
-			return Common.xCaldav.Element("filter",
+			return Common.xCalDav.Element("filter",
 				a.Filters == null || a.Filters.Length == 0 ? null : a.Filters.Select(f => (XElement)f)
 			);
 		}
@@ -71,9 +71,9 @@ namespace CalDav {
 			}
 
 			public static explicit operator XElement(CompFilter a) {
-				return Common.xCaldav.Element("comp-filter",
+				return Common.xCalDav.Element("comp-filter",
 					new XAttribute("name", a.Name),
-					a.IsDefined != true ? null : Common.xCaldav.Element("is-defined"),
+					a.IsDefined != true ? null : Common.xCalDav.Element("is-defined"),
 					a.TimeRange == null ? null : (XElement)a.TimeRange,
 					a.Properties == null || a.Properties.Length == 0 ? null : a.Properties.Select(f => (XElement)f),
 					a.Filters == null || a.Filters.Length == 0 ? null : a.Filters.Select(f => (XElement)f)
@@ -117,9 +117,9 @@ namespace CalDav {
 			public ParamFilter[] Parameters { get; set; }
 
 			public static explicit operator XElement(ValueFilter a) {
-				return Common.xCaldav.Element((a is PropFilter ? "prop" : "param") + "-filter",
+				return Common.xCalDav.Element((a is PropFilter ? "prop" : "param") + "-filter",
 					string.IsNullOrEmpty(a.Name) ? null : new XAttribute("name", a.Name),
-					string.IsNullOrEmpty(a.Text) ? null : new XElement(Common.xCaldav.GetName("text-match"),
+					string.IsNullOrEmpty(a.Text) ? null : new XElement(Common.xCalDav.GetName("text-match"),
 					new XAttribute("caseless", a.IgnoreCase == true ? "yes" : "no"), a.Text),
 					a.Parameters == null || a.Parameters.Length == 0 ? null : a.Parameters.Select(f => (XElement)f)
 				);
@@ -139,7 +139,7 @@ namespace CalDav {
 			public DateTime? End { get; set; }
 
 			public static explicit operator XElement(TimeRangeFilter a) {
-				return Common.xCaldav.Element("time-range",
+				return Common.xCalDav.Element("time-range",
 					a.Start == null ? null : new XAttribute("start", a.Start.Value.ToString("yyyyMMddTHHmmssZ")),
 					a.End == null ? null : new XAttribute("end", a.End.Value.ToString("yyyyMMddTHHmmssZ"))
 					);

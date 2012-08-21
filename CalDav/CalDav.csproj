@@ -48,6 +48,7 @@
     <Compile Include="Classes.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Contact.cs" />
+    <Compile Include="DateTimeRange.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="FreeBusy.cs" />
