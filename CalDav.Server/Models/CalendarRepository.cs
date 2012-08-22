@@ -5,14 +5,14 @@ using System.Security.Principal;
 namespace CalDav.Server.Models {
 	public interface ICalendarRepository {
 		IQueryable<Calendar> GetCalendars();
-		Calendar GetCalendarByName(string path);
+		Calendar GetCalendarByID(string path);
 		Calendar CreateCalendar(string path);
 		void Save(Calendar calendar, ICalendarObject e);
 		DateTime GetLastModifiedDate(Calendar Calendar);
 
-		ICalendarObject GetObjectByUID(Calendar calendar, string uid);
-		IQueryable<ICalendarObject> GetObjectsByFilter(Filter filter);
 		ICalendarObject GetObjectByPath(string href);
+		ICalendarObject GetObjectByUID(Calendar calendar, string uid);
+		IQueryable<ICalendarObject> GetObjectsByFilter(Calendar calendar, Filter filter);
 		IQueryable<ICalendarObject> GetObjects(Calendar calendar);
 
 		void DeleteObject(Calendar calendar, string path);
@@ -62,7 +62,7 @@ namespace CalDav.Server.Models {
 			return ical;
 		}
 
-		public Calendar GetCalendarByName(string path) {
+		public Calendar GetCalendarByID(string path) {
 			if (string.IsNullOrEmpty(path)) return null;
 			path = path.Trim('/').Split('/').Where(x => x != "calendar" && x != "caldav").FirstOrDefault();
 			var filename = System.IO.Path.Combine(_Directory, path + "\\_.ical");
@@ -99,7 +99,7 @@ namespace CalDav.Server.Models {
 		}
 
 
-		public IQueryable<ICalendarObject> GetObjectsByFilter(Filter filter) {
+		public IQueryable<ICalendarObject> GetObjectsByFilter(Calendar calendar, Filter filter) {
 			throw new NotImplementedException();
 		}
 
@@ -115,7 +115,7 @@ namespace CalDav.Server.Models {
 		}
 
 		public ICalendarObject GetObjectByPath(string path) {
-			var calendar = GetCalendarByName(path);
+			var calendar = GetCalendarByID(path);
 			var uid = path.Split('/').Last().Split('.').FirstOrDefault();
 			return GetObjectByUID(calendar, uid);
 		}
