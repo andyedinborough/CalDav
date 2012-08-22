@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.Server", "CalDav.Server\CalDav.Server.csproj", "{DDB10A63-4724-4729-8082-77A73F87CB4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.MVC", "CalDav.MVC\CalDav.MVC.csproj", "{DDB10A63-4724-4729-8082-77A73F87CB4A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{EE946C60-392B-4A4F-B0A5-9D9A32C283DD}"
 EndProject
@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9A2D1E
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.WPF", "CalDav.WPF\CalDav.WPF.csproj", "{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.Server", "CalDav.Server\CalDav.Server.csproj", "{471EA68F-FB1F-4DF8-AAC1-31022C7316AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}.Release|Any CPU.Build.0 = Release|Any CPU
+		{471EA68F-FB1F-4DF8-AAC1-31022C7316AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{471EA68F-FB1F-4DF8-AAC1-31022C7316AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{471EA68F-FB1F-4DF8-AAC1-31022C7316AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{471EA68F-FB1F-4DF8-AAC1-31022C7316AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

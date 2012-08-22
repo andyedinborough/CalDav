@@ -67,9 +67,9 @@
       <Project>{1b9b42a0-a34b-4bf6-a5d5-21c46ed0d9b3}</Project>
       <Name>CalDav.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CalDav.Server\CalDav.Server.csproj">
+    <ProjectReference Include="..\CalDav.MVC\CalDav.MVC.csproj">
       <Project>{ddb10a63-4724-4729-8082-77a73f87cb4a}</Project>
-      <Name>CalDav.Server</Name>
+      <Name>CalDav.MVC</Name>
     </ProjectReference>
     <ProjectReference Include="..\CalDav\CalDav.csproj">
       <Project>{01a4c4cf-5ad1-4324-a391-dc922c84be1c}</Project>

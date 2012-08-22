@@ -18,6 +18,7 @@ namespace CalDav {
 		public virtual ICollection<Contact> Attendees { get; set; }
 		public virtual ICollection<Alarm> Alarms { get; set; }
 		public virtual ICollection<string> Categories { get; set; }
+		public virtual ICollection<Uri> Attachments { get; set; }
 		public virtual Classes? Class { get; set; }
 		public virtual DateTime? Created { get; set; }
 		public virtual string Description { get; set; }
@@ -79,6 +80,11 @@ namespace CalDav {
 					case "TRANSP": Transparency = value; break;
 					case "UID": UID = value; break;
 					case "URL": Url = value.ToUri(); break;
+					case "ATTACH":
+						var attach = value.ToUri();
+						if (attach != null)
+							Attachments.Add(attach);
+						break;
 					case "RRULE":
 						var rule = serializer.GetService<Recurrence>();
 						rule.Deserialize(null, parameters);
@@ -120,6 +126,10 @@ namespace CalDav {
 			wrtr.Property("SUMMARY", Summary);
 			wrtr.Property("TRANSP", Transparency);
 			wrtr.Property("URL", Url);
+
+			if (Properties != null)
+				foreach (var prop in Properties)
+					wrtr.Property(prop.Item1, prop.Item2, parameters: prop.Item3);
 
 			if (Alarms != null)
 				foreach (var alarm in Alarms)

@@ -10,7 +10,9 @@ namespace CalDav {
 			ToDos = new List<ToDo>();
 			JournalEntries = new List<JournalEntry>();
 			FreeBusy = new List<FreeBusy>();
+			Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
 		}
+
 		public virtual string Version { get; set; }
 		public virtual string ProdID { get; set; }
 		public virtual ICollection<Event> Events { get; set; }
@@ -18,6 +20,7 @@ namespace CalDav {
 		public virtual ICollection<TimeZone> TimeZones { get; set; }
 		public virtual ICollection<JournalEntry> JournalEntries { get; set; }
 		public virtual ICollection<FreeBusy> FreeBusy { get; set; }
+		public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
 		public virtual IQueryable<ICalendarObject> Items {
 			get {
@@ -38,7 +41,8 @@ namespace CalDav {
 
 		public string Scale { get; set; }
 
-		public virtual void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
+		public virtual void Deserialize(System.IO.TextReader rdr, Serializer serializer = null) {
+			if (serializer == null) serializer = new Serializer();
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
@@ -84,6 +88,9 @@ namespace CalDav {
 						if (value == "VCALENDAR")
 							return;
 						break;
+					default:
+						Properties.Add(Tuple.Create(name, value, parameters));
+						break;
 				}
 			}
 		}
@@ -93,6 +100,11 @@ namespace CalDav {
 			wrtr.Property("VERSION", Version ?? "2.0");
 			wrtr.Property("PRODID", Common.PRODID);
 			wrtr.Property("CALSCALE", Scale);
+
+			if (Properties != null)
+				foreach (var prop in Properties)
+					wrtr.Property(prop.Item1, prop.Item2, parameters: prop.Item3);
+
 			foreach (var tz in TimeZones) {
 				tz.Calendar = this;
 				tz.Serialize(wrtr);
@@ -113,7 +125,6 @@ namespace CalDav {
 				jn.Calendar = this;
 				jn.Serialize(wrtr);
 			}
-
 			wrtr.EndBlock("VCALENDAR");
 		}
 	}

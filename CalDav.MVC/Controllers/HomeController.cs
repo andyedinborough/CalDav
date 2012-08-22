@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
-namespace CalDav.Server.Controllers
+namespace CalDav.MVC.Controllers
 {
     public class HomeController : Controller
     {

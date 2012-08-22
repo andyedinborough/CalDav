@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace CalDav.Server {
+namespace CalDav.MVC {
 	public static class WebApiConfig {
 		public static void Register(HttpConfiguration config) {
 			config.Routes.MapHttpRoute(

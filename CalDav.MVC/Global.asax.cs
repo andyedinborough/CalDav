@@ -2,7 +2,7 @@
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace CalDav.Server {
+namespace CalDav.MVC {
 	// Note: For instructions on enabling IIS6 or IIS7 classic mode, 
 	// visit http://go.microsoft.com/?LinkId=9394801
 	public class MvcApplication : System.Web.HttpApplication {
@@ -16,7 +16,7 @@ namespace CalDav.Server {
 			var @base = System.Web.Mvc.DependencyResolver.Current;
 			System.Web.Mvc.DependencyResolver.SetResolver(type => {
 				var ctx = System.Web.HttpContext.Current;
-				if (type == typeof(Models.ICalendarRepository))
+				if (type == typeof(CalDav.Server.Models.ICalendarRepository))
 					return new Models.CalendarRepository(ctx.User);
 
 				return @base.GetService(type);

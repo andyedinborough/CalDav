@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using System.Xml.Linq;
 //http://greenbytes.de/tech/webdav/draft-dusseault-caldav-05.html
@@ -12,16 +13,53 @@ namespace CalDav.Server.Controllers {
 		const string BASE = "caldav";
 		const string BASE_CALENDAR = "caldav/calendar";
 		const string ROUTE = "caldav/{*path}";
-		const string CALENDAR_ROUTE = "caldav/calendar/{id}/{*path}";
-		const string USER_ROUTE = "caldav/user/{id}/{*path}";
+		const string CALENDAR_ROUTE = "caldav/calendar/{id}/";
+		const string OBJECT_ROUTE = "caldav/{uid}.ics";
+		const string CALENDAR_OBJECT_ROUTE = "caldav/calendar/{id}/{uid}.ics";
+		const string USER_ROUTE = "caldav/user/{id}/";
+		private static readonly Regex rxObjectRoute = new Regex("caldav(/calendar/(?<id>[^/]+))?/(?<uid>.+?).ics", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+		private string GetUserUrl(string id = null) {
+			if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
+			if (string.IsNullOrEmpty(id)) id = "ANONYMOUS";
+			return "/" + USER_ROUTE.Replace("{id}", Uri.EscapeDataString(id)).Replace("{*path}", string.Empty);
+		}
+
+		private string GetUserEmail(string id = null) {
+			if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
+			return id + "@" + Request.Url.Host;
+		}
+		private string GetCalendarUrl(string id) {
+			return "/" + CALENDAR_ROUTE.Replace("{id}", Uri.EscapeDataString(id));
+		}
+		private string GetCalendarObjectUrl(string id, string uid) {
+			return "/" + CALENDAR_OBJECT_ROUTE.Replace("{id}", Uri.EscapeDataString(id)).Replace("{uid}", Uri.EscapeDataString(uid));
+		}
+		private string GetObjectUIDFromPath(string path) {
+			return rxObjectRoute.Match(path).Groups["uid"].Value;
+		}
 
 		[Route(ROUTE, "options")]
-		public ActionResult Options(string name) {
+		[Route(CALENDAR_ROUTE, "options")]
+		public ActionResult Options() {
 			var xdoc = GetRequestXml();
 			if (xdoc != null) {
 				var request = xdoc.Root.Elements().FirstOrDefault();
 				switch (request.Name.LocalName.ToLower()) {
-					case "calendar-collection-set": return Options_CalendarCollectionSet();
+					case "calendar-collection-set":
+						var repo = GetService<ICalendarRepository>();
+						var calendars = repo.GetCalendars().ToArray();
+
+						return new Result {
+							Content = CalDav.Common.xDav.Element("options-response",
+							 CalDav.Common.xCalDav.Element("calendar-collection-set",
+								 calendars.Select(calendar =>
+									 CalDav.Common.xDav.Element("href",
+										 new Uri(Request.Url, GetCalendarUrl(calendar.Name))
+										 ))
+							 )
+						 )
+						};
 				}
 			}
 
@@ -34,41 +72,16 @@ namespace CalDav.Server.Controllers {
 		}
 
 		[Route(USER_ROUTE, "propfind")]
-		public ActionResult UserPropFind(string id, string path) {
+		public ActionResult UserPropFind(string id) {
 			return null;
 		}
 
-		[Route(ROUTE, "PROPFIND")]
-		public ActionResult PropFind() {
-			return CalendarPropFind("me", null);
-		}
-
-		private string GetUserUrl(string id = null) {
-			if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
-			if (string.IsNullOrEmpty(id)) id = "ANONYMOUS";
-			return "/" + USER_ROUTE.Replace("{id}", id).Replace("{*path}", string.Empty);
-		}
-
-		private string GetUserEmail(string id = null) {
-			if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
-			return id + "@" + Request.Url.Host;
-		}
-		private string GetCalendarUrl(string id) {
-			return "/" + CALENDAR_ROUTE.Replace("{id}", id).Replace("{*path}", string.Empty);
-		}
-		private string GetCalendarObjectUrl(string id, string uid) {
-			return "/" + CALENDAR_ROUTE.Replace("{id}", id).Replace("{*path}", uid + ".ics");
-		}
-
+		[Route(ROUTE, "propfind")]
 		[Route(CALENDAR_ROUTE, "propfind")]
-		public ActionResult CalendarPropFind(string id, string path) {
+		public ActionResult CalendarPropFind(string id) {
 			var depth = Request.Headers["Depth"].ToInt() ?? 0;
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
-			if (calendar == null && id.Is("me")) {
-				MakeCalendar(id);
-				calendar = repo.GetCalendarByID(id);
-			}
 
 			var xdoc = GetRequestXml();
 			var props = xdoc.Descendants(CalDav.Common.xDav.GetName("prop")).FirstOrDefault().Elements();
@@ -111,7 +124,7 @@ namespace CalDav.Server.Controllers {
 
 			var displayNameName = Common.xDav.GetName("displayname");
 			var displayName = calendar == null || (!allprop && !props.Any(x => x.Name == displayNameName)) ? null :
-				displayNameName.Element(calendar.Name);
+				displayNameName.Element(calendar.Name ?? calendar.ID);
 
 			var calendarColorName = Common.xApple.GetName("calendar-color");
 			var calendarColor = !allprop && !props.Any(x => x.Name == calendarColorName) ? null :
@@ -166,11 +179,10 @@ namespace CalDav.Server.Controllers {
 
 					 (depth == 0 ? null :
 						 (repo.GetObjects(calendar)
-						 .OfType<Event>()
 						 .Where(x => x != null)
 						 .ToArray()
 							.Select(item => Common.xDav.Element("response",
-								hrefName.Element(GetCalendarObjectUrl(id, item.UID)),
+								hrefName.Element(GetCalendarObjectUrl(calendar.ID, item.UID)),
 									Common.xDav.Element("propstat",
 										Common.xDav.Element("status", "HTTP/1.1 200 OK"),
 										resourceType == null ? null : resourceTypeName.Element(),
@@ -183,28 +195,31 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		[Route(ROUTE, "mkcalendar")]
-		public ActionResult MakeCalendar(string path) {
+		[Route(CALENDAR_ROUTE, "mkcalendar")]
+		public ActionResult MakeCalendar(string id) {
 			var repo = GetService<ICalendarRepository>();
-			repo.CreateCalendar(path);
-			return new Result { Status = System.Net.HttpStatusCode.Created };
+			var calendar = repo.CreateCalendar(id);
+
+			return new Result {
+				Headers = new Dictionary<string, string> {
+					{"Location", GetCalendarUrl(calendar.ID) },
+				},
+				Status = System.Net.HttpStatusCode.Created
+			};
 		}
 
-		[Route(ROUTE, "get")]
-		public ActionResult Get(string path) {
-			return new Result();
-		}
-
-		[Route(CALENDAR_ROUTE, "delete")]
-		public ActionResult Delete(string id, string path) {
+		[Route(OBJECT_ROUTE, "delete")]
+		[Route(CALENDAR_OBJECT_ROUTE, "delete")]
+		public ActionResult Delete(string id, string uid) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
-			repo.DeleteObject(calendar, path);
+			repo.DeleteObject(calendar, uid);
 			return new Result();
 		}
 
-		[Route(CALENDAR_ROUTE, "put")]
-		public ActionResult Put(string id, string path) {
+		[Route(OBJECT_ROUTE, "put")]
+		[Route(CALENDAR_OBJECT_ROUTE, "put")]
+		public ActionResult Put(string id, string uid) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
 			var input = GetRequestCalendar();
@@ -212,18 +227,30 @@ namespace CalDav.Server.Controllers {
 			e.LastModified = DateTime.UtcNow;
 			repo.Save(calendar, e);
 
-
 			return new Result {
 				Headers = new Dictionary<string, string> {
-					{"Location", GetCalendarObjectUrl(id, e.UID) },
-					{"ETag", e.Sequence + "-" + e.LastModified.ToString() }
+					{"Location", GetCalendarObjectUrl(calendar.ID, e.UID) },
+					{"ETag", Common.FormatDate(e.LastModified) }
 				},
 				Status = System.Net.HttpStatusCode.Created
 			};
 		}
 
+		[Route(OBJECT_ROUTE, "get")]
+		[Route(CALENDAR_OBJECT_ROUTE, "get")]
+		public ActionResult Get(string id, string uid) {
+			var repo = GetService<ICalendarRepository>();
+			var calendar = repo.GetCalendarByID(id);
+			var obj = repo.GetObjectByUID(calendar, uid);
+
+			Response.ContentType = "text/calendar";
+			Response.Write(ToString(obj));
+			return null;
+		}
+
+		[Route(ROUTE, "report")]
 		[Route(CALENDAR_ROUTE, "report")]
-		public ActionResult Report(string id, string path) {
+		public ActionResult CalendarReport(string id) {
 			var xdoc = GetRequestXml();
 			if (xdoc == null) return new Result();
 
@@ -246,7 +273,7 @@ namespace CalDav.Server.Controllers {
 			IQueryable<ICalendarObject> result = null;
 			if (filter != null) result = repo.GetObjectsByFilter(calendar, filter);
 			else if (hrefs.Any())
-				result = hrefs.Select(x => repo.GetObjectByPath(Uri.UnescapeDataString(x.Substring(BASE_CALENDAR.Length + 2))))
+				result = hrefs.Select(x => repo.GetObjectByUID(calendar, GetObjectUIDFromPath(x)))
 					.Where(x => x != null)
 					.AsQueryable();
 
@@ -262,7 +289,7 @@ namespace CalDav.Server.Controllers {
 							 CalDav.Common.xDav.Element("prop",
 								(getetag == null ? null : CalDav.Common.xDav.Element("getetag", "\"" + Common.FormatDate(r.LastModified) + "\"")),
 								(calendarData == null ? null : CalDav.Common.xCalDav.Element("calendar-data",
-									ToString(calendar, r)
+									ToString(r)
 								))
 							 )
 						 )
@@ -273,26 +300,8 @@ namespace CalDav.Server.Controllers {
 
 			return new Result {
 				Headers = new Dictionary<string, string> {
-					{"ETag" , Common.FormatDate( repo.GetLastModifiedDate( calendar)) }
+					{"ETag" , calendar == null ? null : Common.FormatDate( calendar.LastModified ) }
 				}
-			};
-		}
-
-		private ActionResult Options_CalendarCollectionSet() {
-			var repo = GetService<ICalendarRepository>();
-			var calendars = repo.GetCalendars().ToArray();
-			if (calendars.Length == 0)
-				calendars = new[] { repo.CreateCalendar("me") };
-
-			return new Result {
-				Content = CalDav.Common.xDav.Element("options-response",
-				 CalDav.Common.xCalDav.Element("calendar-collection-set",
-					 calendars.Select(calendar =>
-						 CalDav.Common.xDav.Element("href",
-							 new Uri(Request.Url, GetCalendarUrl(calendar.Name))
-							 ))
-				 )
-			 )
 			};
 		}
 
@@ -325,27 +334,27 @@ namespace CalDav.Server.Controllers {
 
 		internal System.IO.Stream Stream { get; set; }
 
-		XDocument GetRequestXml() {
+		private XDocument GetRequestXml() {
 			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("xml") || Request.ContentLength == 0)
 				return null;
 			using (var str = (Stream ?? Request.GetBufferlessInputStream()))
 				return XDocument.Load(str);
 		}
 
-		Models.Calendar GetRequestCalendar() {
+		private Calendar GetRequestCalendar() {
 			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("calendar") || Request.ContentLength == 0)
 				return null;
-			var serializer = new Models.Serializer();
+			var serializer = new Serializer();
 			using (var str = (Stream ?? Request.GetBufferlessInputStream())) {
 				var ical = serializer.Deserialize<CalDav.CalendarCollection>(str, Request.ContentEncoding ?? System.Text.Encoding.Default);
-				return (Models.Calendar)ical.FirstOrDefault();
+				return ical.FirstOrDefault();
 			}
 		}
 
-		private static string ToString(Calendar calendar, ICalendarObject obj) {
+		private static string ToString(ICalendarObject obj) {
+			var calendar = new CalDav.Calendar();
 			calendar.AddItem(obj);
-
-			var serializer = new Server.Models.Serializer();
+			var serializer = new Serializer();
 			using (var str = new System.IO.StringWriter()) {
 				serializer.Serialize(str, calendar);
 				return str.ToString();

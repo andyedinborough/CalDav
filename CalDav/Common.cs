@@ -8,9 +8,9 @@ using System.Xml.Linq;
 
 namespace CalDav {
 	public static class Common {
-		public const string PRODID = "-//tracky/CalDav//FUBU v1.0//EN";
+		public const string PRODID = "-//tracky/iCal//FUBU v1.0//EN";
 		public static readonly XNamespace xDav = XNamespace.Get("DAV:");
-		public static readonly XNamespace xCalDav = XNamespace.Get("urn:ietf:params:xml:ns:caldav");
+		public static readonly XNamespace xCalDav = XNamespace.Get("urn:ietf:params:xml:ns:iCal");
 		public static readonly XNamespace xApple = XNamespace.Get("http://apple.com/ns/ical/");
 		public static readonly XNamespace xCardDav = XNamespace.Get("urn:ietf:params:xml:ns:carddav");
 
