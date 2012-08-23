@@ -67,7 +67,9 @@
     <Compile Include="Trigger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CalDav.nuspec" />
+    <None Include="CalDav.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

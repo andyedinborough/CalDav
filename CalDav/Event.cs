@@ -12,6 +12,7 @@ namespace CalDav {
 			Categories = new List<string>();
 			Recurrences = new List<Recurrence>();
 			Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
+			Attachments = new List<Uri>();
 		}
 
 		public virtual Calendar Calendar { get; set; }

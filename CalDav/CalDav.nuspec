@@ -8,5 +8,6 @@
     <language>en-US</language>
     <licenseUrl>http://andyedinborough.mit-license.org/</licenseUrl>
     <releaseNotes><![CDATA[#message#]]></releaseNotes>
-  </metadata>
+		<tags>ical, caldav, dday</tags>
+	</metadata>
 </package>

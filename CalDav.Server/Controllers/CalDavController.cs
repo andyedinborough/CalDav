@@ -11,28 +11,56 @@ using System.Xml.Linq;
 
 namespace CalDav.Server.Controllers {
 	public class CalDavController : Controller {
-		public static void RegisterRoutes(System.Web.Routing.RouteCollection routes, string routePrefix = "caldav") {
-			var type = typeof(CalDavController);
-			var namespaces = new[] { type.Namespace };
-			var controller = type.Name.Substring(0, type.Name.Length - "controller".Length);
+		public static void RegisterRoutes(System.Web.Routing.RouteCollection routes, string routePrefix = "caldav", bool disallowMakeCalendar = false, bool requireAuthentication = false, string basicAuthenticationRealm = null) {
+			RegisterRoutes<CalDavController>(routes, routePrefix, disallowMakeCalendar, requireAuthentication, basicAuthenticationRealm);
+		}
+		public static void RegisterRoutes<T>(System.Web.Routing.RouteCollection routes, string routePrefix = "caldav", bool disallowMakeCalendar = false, bool requireAuthentication = false, string basicAuthenticationRealm = null)
+			where T : CalDavController {
+			var caldavControllerType = typeof(T);
+
+			var namespaces = new[] { caldavControllerType.Namespace };
+			var controller = caldavControllerType.Name;
+			if (caldavControllerType.Name.EndsWith("Controller", StringComparison.OrdinalIgnoreCase))
+				controller = caldavControllerType.Name.Substring(0, caldavControllerType.Name.Length - "controller".Length);
 
 			var defaults = new { controller, action = "index" };
-			routes.MapRoute("CalDav", BASE = routePrefix, defaults, namespaces);
-			routes.MapRoute("CalDav User", USER_ROUTE = routePrefix + "/user/{id}/", defaults, namespaces);
-			routes.MapRoute("CalDav Calendar", CALENDAR_ROUTE = routePrefix + "/calendar/{id}/", defaults, namespaces);
-			routes.MapRoute("CalDav Object", OBJECT_ROUTE = routePrefix + "/{uid}.ics", defaults, namespaces);
-			routes.MapRoute("CalDav Calendar Object", CALENDAR_OBJECT_ROUTE = routePrefix + "/calendar/{id}/{uid}.ics", defaults, namespaces);
+			MapFirst(routes, "CalDav", BASE = routePrefix, defaults, namespaces);
+			MapFirst(routes, "CalDav User", USER_ROUTE = routePrefix + "/user/{id}/", defaults, namespaces);
+			MapFirst(routes, "CalDav Calendar", CALENDAR_ROUTE = routePrefix + "/calendar/{id}/", defaults, namespaces);
+			MapFirst(routes, "CalDav Object", OBJECT_ROUTE = routePrefix + "/{uid}.ics", defaults, namespaces);
+			MapFirst(routes, "CalDav Calendar Object", CALENDAR_OBJECT_ROUTE = routePrefix + "/calendar/{id}/{uid}.ics", defaults, namespaces);
 			rxObjectRoute = new Regex(routePrefix + "(/calendar/(?<id>[^/]+))?/(?<uid>.+?).ics", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+			RequireAuthentication = requireAuthentication;
+			BasicAuthenticationRealm = basicAuthenticationRealm;
+			DisallowMakeCalendar = disallowMakeCalendar;
 		}
 
-		public ActionResult Index(string id, string uid) {
+		private static void MapFirst(System.Web.Routing.RouteCollection routes, string name, string path, object defaults, string[] namespaces) {
+			var route = routes.MapRoute(name, path, defaults);
+			routes.Remove(route);
+			routes.Insert(0, route);
+		}
+
+		public virtual ActionResult Index(string id, string uid) {
+			if (RequireAuthentication && !User.Identity.IsAuthenticated) {
+				return new Result {
+					Status = System.Net.HttpStatusCode.Unauthorized,
+					Headers = BasicAuthenticationRealm == null ? null : new Dictionary<string, string> {
+							{"WWW-Authenticate", "Basic realm=\"" + Request.Url.Host + "\"" }
+					 }
+				};
+			}
+
 			switch (Request.HttpMethod) {
 				case "OPTIONS": return Options();
 				case "PROPFIND": return PropFind(id);
 				case "REPORT": return Report(id);
 				case "DELETE": return Delete(id, uid);
 				case "PUT": return Put(id, uid);
-				case "MKCALENDAR": return MakeCalendar(id);
+				case "MKCALENDAR":
+					if (DisallowMakeCalendar) return NotImplemented();
+					return MakeCalendar(id);
 				case "GET": return Get(id, uid);
 				default: return NotImplemented();
 			}
@@ -40,28 +68,33 @@ namespace CalDav.Server.Controllers {
 
 		private static string BASE, CALENDAR_ROUTE, OBJECT_ROUTE, CALENDAR_OBJECT_ROUTE, USER_ROUTE;
 		private static Regex rxObjectRoute;
+		public static bool DisallowMakeCalendar { get; set; }
+		public static bool RequireAuthentication { get; set; }
+		public static string BasicAuthenticationRealm { get; set; }
 
-		private string GetUserUrl(string id = null) {
+		protected virtual string GetUserUrl(string id = null) {
 			if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
 			if (string.IsNullOrEmpty(id)) id = "ANONYMOUS";
 			return "/" + USER_ROUTE.Replace("{id}", Uri.EscapeDataString(id)).Replace("{*path}", string.Empty);
 		}
 
-		private string GetUserEmail(string id = null) {
+		protected virtual string GetUserEmail(string id = null) {
 			if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
 			return id + "@" + Request.Url.Host;
 		}
-		private string GetCalendarUrl(string id) {
+		protected virtual string GetCalendarUrl(string id) {
 			return "/" + CALENDAR_ROUTE.Replace("{id}", Uri.EscapeDataString(id));
 		}
-		private string GetCalendarObjectUrl(string id, string uid) {
+		protected virtual string GetCalendarObjectUrl(string id, string uid) {
+			if (string.IsNullOrEmpty(id))
+				return "/" + OBJECT_ROUTE.Replace("{uid}", Uri.EscapeDataString(uid));
 			return "/" + CALENDAR_OBJECT_ROUTE.Replace("{id}", Uri.EscapeDataString(id)).Replace("{uid}", Uri.EscapeDataString(uid));
 		}
-		private string GetObjectUIDFromPath(string path) {
+		protected virtual string GetObjectUIDFromPath(string path) {
 			return rxObjectRoute.Match(path).Groups["uid"].Value;
 		}
 
-		public ActionResult Options() {
+		public virtual ActionResult Options() {
 			var xdoc = GetRequestXml();
 			if (xdoc != null) {
 				var request = xdoc.Root.Elements().FirstOrDefault();
@@ -91,7 +124,7 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		public ActionResult PropFind(string id) {
+		public virtual ActionResult PropFind(string id) {
 			var depth = Request.Headers["Depth"].ToInt() ?? 0;
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
@@ -208,7 +241,7 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		public ActionResult MakeCalendar(string id) {
+		public virtual ActionResult MakeCalendar(string id) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.CreateCalendar(id);
 
@@ -220,14 +253,14 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		public ActionResult Delete(string id, string uid) {
+		public virtual ActionResult Delete(string id, string uid) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
 			repo.DeleteObject(calendar, uid);
 			return new Result();
 		}
 
-		public ActionResult Put(string id, string uid) {
+		public virtual ActionResult Put(string id, string uid) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
 			var input = GetRequestCalendar();
@@ -244,7 +277,7 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		public ActionResult Get(string id, string uid) {
+		public virtual ActionResult Get(string id, string uid) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
 			var obj = repo.GetObjectByUID(calendar, uid);
@@ -254,7 +287,7 @@ namespace CalDav.Server.Controllers {
 			return null;
 		}
 
-		public ActionResult Report(string id) {
+		public virtual ActionResult Report(string id) {
 			var xdoc = GetRequestXml();
 			if (xdoc == null) return new Result();
 
@@ -320,6 +353,7 @@ namespace CalDav.Server.Controllers {
 				_Disposables.Add(obj as IDisposable);
 			return obj;
 		}
+
 		protected override void OnResultExecuted(ResultExecutedContext filterContext) {
 			base.OnResultExecuted(filterContext);
 			foreach (var disposable in _Disposables)
@@ -327,12 +361,6 @@ namespace CalDav.Server.Controllers {
 					try {
 						disposable.Dispose();
 					} catch (Exception) { }
-		}
-
-		private T Dependency<T>() where T : class {
-			var name = typeof(T).Name;
-			return HttpContext.Items[name] as T
-				?? (T)(HttpContext.Items[name] = GetService<T>());
 		}
 
 		internal System.IO.Stream Stream { get; set; }

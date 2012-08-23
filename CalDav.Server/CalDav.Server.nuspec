@@ -1,12 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>CalDav</id>
+    <id>CalDav.Server</id>
     <version>#version#</version>
     <authors>Tracky, Andy Edinborough</authors>
     <description>Simple CalDav server.</description>
     <language>en-US</language>
     <licenseUrl>http://andyedinborough.mit-license.org/</licenseUrl>
     <releaseNotes><![CDATA[#message#]]></releaseNotes>
+		<tags>ical, caldav, dday</tags>
+		<dependencies>
+			<dependency id="CalDav" version="0.0.1.0-beta3" />
+		</dependencies>
   </metadata>
 </package>
