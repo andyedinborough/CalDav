@@ -8,16 +8,38 @@ using System.Xml.Linq;
 //http://greenbytes.de/tech/webdav/draft-dusseault-caldav-05.html
 //http://wwcsd.net/principals/__uids__/wiki-ilovemysmartboard/
 
+
 namespace CalDav.Server.Controllers {
 	public class CalDavController : Controller {
-		const string BASE = "caldav";
-		const string BASE_CALENDAR = "caldav/calendar";
-		const string ROUTE = "caldav/{*path}";
-		const string CALENDAR_ROUTE = "caldav/calendar/{id}/";
-		const string OBJECT_ROUTE = "caldav/{uid}.ics";
-		const string CALENDAR_OBJECT_ROUTE = "caldav/calendar/{id}/{uid}.ics";
-		const string USER_ROUTE = "caldav/user/{id}/";
-		private static readonly Regex rxObjectRoute = new Regex("caldav(/calendar/(?<id>[^/]+))?/(?<uid>.+?).ics", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		public static void RegisterRoutes(System.Web.Routing.RouteCollection routes, string routePrefix = "caldav") {
+			var type = typeof(CalDavController);
+			var namespaces = new[] { type.Namespace };
+			var controller = type.Name.Substring(0, type.Name.Length - "controller".Length);
+
+			var defaults = new { controller, action = "index" };
+			routes.MapRoute("CalDav", BASE = routePrefix, defaults, namespaces);
+			routes.MapRoute("CalDav User", USER_ROUTE = routePrefix + "/user/{id}/", defaults, namespaces);
+			routes.MapRoute("CalDav Calendar", CALENDAR_ROUTE = routePrefix + "/calendar/{id}/", defaults, namespaces);
+			routes.MapRoute("CalDav Object", OBJECT_ROUTE = routePrefix + "/{uid}.ics", defaults, namespaces);
+			routes.MapRoute("CalDav Calendar Object", CALENDAR_OBJECT_ROUTE = routePrefix + "/calendar/{id}/{uid}.ics", defaults, namespaces);
+			rxObjectRoute = new Regex(routePrefix + "(/calendar/(?<id>[^/]+))?/(?<uid>.+?).ics", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		}
+
+		public ActionResult Index(string id, string uid) {
+			switch (Request.HttpMethod) {
+				case "OPTIONS": return Options();
+				case "PROPFIND": return PropFind(id);
+				case "REPORT": return Report(id);
+				case "DELETE": return Delete(id, uid);
+				case "PUT": return Put(id, uid);
+				case "MKCALENDAR": return MakeCalendar(id);
+				case "GET": return Get(id, uid);
+				default: return NotImplemented();
+			}
+		}
+
+		private static string BASE, CALENDAR_ROUTE, OBJECT_ROUTE, CALENDAR_OBJECT_ROUTE, USER_ROUTE;
+		private static Regex rxObjectRoute;
 
 		private string GetUserUrl(string id = null) {
 			if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
@@ -39,8 +61,6 @@ namespace CalDav.Server.Controllers {
 			return rxObjectRoute.Match(path).Groups["uid"].Value;
 		}
 
-		[Route(ROUTE, "options")]
-		[Route(CALENDAR_ROUTE, "options")]
 		public ActionResult Options() {
 			var xdoc = GetRequestXml();
 			if (xdoc != null) {
@@ -71,14 +91,7 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		[Route(USER_ROUTE, "propfind")]
-		public ActionResult UserPropFind(string id) {
-			return null;
-		}
-
-		[Route(ROUTE, "propfind")]
-		[Route(CALENDAR_ROUTE, "propfind")]
-		public ActionResult CalendarPropFind(string id) {
+		public ActionResult PropFind(string id) {
 			var depth = Request.Headers["Depth"].ToInt() ?? 0;
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
@@ -195,7 +208,6 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		[Route(CALENDAR_ROUTE, "mkcalendar")]
 		public ActionResult MakeCalendar(string id) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.CreateCalendar(id);
@@ -208,8 +220,6 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		[Route(OBJECT_ROUTE, "delete")]
-		[Route(CALENDAR_OBJECT_ROUTE, "delete")]
 		public ActionResult Delete(string id, string uid) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
@@ -217,8 +227,6 @@ namespace CalDav.Server.Controllers {
 			return new Result();
 		}
 
-		[Route(OBJECT_ROUTE, "put")]
-		[Route(CALENDAR_OBJECT_ROUTE, "put")]
 		public ActionResult Put(string id, string uid) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
@@ -236,8 +244,6 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		[Route(OBJECT_ROUTE, "get")]
-		[Route(CALENDAR_OBJECT_ROUTE, "get")]
 		public ActionResult Get(string id, string uid) {
 			var repo = GetService<ICalendarRepository>();
 			var calendar = repo.GetCalendarByID(id);
@@ -248,9 +254,7 @@ namespace CalDav.Server.Controllers {
 			return null;
 		}
 
-		[Route(ROUTE, "report")]
-		[Route(CALENDAR_ROUTE, "report")]
-		public ActionResult CalendarReport(string id) {
+		public ActionResult Report(string id) {
 			var xdoc = GetRequestXml();
 			if (xdoc == null) return new Result();
 
@@ -305,7 +309,6 @@ namespace CalDav.Server.Controllers {
 			};
 		}
 
-		[Route(ROUTE, null, Precedence = int.MaxValue)]
 		public ActionResult NotImplemented() {
 			return new Result { Status = System.Net.HttpStatusCode.NotImplemented };
 		}
@@ -337,7 +340,7 @@ namespace CalDav.Server.Controllers {
 		private XDocument GetRequestXml() {
 			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("xml") || Request.ContentLength == 0)
 				return null;
-			using (var str = (Stream ?? Request.GetBufferlessInputStream()))
+			using (var str = (Stream ?? Request.InputStream))
 				return XDocument.Load(str);
 		}
 
@@ -345,7 +348,7 @@ namespace CalDav.Server.Controllers {
 			if (!(Request.ContentType ?? string.Empty).ToLower().Contains("calendar") || Request.ContentLength == 0)
 				return null;
 			var serializer = new Serializer();
-			using (var str = (Stream ?? Request.GetBufferlessInputStream())) {
+			using (var str = (Stream ?? Request.InputStream)) {
 				var ical = serializer.Deserialize<CalDav.CalendarCollection>(str, Request.ContentEncoding ?? System.Text.Encoding.Default);
 				return ical.FirstOrDefault();
 			}
