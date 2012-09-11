@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
+using System.Web.Routing;
 using System.Xml.Linq;
 //http://greenbytes.de/tech/webdav/draft-dusseault-caldav-05.html
 //http://wwcsd.net/principals/__uids__/wiki-ilovemysmartboard/
@@ -24,6 +25,8 @@ namespace CalDav.Server.Controllers {
 				controller = caldavControllerType.Name.Substring(0, caldavControllerType.Name.Length - "controller".Length);
 
 			var defaults = new { controller, action = "index" };
+			MapFirst(routes, "CalDav Root", string.Empty, new { controller, action = "PropFind" }, namespaces, new { httpMethod = new Method("PROPFIND") });
+			MapFirst(routes, "CalDav", BASE = routePrefix, defaults, namespaces);
 			MapFirst(routes, "CalDav", BASE = routePrefix, defaults, namespaces);
 			MapFirst(routes, "CalDav User", USER_ROUTE = routePrefix + "/user/{id}/", defaults, namespaces);
 			MapFirst(routes, "CalDav Calendar", CALENDAR_ROUTE = routePrefix + "/calendar/{id}/", defaults, namespaces);
@@ -36,8 +39,10 @@ namespace CalDav.Server.Controllers {
 			DisallowMakeCalendar = disallowMakeCalendar;
 		}
 
-		private static void MapFirst(System.Web.Routing.RouteCollection routes, string name, string path, object defaults, string[] namespaces) {
+		private static void MapFirst(System.Web.Routing.RouteCollection routes, string name, string path, object defaults, string[] namespaces, object constraints = null) {
 			var route = routes.MapRoute(name, path, defaults);
+			if (constraints != null)
+				route.Constraints = new System.Web.Routing.RouteValueDictionary(constraints);
 			routes.Remove(route);
 			routes.Insert(0, route);
 		}
@@ -73,7 +78,9 @@ namespace CalDav.Server.Controllers {
 		public static string BasicAuthenticationRealm { get; set; }
 
 		protected virtual string GetUserUrl(string id = null) {
-			if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
+			if (string.IsNullOrEmpty(id))
+				return GetCalendarUrl(null);
+			//id = User.Identity.Name;
 			if (string.IsNullOrEmpty(id)) id = "ANONYMOUS";
 			return "/" + USER_ROUTE.Replace("{id}", Uri.EscapeDataString(id)).Replace("{*path}", string.Empty);
 		}
@@ -83,6 +90,7 @@ namespace CalDav.Server.Controllers {
 			return id + "@" + Request.Url.Host;
 		}
 		protected virtual string GetCalendarUrl(string id) {
+			if (string.IsNullOrEmpty(id)) return "/" + BASE;
 			return "/" + CALENDAR_ROUTE.Replace("{id}", Uri.EscapeDataString(id));
 		}
 		protected virtual string GetCalendarObjectUrl(string id, string uid) {
@@ -118,10 +126,24 @@ namespace CalDav.Server.Controllers {
 
 			return new Result {
 				Headers = new Dictionary<string, string> {
-					{"Allow", "OPTIONS, PROPFIND, HEAD, GET, REPORT, PROPPATCH, PUT, DELETE, POST" },
-					{"DAV", "1, calendar-access" } //, calendar-schedule, calendar-proxy"}
+					{"Allow", "OPTIONS, PROPFIND, HEAD, GET, REPORT, PROPPATCH, PUT, DELETE, POST" }
 				}
 			};
+		}
+
+		public class Method : ActionMethodSelectorAttribute, IRouteConstraint {
+			private string _Method;
+			public Method(string method) {
+				_Method = method.ToUpper();
+			}
+
+			public override bool IsValidForRequest(ControllerContext controllerContext, System.Reflection.MethodInfo methodInfo) {
+				return _Method.Equals(controllerContext.HttpContext.Request.HttpMethod, StringComparison.OrdinalIgnoreCase);
+			}
+
+			public bool Match(System.Web.HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection) {
+				return _Method.Equals(httpContext.Request.HttpMethod, StringComparison.OrdinalIgnoreCase);
+			}
 		}
 
 		public virtual ActionResult PropFind(string id) {
@@ -145,6 +167,13 @@ namespace CalDav.Server.Controllers {
 					hrefName.Element("mailto:" + GetUserEmail())
 				);
 
+
+			var supportedReportSetName = Common.xDav.GetName("supported-report-set");
+			var supportedReportSet = !allprop && !props.Any(x => x.Name == supportedReportSetName) ? null :
+				supportedReportSetName.Element(
+					Common.xDav.Element("supported-report", Common.xDav.Element("report", Common.xDav.Element("calendar-multiget")))
+				);
+
 			var calendarHomeSetName = Common.xCalDav.GetName("calendar-home-set");
 			var calendarHomeSet = !allprop && !props.Any(x => x.Name == calendarHomeSetName) ? null :
 				calendarHomeSetName.Element(hrefName.Element(GetUserUrl()));
@@ -154,14 +183,12 @@ namespace CalDav.Server.Controllers {
 				getetagName.Element();
 
 			var currentUserPrincipalName = Common.xDav.GetName("current-user-principal");
-			var currentUserPrincipal = !allprop && !props.Any(x => x.Name == currentUserPrincipalName) ? null :
+			var currentUserPrincipal = !props.Any(x => x.Name == currentUserPrincipalName) ? null :
 				currentUserPrincipalName.Element(hrefName.Element(GetUserUrl()));
 
 			var resourceTypeName = Common.xDav.GetName("resourcetype");
 			var resourceType = !allprop && !props.Any(x => x.Name == resourceTypeName) ? null : (
-				currentUserPrincipal != null
-					? resourceTypeName.Element(Common.xDav.Element("principal"))
-					: resourceTypeName.Element(Common.xDav.Element("collection"), Common.xCalDav.Element("calendar"))
+					resourceTypeName.Element(Common.xDav.Element("collection"), Common.xCalDav.Element("calendar"), Common.xDav.Element("principal"))
 				);
 
 			var ownerName = Common.xDav.GetName("owner");
@@ -194,7 +221,8 @@ namespace CalDav.Server.Controllers {
 			var supportedProperties = new HashSet<XName> { 
 				resourceTypeName, ownerName, supportedComponentsName, getContentTypeName,
 				displayNameName, calendarDescriptionName, calendarColorName,
-				currentUserPrincipalName, calendarHomeSetName, calendarUserAddressSetName
+				currentUserPrincipalName, calendarHomeSetName, calendarUserAddressSetName,
+				supportedComponentsName
 			};
 			var prop404 = Common.xDav.Element("prop", props
 						.Where(p => !supportedProperties.Contains(p.Name))
@@ -205,9 +233,6 @@ namespace CalDav.Server.Controllers {
 
 			return new Result {
 				Status = (System.Net.HttpStatusCode)207,
-				Headers = new Dictionary<string, string> {
-					{"DAV","1, calendar-access, calendar-schedule, calendar-proxy" }
-				},
 				Content = Common.xDav.Element("multistatus",
 					Common.xDav.Element("response",
 					Common.xDav.Element("href", Request.RawUrl),
@@ -215,8 +240,9 @@ namespace CalDav.Server.Controllers {
 								Common.xDav.Element("status", "HTTP/1.1 200 OK"),
 								Common.xDav.Element("prop",
 									resourceType, owner, supportedComponents, displayName,
-									getContentType, calendarDescription,
-									currentUserPrincipal
+									getContentType, calendarDescription, calendarHomeSet,
+									currentUserPrincipal, supportedReportSet, calendarColor,
+									calendarUserAddress
 								)
 							),
 

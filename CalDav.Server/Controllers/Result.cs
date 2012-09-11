@@ -20,6 +20,7 @@ namespace CalDav.Server.Controllers {
 			if (Headers != null && Headers.Count > 0)
 				foreach (var header in Headers)
 					res.AppendHeader(header.Key, header.Value);
+			res.AppendHeader("DAV", "1, 2, 3, calendar-access, calendar-schedule, calendar-proxy");
 
 			var content = Content;
 			if (content is XDocument) content = ((XDocument)content).Root;
