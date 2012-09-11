@@ -21,6 +21,7 @@ namespace CalDav {
 		public Calendar Calendar { get; set; }
 		public virtual int? Sequence { get; set; }
 		public virtual DateTime? LastModified { get; set; }
+		public virtual DateTime? Completed { get; set; }
 		public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
 		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
@@ -38,7 +39,9 @@ namespace CalDav {
 					case "PRIORITY": Priority = value.ToInt(); break;
 					case "STATUS": Status = value.ToEnum<Statuses>(); break;
 					case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
+					case "COMPLETED": Completed = value.ToDateTime(); break;
 					case "SEQUENCE": Sequence = value.ToInt(); break;
+					case "END": return;
 					default:
 						Properties.Add(Tuple.Create(name, value, parameters));
 						break;

@@ -7,6 +7,7 @@ namespace CalDav {
 		public FreeBusy() {
 			DTSTAMP = DateTime.UtcNow;
 			Details = new List<DateTimeRange>();
+			Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
 		}
 		DateTime? DTSTAMP;
 		public virtual string UID { get; set; }
@@ -18,6 +19,7 @@ namespace CalDav {
 		public virtual Contact Organizer { get; set; }
 		public Calendar Calendar { get; set; }
 		public virtual ICollection<DateTimeRange> Details { get; set; }
+		public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
 		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
@@ -40,6 +42,10 @@ namespace CalDav {
 							From = parts.FirstOrDefault().ToDateTime(),
 							To = parts.ElementAtOrDefault(1).ToDateTime()
 						});
+						break;
+					case "END": return;
+					default:
+						Properties.Add(Tuple.Create(name, value, parameters));
 						break;
 				}
 			}
