@@ -4,20 +4,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
-using System.Web.Routing;
 using System.Xml.Linq;
 //http://greenbytes.de/tech/webdav/draft-dusseault-caldav-05.html
 //http://wwcsd.net/principals/__uids__/wiki-ilovemysmartboard/
-
 
 namespace CalDav.Server.Controllers
 {
     public class CalDavController : Controller
     {
+        private static string BASE;
+        private static string CALENDAR_ROUTE;
+        private static string OBJECT_ROUTE;
+        private static string CALENDAR_OBJECT_ROUTE;
+        private static string USER_ROUTE;
+        private static Regex _rxObjectRoute;
+
+        public static bool DisallowMakeCalendar { get; set; }
+        public static bool RequireAuthentication { get; set; }
+        public static string BasicAuthenticationRealm { get; set; }
+
+        private readonly List<IDisposable> _disposables = new List<IDisposable>();
+
+        private System.IO.Stream Stream { get; set; }
+
         public static void RegisterRoutes(System.Web.Routing.RouteCollection routes, string routePrefix = "caldav", bool disallowMakeCalendar = false, bool requireAuthentication = false, string basicAuthenticationRealm = null)
         {
             RegisterRoutes<CalDavController>(routes, routePrefix, disallowMakeCalendar, requireAuthentication, basicAuthenticationRealm);
         }
+
         public static void RegisterRoutes<T>(System.Web.Routing.RouteCollection routes, string routePrefix = "caldav", bool disallowMakeCalendar = false, bool requireAuthentication = false, string basicAuthenticationRealm = null)
             where T : CalDavController
         {
@@ -36,7 +50,7 @@ namespace CalDav.Server.Controllers
             MapFirst(routes, "CalDav Calendar", CALENDAR_ROUTE = routePrefix + "/calendar/{id}/", defaults, namespaces);
             MapFirst(routes, "CalDav Object", OBJECT_ROUTE = routePrefix + "/{uid}.ics", defaults, namespaces);
             MapFirst(routes, "CalDav Calendar Object", CALENDAR_OBJECT_ROUTE = routePrefix + "/calendar/{id}/{uid}.ics", defaults, namespaces);
-            rxObjectRoute = new Regex(routePrefix + "(/calendar/(?<id>[^/]+))?/(?<uid>.+?).ics", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            _rxObjectRoute = new Regex(routePrefix + "(/calendar/(?<id>[^/]+))?/(?<uid>.+?).ics", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
             RequireAuthentication = requireAuthentication;
             BasicAuthenticationRealm = basicAuthenticationRealm;
@@ -46,8 +60,12 @@ namespace CalDav.Server.Controllers
         private static void MapFirst(System.Web.Routing.RouteCollection routes, string name, string path, object defaults, string[] namespaces, object constraints = null)
         {
             var route = routes.MapRoute(name, path, defaults);
+
             if (constraints != null)
+            {
                 route.Constraints = new System.Web.Routing.RouteValueDictionary(constraints);
+            }
+
             routes.Remove(route);
             routes.Insert(0, route);
         }
@@ -79,46 +97,62 @@ namespace CalDav.Server.Controllers
                 default: return NotImplemented();
             }
         }
-
-        private static string BASE, CALENDAR_ROUTE, OBJECT_ROUTE, CALENDAR_OBJECT_ROUTE, USER_ROUTE;
-        private static Regex rxObjectRoute;
-        public static bool DisallowMakeCalendar { get; set; }
-        public static bool RequireAuthentication { get; set; }
-        public static string BasicAuthenticationRealm { get; set; }
-
+        
         protected virtual string GetUserUrl(string id = null)
         {
             if (string.IsNullOrEmpty(id))
+            {
                 return GetCalendarUrl(null);
+            }
+
             //id = User.Identity.Name;
-            if (string.IsNullOrEmpty(id)) id = "ANONYMOUS";
+            if (string.IsNullOrEmpty(id))
+            {
+                id = "ANONYMOUS";
+            }
+
             return "/" + USER_ROUTE.Replace("{id}", Uri.EscapeDataString(id)).Replace("{*path}", string.Empty);
         }
 
         protected virtual string GetUserEmail(string id = null)
         {
-            if (string.IsNullOrEmpty(id)) id = User.Identity.Name;
+            if (string.IsNullOrEmpty(id))
+            {
+                id = User.Identity.Name;
+            }
+
             return id + "@" + Request.Url.Host;
         }
+
         protected virtual string GetCalendarUrl(string id)
         {
-            if (string.IsNullOrEmpty(id)) return "/" + BASE;
+            if (string.IsNullOrEmpty(id))
+            {
+                return "/" + BASE;
+            }
+
             return "/" + CALENDAR_ROUTE.Replace("{id}", Uri.EscapeDataString(id));
         }
+
         protected virtual string GetCalendarObjectUrl(string id, string uid)
         {
             if (string.IsNullOrEmpty(id))
+            {
                 return "/" + OBJECT_ROUTE.Replace("{uid}", Uri.EscapeDataString(uid));
+            }
+
             return "/" + CALENDAR_OBJECT_ROUTE.Replace("{id}", Uri.EscapeDataString(id)).Replace("{uid}", Uri.EscapeDataString(uid));
         }
+
         protected virtual string GetObjectUIDFromPath(string path)
         {
-            return rxObjectRoute.Match(path).Groups["uid"].Value;
+            return _rxObjectRoute.Match(path).Groups["uid"].Value;
         }
 
         public virtual ActionResult Options()
         {
             var xdoc = GetRequestXml();
+
             if (xdoc != null)
             {
                 var request = xdoc.Root.Elements().FirstOrDefault();
@@ -149,26 +183,7 @@ namespace CalDav.Server.Controllers
 				}
             };
         }
-
-        public class Method : ActionMethodSelectorAttribute, IRouteConstraint
-        {
-            private string _Method;
-            public Method(string method)
-            {
-                _Method = method.ToUpper();
-            }
-
-            public override bool IsValidForRequest(ControllerContext controllerContext, System.Reflection.MethodInfo methodInfo)
-            {
-                return _Method.Equals(controllerContext.HttpContext.Request.HttpMethod, StringComparison.OrdinalIgnoreCase);
-            }
-
-            public bool Match(System.Web.HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection)
-            {
-                return _Method.Equals(httpContext.Request.HttpMethod, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-
+        
         public virtual ActionResult PropFind(string id)
         {
             var depth = Request.Headers["Depth"].ToInt() ?? 0;
@@ -347,7 +362,11 @@ namespace CalDav.Server.Controllers
         public virtual ActionResult Report(string id)
         {
             var xdoc = GetRequestXml();
-            if (xdoc == null) return new Result();
+
+            if (xdoc == null)
+            {
+                return new Result();
+            }
 
             var repo = GetService<ICalendarRepository>();
             var calendar = repo.GetCalendarByID(id);
@@ -378,20 +397,25 @@ namespace CalDav.Server.Controllers
                 {
                     Status = (System.Net.HttpStatusCode)207,
                     Content = CalDav.Common.xDav.Element("multistatus",
-                    result.Select(r =>
-                     CalDav.Common.xDav.Element("response",
-                         CalDav.Common.xDav.Element("href", new Uri(Request.Url, r.UID + ".ics")),
-                         CalDav.Common.xDav.Element("propstat",
-                             CalDav.Common.xDav.Element("status", "HTTP/1.1 200 OK"),
-                             CalDav.Common.xDav.Element("prop",
-                                (getetag == null ? null : CalDav.Common.xDav.Element("getetag", "\"" + Common.FormatDate(r.LastModified) + "\"")),
-                                (calendarData == null ? null : CalDav.Common.xCalDav.Element("calendar-data",
-                                    ToString(r)
-                                ))
-                             )
-                         )
-                     )
-                    ))
+                        result.Select(r =>
+                            CalDav.Common.xDav.Element("response",
+                                CalDav.Common.xDav.Element("href", new Uri(Request.Url, r.UID + ".ics")),
+                                CalDav.Common.xDav.Element("propstat",
+                                    CalDav.Common.xDav.Element("status", "HTTP/1.1 200 OK"),
+                                    CalDav.Common.xDav.Element("prop",
+                                        (getetag == null
+                                            ? null
+                                            : CalDav.Common.xDav.Element("getetag",
+                                                "\"" + Common.FormatDate(r.LastModified) + "\"")),
+                                        (calendarData == null
+                                            ? null
+                                            : CalDav.Common.xCalDav.Element("calendar-data",
+                                                ToString(r)
+                                                ))
+                                        )
+                                    )
+                                )
+                            ))
                 };
             }
 
@@ -408,42 +432,57 @@ namespace CalDav.Server.Controllers
             return new Result { Status = System.Net.HttpStatusCode.NotImplemented };
         }
 
-        private List<IDisposable> _Disposables = new List<IDisposable>();
         private T GetService<T>()
         {
             var obj = System.Web.Mvc.DependencyResolver.Current.GetService<T>();
+
             if (obj != null && obj is IDisposable)
-                _Disposables.Add(obj as IDisposable);
+            {
+                _disposables.Add(obj as IDisposable);
+            }
+
             return obj;
         }
 
         protected override void OnResultExecuted(ResultExecutedContext filterContext)
         {
             base.OnResultExecuted(filterContext);
-            foreach (var disposable in _Disposables)
+
+            foreach (var disposable in _disposables)
+            {
                 if (disposable != null)
+                {
                     try
                     {
                         disposable.Dispose();
                     }
                     catch (Exception) { }
+                }
+            }
         }
-
-        internal System.IO.Stream Stream { get; set; }
 
         private XDocument GetRequestXml()
         {
             if (!(Request.ContentType ?? string.Empty).ToLower().Contains("xml") || Request.ContentLength == 0)
+            {
                 return null;
+            }
+
             using (var str = (Stream ?? Request.InputStream))
+            {
                 return XDocument.Load(str);
+            }
         }
 
         private Calendar GetRequestCalendar()
         {
             if (!(Request.ContentType ?? string.Empty).ToLower().Contains("calendar") || Request.ContentLength == 0)
+            {
                 return null;
+            }
+
             var serializer = new Serializer();
+
             using (var str = (Stream ?? Request.InputStream))
             {
                 var ical = serializer.Deserialize<CalDav.CalendarCollection>(str, Request.ContentEncoding ?? System.Text.Encoding.Default);
@@ -456,6 +495,7 @@ namespace CalDav.Server.Controllers
             var calendar = new CalDav.Calendar();
             calendar.AddItem(obj);
             var serializer = new Serializer();
+
             using (var str = new System.IO.StringWriter())
             {
                 serializer.Serialize(str, calendar);
