@@ -1,10 +1,11 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace CalDav.Server.Models
 {
     public interface ICalendarRepository
     {
-        IQueryable<ICalendarInfo> GetCalendars();
+        IEnumerable<ICalendarInfo> GetCalendars();
         ICalendarInfo GetCalendarByID(string id);
         ICalendarInfo CreateCalendar(string id);
         void Save(ICalendarInfo calendar, ICalendarObject e);

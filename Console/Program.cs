@@ -14,7 +14,10 @@ namespace ConsoleApp
             var server = new CalDav.Client.Server("http://localhost:60399/caldav/");
 
             if (server.Supports("MKCALENDAR"))
+            {
                 server.CreateCalendar("me");
+            }
+
             var sets = server.GetCalendars();
             sets.ShouldContain(x => x.Url.AbsolutePath.EndsWith("/caldav/me/"));
 
@@ -25,6 +28,7 @@ namespace ConsoleApp
                 Summary = "summary",
                 Sequence = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,
             };
+
             calendar.Save(e);
             Console.WriteLine(e.Url);
         }

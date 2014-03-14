@@ -6,13 +6,7 @@ namespace CalDav
 {
     public class FreeBusy : ICalendarObject
     {
-        public FreeBusy()
-        {
-            DTSTAMP = DateTime.UtcNow;
-            Details = new List<DateTimeRange>();
-            Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
-        }
-        DateTime? DTSTAMP;
+        private DateTime? DTSTAMP;
         public virtual string UID { get; set; }
         public virtual Uri Url { get; set; }
         public virtual int? Sequence { get; set; }
@@ -24,6 +18,13 @@ namespace CalDav
         public virtual ICollection<DateTimeRange> Details { get; set; }
         public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
+        public FreeBusy()
+        {
+            DTSTAMP = DateTime.UtcNow;
+            Details = new List<DateTimeRange>();
+            Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
+        }
+        
         public void Deserialize(System.IO.TextReader rdr, Serializer serializer)
         {
             string name, value;
@@ -68,6 +69,7 @@ namespace CalDav
             wrtr.Property("DTSTART", Start);
             wrtr.Property("DTEND", End);
             wrtr.Property("Url", Url);
+
             foreach (var detail in Details)
             {
                 wrtr.Property("FREEBUSY",
@@ -76,6 +78,7 @@ namespace CalDav
                     );
 
             }
+
             wrtr.EndBlock("VFREEBUSY");
         }
     }

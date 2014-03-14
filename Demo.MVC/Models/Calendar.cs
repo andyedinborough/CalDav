@@ -6,6 +6,7 @@ namespace CalDav.MVC.Models
     public class CalendarInfo : CalDav.Calendar, CalDav.Server.Models.ICalendarInfo
     {
         public string Filename { get; set; }
+
         public DateTime LastModified
         {
             get

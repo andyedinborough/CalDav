@@ -5,8 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using System.Xml.Linq;
-//http://greenbytes.de/tech/webdav/draft-dusseault-caldav-05.html
-//http://wwcsd.net/principals/__uids__/wiki-ilovemysmartboard/
 
 namespace CalDav.Server.Controllers
 {
@@ -43,6 +41,7 @@ namespace CalDav.Server.Controllers
                 controller = caldavControllerType.Name.Substring(0, caldavControllerType.Name.Length - "controller".Length);
 
             var defaults = new { controller, action = "index" };
+
             MapFirst(routes, "CalDav Root", string.Empty, new { controller, action = "PropFind" }, namespaces, new { httpMethod = new Method("PROPFIND") });
             MapFirst(routes, "CalDav", BASE = routePrefix, defaults, namespaces);
             MapFirst(routes, "CalDav", BASE = routePrefix, defaults, namespaces);
@@ -50,6 +49,7 @@ namespace CalDav.Server.Controllers
             MapFirst(routes, "CalDav Calendar", CALENDAR_ROUTE = routePrefix + "/calendar/{id}/", defaults, namespaces);
             MapFirst(routes, "CalDav Object", OBJECT_ROUTE = routePrefix + "/{uid}.ics", defaults, namespaces);
             MapFirst(routes, "CalDav Calendar Object", CALENDAR_OBJECT_ROUTE = routePrefix + "/calendar/{id}/{uid}.ics", defaults, namespaces);
+
             _rxObjectRoute = new Regex(routePrefix + "(/calendar/(?<id>[^/]+))?/(?<uid>.+?).ics", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
             RequireAuthentication = requireAuthentication;
@@ -97,7 +97,7 @@ namespace CalDav.Server.Controllers
                 default: return NotImplemented();
             }
         }
-        
+
         protected virtual string GetUserUrl(string id = null)
         {
             if (string.IsNullOrEmpty(id))
@@ -183,7 +183,7 @@ namespace CalDav.Server.Controllers
 				}
             };
         }
-        
+
         public virtual ActionResult PropFind(string id)
         {
             var depth = Request.Headers["Depth"].ToInt() ?? 0;
@@ -432,8 +432,20 @@ namespace CalDav.Server.Controllers
             return new Result { Status = System.Net.HttpStatusCode.NotImplemented };
         }
 
+        private static ICalendarRepository _service;
+
+        public static void RegisterService(ICalendarRepository service)
+        {
+            _service = service;
+        }
+
         private T GetService<T>()
         {
+            if (typeof(T) == typeof(ICalendarRepository))
+            {
+                return (T)_service;
+            }
+
             var obj = System.Web.Mvc.DependencyResolver.Current.GetService<T>();
 
             if (obj != null && obj is IDisposable)
@@ -468,9 +480,9 @@ namespace CalDav.Server.Controllers
                 return null;
             }
 
-            using (var str = (Stream ?? Request.InputStream))
+            using (var stream = (Stream ?? Request.InputStream))
             {
-                return XDocument.Load(str);
+                return XDocument.Load(stream);
             }
         }
 
@@ -494,6 +506,7 @@ namespace CalDav.Server.Controllers
         {
             var calendar = new CalDav.Calendar();
             calendar.AddItem(obj);
+
             var serializer = new Serializer();
 
             using (var str = new System.IO.StringWriter())

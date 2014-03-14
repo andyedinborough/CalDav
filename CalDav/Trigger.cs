@@ -5,13 +5,14 @@ namespace CalDav
 {
     public class Trigger : IHasParameters
     {
+        public Relateds Related { get; set; }
+        public TimeSpan? Duration { get; set; }
+        public DateTime? DateTime { get; set; }
+
         public enum Relateds
         {
             Start, End
         }
-        public Relateds Related { get; set; }
-        public TimeSpan? Duration { get; set; }
-        public DateTime? DateTime { get; set; }
 
         public NameValueCollection GetParameters()
         {

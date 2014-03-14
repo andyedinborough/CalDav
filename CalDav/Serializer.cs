@@ -8,7 +8,7 @@ namespace CalDav
     public class Serializer
     {
         public Func<Type, object> DependencyResolver { get; set; }
-        private ConcurrentDictionary<Type, Type> _Cache = new ConcurrentDictionary<Type, Type>();
+        private readonly ConcurrentDictionary<Type, Type> _cache = new ConcurrentDictionary<Type, Type>();
 
         public Serializer()
         {
@@ -23,7 +23,7 @@ namespace CalDav
             {
                 DependencyResolver = type =>
                 {
-                    type = _Cache.GetOrAdd(type, t =>
+                    type = _cache.GetOrAdd(type, t =>
                              typeof(Serializer).Assembly.GetTypes().FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsAssignableFrom(type))
                         );
                     return Activator.CreateInstance(type);

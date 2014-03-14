@@ -7,13 +7,19 @@ namespace CalDav.Server.Controllers
 {
     public class Result : System.Web.Mvc.ActionResult
     {
-        public Result() { }
-        public Result(Action<ControllerContext> content) { Content = content; }
-
         public System.Net.HttpStatusCode? Status { get; set; }
         public object Content { get; set; }
         public Dictionary<string, string> Headers { get; set; }
         public string ContentType { get; set; }
+
+        public Result()
+        {
+        }
+
+        public Result(Action<ControllerContext> content)
+        {
+            Content = content;
+        }
 
         public override void ExecuteResult(System.Web.Mvc.ControllerContext context)
         {
@@ -21,23 +27,53 @@ namespace CalDav.Server.Controllers
             res.StatusCode = (int)(Status ?? System.Net.HttpStatusCode.OK);
 
             if (Headers != null && Headers.Count > 0)
+            {
                 foreach (var header in Headers)
+                {
                     res.AppendHeader(header.Key, header.Value);
+                }
+            }
+
             res.AppendHeader("DAV", "1, 2, 3, calendar-access, calendar-schedule, calendar-proxy");
 
             var content = Content;
-            if (content is XDocument) content = ((XDocument)content).Root;
+
+            if (content is XDocument)
+            {
+                content = ((XDocument)content).Root;
+            }
+
             if (content is XElement)
             {
                 ContentType = "text/xml";
                 ((XElement)content).Save(res.Output);
             }
-            else if (content is string) res.Write(content as string);
-            else if (content is byte[]) res.BinaryWrite(content as byte[]);
-            else if (content is Action<ControllerContext>) ((Action<ControllerContext>)content)(context);
+            else
+            {
+                if (content is string)
+                {
+                    res.Write(content as string);
+                }
+                else
+                {
+                    if (content is byte[])
+                    {
+                        res.BinaryWrite(content as byte[]);
+                    }
+                    else
+                    {
+                        if (content is Action<ControllerContext>)
+                        {
+                            ((Action<ControllerContext>)content)(context);
+                        }
+                    }
+                }
+            }
 
             if (ContentType != null)
+            {
                 res.ContentType = ContentType;
+            }
         }
     }
 }

@@ -16,14 +16,19 @@ namespace CalDav
         public static readonly XNamespace xApple = XNamespace.Get("http://apple.com/ns/ical/");
         public static readonly XNamespace xCardDav = XNamespace.Get("urn:ietf:params:xml:ns:carddav");
 
+        private static Regex rxDate = new Regex(@"(\d{4})(\d{2})(\d{2})T?(\d{2}?)(\d{2}?)(\d{2}?)(Z?)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static Regex rxOffset = new Regex(@"((\+|\-)?)(\d{1,2})\:?(\d{2})?", RegexOptions.Compiled);
+
         internal static void BeginBlock(this System.IO.TextWriter wrtr, string name)
         {
             wrtr.WriteLine("BEGIN:" + name.ToUpper());
         }
+
         internal static void EndBlock(this System.IO.TextWriter wrtr, string name)
         {
             wrtr.WriteLine("END:" + name.ToUpper());
         }
+
         internal static void Property(this System.IO.TextWriter wrtr, string name, IEnumerable<string> value)
         {
             wrtr.Property(name, string.Join(",", value.Select(PropertyEncode)), true);
@@ -34,33 +39,59 @@ namespace CalDav
             return string.Equals(input ?? string.Empty, other ?? string.Empty, StringComparison.OrdinalIgnoreCase);
         }
 
-        private static Regex rxDate = new Regex(@"(\d{4})(\d{2})(\d{2})T?(\d{2}?)(\d{2}?)(\d{2}?)(Z?)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         public static DateTime? ToDateTime(this string value, Calendar calendar, string TimeZoneID)
         {
             var date = ToDateTime(value);
-            if (date == null) return null;
-            if (calendar == null) return date;
+
+            if (date == null)
+            {
+                return null;
+            }
+
+            if (calendar == null)
+            {
+                return date;
+            }
             var info = calendar.TimeZones.SelectMany(x => x).Where(x => x.ID == TimeZoneID);
-            if (info == null) return date;
+
+            if (info == null)
+            {
+                return date;
+            }
+
             throw new NotImplementedException();
         }
 
         public static T? ToEnum<T>(this string input) where T : struct, IConvertible
         {
-            if (string.IsNullOrEmpty(input)) return null;
+            if (string.IsNullOrEmpty(input))
+            {
+                return null;
+            }
+
             T ret;
+
             if (System.Enum.TryParse<T>(input.Replace("-", "_"), true, out ret))
+            {
                 return ret;
+            }
+
             return null;
         }
 
         public static DateTime? ToDateTime(this string value)
         {
             if (string.IsNullOrEmpty(value))
+            {
                 return null;
+            }
+
             DateTime ret;
             var match = rxDate.Match(value);
+
             if (match.Success)
+            {
                 return new DateTime(
                     match.Groups[1].Value.ToInt() ?? 0,
                     match.Groups[2].Value.ToInt() ?? 0,
@@ -69,13 +100,17 @@ namespace CalDav
                     match.Groups[5].Value.ToInt() ?? 0,
                     match.Groups[6].Value.ToInt() ?? 0,
                  match.Groups[match.Groups.Count - 1].Value.Is("Z") ? DateTimeKind.Utc : DateTimeKind.Unspecified);
-            else if (DateTime.TryParse(value, out ret))
+            }
+
+            if (DateTime.TryParse(value, out ret))
+            {
                 return ret;
+            }
 
             return (DateTime?)null;
         }
 
-        private static Regex rxOffset = new Regex(@"((\+|\-)?)(\d{1,2})\:?(\d{2})?", RegexOptions.Compiled);
+        
         public static TimeSpan? ToOffset(this string input)
         {
             if (string.IsNullOrEmpty(input)) return null;
@@ -128,6 +163,7 @@ namespace CalDav
                 .Replace("\\;", ";")
                 .Replace("\\,", ",");
         }
+
         internal static void Property(this System.IO.TextWriter wrtr, string name, string value, bool encoded = false, NameValueCollection parameters = null)
         {
             if (value == null) return;
@@ -139,6 +175,7 @@ namespace CalDav
             }
             if (value.Length > 0) wrtr.WriteLine(value);
         }
+
         internal static void Property(this System.IO.TextWriter wrtr, string name, DateTime? value)
         {
             if (value == null
@@ -257,7 +294,7 @@ namespace CalDav
             return true;
         }
 
-        internal static string ParamEncode(string value)
+        private static string ParamEncode(string value)
         {
             if (value == null) return null;
             if (value.Contains('=') || value.Contains(';'))
@@ -270,6 +307,7 @@ namespace CalDav
             if (dateTime == null) return null;
             return FormatDate(dateTime.Value);
         }
+
         public static string FormatDate(this DateTime dateTime)
         {
             return dateTime.ToString("yyyyMMddTHHmmss") + (dateTime.Kind == DateTimeKind.Utc ? "Z" : "");

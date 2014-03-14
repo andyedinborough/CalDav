@@ -1,5 +1,6 @@
 ﻿using CalDav.Server.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 
@@ -7,17 +8,17 @@ namespace CalDav.MVC.Models
 {
     public class CalendarRepository : ICalendarRepository
     {
-        private string _Directory;
+        private readonly string _directory;
 
         public CalendarRepository(IPrincipal user)
         {
-            _Directory = System.IO.Path.Combine(System.Web.HttpRuntime.AppDomainAppPath, "App_Data\\Calendars");
-            System.IO.Directory.CreateDirectory(_Directory);
+            _directory = System.IO.Path.Combine(System.Web.HttpRuntime.AppDomainAppPath, "App_Data\\Calendars");
+            System.IO.Directory.CreateDirectory(_directory);
         }
 
-        public IQueryable<ICalendarInfo> GetCalendars()
+        public IEnumerable<ICalendarInfo> GetCalendars()
         {
-            var files = System.IO.Directory.GetDirectories(_Directory, "*.ical", System.IO.SearchOption.AllDirectories);
+            var files = System.IO.Directory.GetDirectories(_directory, "*.ical", System.IO.SearchOption.AllDirectories);
             if (files.Length == 0)
                 return new[] { CreateCalendar("me") }.AsQueryable();
 
@@ -40,23 +41,41 @@ namespace CalDav.MVC.Models
 
         private static string MakePathSafe(string input)
         {
-            if (input == null) return null;
+            if (input == null)
+            {
+                return null;
+            }
+
             foreach (var c in System.IO.Path.GetInvalidFileNameChars())
+            {
                 input = input.Replace(c, '_');
+            }
+
             return input.Trim('_');
         }
 
         public ICalendarInfo CreateCalendar(string id)
         {
-            if (string.IsNullOrEmpty(id)) return null;
+            if (string.IsNullOrEmpty(id))
+            {
+                return null;
+            }
+
             id = MakePathSafe(id);
-            var filename = System.IO.Path.Combine(_Directory, id + "\\_.ical");
+
+            var filename = System.IO.Path.Combine(_directory, id + "\\_.ical");
             var ical = new CalendarInfo();
             var serializer = new Serializer();
-            System.IO.Directory.CreateDirectory(System.IO.Path.Combine(_Directory, id));
+
+            System.IO.Directory.CreateDirectory(System.IO.Path.Combine(_directory, id));
+
             using (var file = System.IO.File.OpenWrite(filename))
+            {
                 serializer.Serialize(file, ical);
+            }
+
             ical.Filename = filename;
+
             return ical;
         }
 
@@ -64,14 +83,14 @@ namespace CalDav.MVC.Models
         {
             if (string.IsNullOrEmpty(id)) id = "me";
             id = MakePathSafe(id);
-            var filename = System.IO.Path.Combine(_Directory, id + "\\_.ical");
+            var filename = System.IO.Path.Combine(_directory, id + "\\_.ical");
             if (!System.IO.File.Exists(filename))
             {
-                if (id == "me") return CreateCalendar("me");
-                return null;
+                return id == "me" ? CreateCalendar("me") : null;
             }
 
             var calendar = new CalendarInfo();
+
             using (var file = System.IO.File.OpenText(filename))
             {
                 calendar.Deserialize(file);
@@ -83,9 +102,15 @@ namespace CalDav.MVC.Models
 
         public ICalendarObject GetObjectByUID(ICalendarInfo calendar, string uid)
         {
-            var filename = System.IO.Path.Combine(_Directory, calendar.ID, uid + ".ics");
-            if (!System.IO.File.Exists(filename)) return null;
+            var filename = System.IO.Path.Combine(_directory, calendar.ID, uid + ".ics");
+
+            if (!System.IO.File.Exists(filename))
+            {
+                return null;
+            }
+
             var serializer = new Serializer();
+
             using (var file = System.IO.File.OpenText(filename))
             {
                 var ical = (serializer.Deserialize<CalendarCollection>(file))[0];
@@ -99,12 +124,16 @@ namespace CalDav.MVC.Models
 
         public void Save(ICalendarInfo calendar, ICalendarObject e)
         {
-            var filename = System.IO.Path.Combine(_Directory, calendar.ID, e.UID + ".ics");
+            var filename = System.IO.Path.Combine(_directory, calendar.ID, e.UID + ".ics");
             var ical = new CalDav.Calendar();
+
             ical.AddItem(e);
             var serializer = new Serializer();
+
             using (var file = System.IO.File.Open(filename, System.IO.FileMode.Create))
+            {
                 serializer.Serialize(file, ical);
+            }
         }
 
         public IQueryable<ICalendarObject> GetObjectsByFilter(ICalendarInfo calendar, Filter filter)
@@ -114,10 +143,15 @@ namespace CalDav.MVC.Models
 
         public IQueryable<ICalendarObject> GetObjects(ICalendarInfo calendar)
         {
-            if (calendar == null) return new ICalendarObject[0].AsQueryable();
-            var directory = System.IO.Path.Combine(_Directory, calendar.ID);
+            if (calendar == null)
+            {
+                return new ICalendarObject[0].AsQueryable();
+            }
+
+            var directory = System.IO.Path.Combine(_directory, calendar.ID);
             var files = System.IO.Directory.GetFiles(directory, "*.ics");
             var serializer = new Serializer();
+
             return files
                 .SelectMany(x => serializer.Deserialize<CalendarCollection>(x))
                 .SelectMany(x => x.Items)
@@ -135,10 +169,19 @@ namespace CalDav.MVC.Models
         {
             var uid = path.Split('/').Last().Split('.').FirstOrDefault();
             var obj = GetObjectByUID(calendar, uid);
-            if (obj == null) return;
-            var filename = System.IO.Path.Combine(_Directory, calendar.ID, obj.UID + ".ics");
-            if (!System.IO.File.Exists(filename))
+
+            if (obj == null)
+            {
                 return;
+            }
+
+            var filename = System.IO.Path.Combine(_directory, calendar.ID, obj.UID + ".ics");
+
+            if (!System.IO.File.Exists(filename))
+            {
+                return;
+            }
+
             System.IO.File.Delete(filename);
         }
     }

@@ -93,13 +93,11 @@
     <Compile Include="Serializer.cs" />
     <Compile Include="Statuses.cs" />
     <Compile Include="TimeZone.cs" />
+    <Compile Include="TimeZoneDetail.cs" />
     <Compile Include="ToDo.cs" />
     <Compile Include="Trigger.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CalDav.nuspec">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -6,13 +6,6 @@ namespace CalDav
 {
     public class JournalEntry : ICalendarObject
     {
-        public JournalEntry()
-        {
-            DTSTAMP = DateTime.UtcNow;
-            Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
-        }
-        DateTime? DTSTAMP;
-
         public virtual Classes? Class { get; set; }
         public virtual string UID { get; set; }
         public virtual Contact Organizer { get; set; }
@@ -24,6 +17,15 @@ namespace CalDav
         public virtual Calendar Calendar { get; set; }
         public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
+        private DateTime? _dtstamp;
+
+
+        public JournalEntry()
+        {
+            _dtstamp = DateTime.UtcNow;
+            Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
+        }
+      
         public void Deserialize(System.IO.TextReader rdr, Serializer serializer)
         {
             string name, value;
@@ -45,7 +47,7 @@ namespace CalDav
                     case "DESCRIPTION": Description = value; break;
                     case "SEQUENCE": Sequence = value.ToInt(); break;
                     case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
-                    case "DTSTAMP": DTSTAMP = value.ToDateTime(); break;
+                    case "DTSTAMP": _dtstamp = value.ToDateTime(); break;
                     case "END": return;
                     default:
                         Properties.Add(Tuple.Create(name, value, parameters));

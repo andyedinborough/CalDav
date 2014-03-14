@@ -6,12 +6,6 @@ namespace CalDav
 {
     public class ToDo : ICalendarObject
     {
-        public ToDo()
-        {
-            Categories = new List<string>();
-            Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
-        }
-
         public virtual string UID { get; set; }
         internal DateTime? DTSTAMP;
         public virtual DateTime? Start { get; set; }
@@ -26,6 +20,12 @@ namespace CalDav
         public virtual DateTime? LastModified { get; set; }
         public virtual DateTime? Completed { get; set; }
         public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
+
+        public ToDo()
+        {
+            Categories = new List<string>();
+            Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
+        }
 
         public void Deserialize(System.IO.TextReader rdr, Serializer serializer)
         {
