@@ -1,6 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9A2D1E8A-0F23-4431-8FAD-113F12F2AD96}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0374EF10-4265-4EEC-8608-94D0561FBF7F}"
+	ProjectSection(SolutionItems) = preProject
+		Create-Package.ps1 = Create-Package.ps1
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{EE946C60-392B-4A4F-B0A5-9D9A32C283DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{FABD2E1F-315B-4DCB-8DDA-FDE9263F99E1}"
@@ -9,23 +23,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav", "CalDav\CalDav.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.Client", "CalDav.Client\CalDav.Client.csproj", "{1B9B42A0-A34B-4BF6-A5D5-21C46ED0D9B3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9A2D1E8A-0F23-4431-8FAD-113F12F2AD96}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.WPF", "Demo.WPF\Demo.WPF.csproj", "{69BD41BC-3945-4C33-8A07-A0BD6DD9B160}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalDav.Server", "CalDav.Server\CalDav.Server.csproj", "{471EA68F-FB1F-4DF8-AAC1-31022C7316AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.MVC", "Demo.MVC\Demo.MVC.csproj", "{9164611E-4CAF-4FE1-B707-397CC1D515C0}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0374EF10-4265-4EEC-8608-94D0561FBF7F}"
-	ProjectSection(SolutionItems) = preProject
-		Create-Package.ps1 = Create-Package.ps1
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
