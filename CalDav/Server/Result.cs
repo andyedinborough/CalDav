@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Xml.Linq;
 
-namespace CalDav.Server.Controllers
+namespace CalDav.Server
 {
     public class Result : System.Web.Mvc.ActionResult
     {

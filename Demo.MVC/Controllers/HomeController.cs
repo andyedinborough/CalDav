@@ -1,10 +1,9 @@
-﻿using System;
-using System.Web.Mvc;
-using CalDav;
+﻿using CalDav;
 using CalDav.MVC.Models;
-using CalDav.Server.Controllers;
-using CalDav.Server.Models;
+using CalDav.Server;
+using System;
 using System.Security.Principal;
+using System.Web.Mvc;
 
 namespace Demo.MVC.Controllers
 {

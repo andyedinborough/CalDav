@@ -18,7 +18,7 @@ namespace Demo.MVC
         public static void RegisterRoutes(RouteCollection routes)
         {
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-            CalDav.Server.Controllers.CalDavController.RegisterRoutes(routes);
+            CalDav.Server.CalDavController.RegisterRoutes(routes);
 
             //http://localhost:59780/caldav/calendar/me/.ics
 

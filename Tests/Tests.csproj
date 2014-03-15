@@ -65,10 +65,6 @@
     <Compile Include="IRLTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CalDav.Client\CalDav.Client.csproj">
-      <Project>{1b9b42a0-a34b-4bf6-a5d5-21c46ed0d9b3}</Project>
-      <Name>CalDav.Client</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CalDav\CalDav.csproj">
       <Project>{01a4c4cf-5ad1-4324-a391-dc922c84be1c}</Project>
       <Name>CalDav</Name>

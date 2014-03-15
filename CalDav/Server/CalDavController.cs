@@ -1,4 +1,4 @@
-﻿using CalDav.Server.Models;
+﻿using CalDav.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using System.Xml.Linq;
 
-namespace CalDav.Server.Controllers
+namespace CalDav.Server
 {
     public class CalDavController : Controller
     {

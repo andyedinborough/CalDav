@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace CalDav.Server.Models
+namespace CalDav.Server
 {
     public interface ICalendarRepository
     {

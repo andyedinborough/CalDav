@@ -136,10 +136,6 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CalDav.Server\CalDav.Server.csproj">
-      <Project>{471ea68f-fb1f-4df8-aac1-31022c7316ab}</Project>
-      <Name>CalDav.Server</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CalDav\CalDav.csproj">
       <Project>{01a4c4cf-5ad1-4324-a391-dc922c84be1c}</Project>
       <Name>CalDav</Name>
