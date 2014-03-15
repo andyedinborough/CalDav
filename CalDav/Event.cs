@@ -111,15 +111,26 @@ namespace CalDav
         public void Serialize(System.IO.TextWriter wrtr)
         {
             if (End != null && Start != null && End < Start)
+            {
                 End = Start;
+            }
 
             wrtr.BeginBlock("VEVENT");
             wrtr.Property("UID", UID);
+
             if (Attendees != null)
+            {
                 foreach (var attendee in Attendees)
+                {
                     wrtr.Property("ATTENDEE", attendee);
+                }
+            }
+
             if (Categories != null && Categories.Count > 0)
+            {
                 wrtr.Property("CATEGORIES", Categories);
+            }
+
             wrtr.Property("CLASS", Class);
             wrtr.Property("CREATED", Created);
             wrtr.Property("DESCRIPTION", Description);
@@ -137,12 +148,21 @@ namespace CalDav
             wrtr.Property("URL", Url);
 
             if (Properties != null)
+            {
                 foreach (var prop in Properties)
+                {
                     wrtr.Property(prop.Item1, prop.Item2, parameters: prop.Item3);
+                }
+            }
 
             if (Alarms != null)
+            {
                 foreach (var alarm in Alarms)
+                {
                     alarm.Serialize(wrtr);
+                }
+            }
+
             wrtr.EndBlock("VEVENT");
         }
     }

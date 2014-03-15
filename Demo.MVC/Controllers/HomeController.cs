@@ -1,10 +1,9 @@
-﻿using CalDav.MVC.Models;
+﻿using System;
+using CalDav;
+using CalDav.MVC.Models;
 using CalDav.Server.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Security.Principal;
-using System.Web.Mvc;
 using CalDav.Server.Models;
+using System.Security.Principal;
 
 namespace Demo.MVC.Controllers
 {
@@ -12,14 +11,24 @@ namespace Demo.MVC.Controllers
     {
         public HomeController()
         {
-            //var obj = System.Web.Mvc.DependencyResolver.Current.GetService<T>();
-            //CalendarRepository
-
-
-            //System.Web.Mvc.DependencyResolver.SetResolver(new R());
-            
             IPrincipal user = new GenericPrincipal(new GenericIdentity("User 1"), new[] { "student" });
+
+            var e = new Event
+            {
+                Created = DateTime.Now,
+                Start = DateTime.Now,
+                End = DateTime.Now.AddDays(1),
+                Description = "Test",
+                Location = "sdfsdf"
+            };
+
+
             ICalendarRepository repository = new CalendarRepository(user);
+            var calendar = repository.CreateCalendar("me");
+            //calendar.ID = "student-calendar";
+            (calendar as CalendarInfo).AddItem(e);
+            repository.Save(calendar, e);
+
             RegisterService(repository);
 
         }

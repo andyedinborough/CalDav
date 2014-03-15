@@ -136,6 +136,8 @@ namespace CalDav.Server.Controllers
 
         protected virtual string GetCalendarObjectUrl(string id, string uid)
         {
+            uid = String.IsNullOrEmpty(uid) ? "_" : uid;
+
             if (string.IsNullOrEmpty(id))
             {
                 return "/" + OBJECT_ROUTE.Replace("{uid}", Uri.EscapeDataString(uid));
@@ -191,120 +193,147 @@ namespace CalDav.Server.Controllers
             var calendar = repo.GetCalendarByID(id);
 
             var xdoc = GetRequestXml();
-            var props = xdoc.Descendants(CalDav.Common.xDav.GetName("prop")).FirstOrDefault().Elements();
+            var props = xdoc.Descendants(CalDav.Common.xDav.GetName("prop")).FirstOrDefault().Elements().ToList();
 
             var allprop = props.Elements(Common.xDav.GetName("allprops")).Any();
             var hrefName = Common.xDav.GetName("href");
+
             //var scheduleInboxURLName = Common.xCalDav.GetName("schedule-inbox-URL");
             //var scheduleOutoxURLName = Common.xCalDav.GetName("schedule-outbox-URL");
             //var addressbookHomeSetName = Common.xCalDav.GetName("addressbook-home-set");
 
             var calendarUserAddressSetName = Common.xCalDav.GetName("calendar-user-address-set");
-            var calendarUserAddress = !allprop && !props.Any(x => x.Name == calendarUserAddressSetName) ? null :
-                calendarUserAddressSetName.Element(
-                    hrefName.Element(GetUserUrl()),
-                    hrefName.Element("mailto:" + GetUserEmail())
-                );
+            var calendarUserAddress = !allprop && props.All(x => x.Name != calendarUserAddressSetName)
+                ? null
+                : calendarUserAddressSetName.Element(hrefName.Element(GetUserUrl()), hrefName.Element("mailto:" + GetUserEmail()));
 
 
             var supportedReportSetName = Common.xDav.GetName("supported-report-set");
-            var supportedReportSet = !allprop && !props.Any(x => x.Name == supportedReportSetName) ? null :
-                supportedReportSetName.Element(
-                    Common.xDav.Element("supported-report", Common.xDav.Element("report", Common.xDav.Element("calendar-multiget")))
-                );
+
+            var supportedReportSet = !allprop && props.All(x => x.Name != supportedReportSetName)
+                ? null
+                : supportedReportSetName.Element(Common.xDav.Element("supported-report", Common.xDav.Element("report", Common.xDav.Element("calendar-multiget"))));
 
             var calendarHomeSetName = Common.xCalDav.GetName("calendar-home-set");
-            var calendarHomeSet = !allprop && !props.Any(x => x.Name == calendarHomeSetName) ? null :
-                calendarHomeSetName.Element(hrefName.Element(GetUserUrl()));
+            var calendarHomeSet = !allprop && props.All(x => x.Name != calendarHomeSetName)
+                ? null
+                : calendarHomeSetName.Element(hrefName.Element(GetUserUrl()));
 
             var getetagName = Common.xDav.GetName("getetag");
-            var getetag = !allprop && !props.Any(x => x.Name == getetagName) ? null :
-                getetagName.Element();
+
+            var getetag = !allprop && props.All(x => x.Name != getetagName)
+                ? null
+                : getetagName.Element();
 
             var currentUserPrincipalName = Common.xDav.GetName("current-user-principal");
-            var currentUserPrincipal = !props.Any(x => x.Name == currentUserPrincipalName) ? null :
-                currentUserPrincipalName.Element(hrefName.Element(GetUserUrl()));
+
+            var currentUserPrincipal = props.All(x => x.Name != currentUserPrincipalName)
+                ? null
+                : currentUserPrincipalName.Element(hrefName.Element(GetUserUrl()));
 
             var resourceTypeName = Common.xDav.GetName("resourcetype");
-            var resourceType = !allprop && !props.Any(x => x.Name == resourceTypeName) ? null : (
-                    resourceTypeName.Element(Common.xDav.Element("collection"), Common.xCalDav.Element("calendar"), Common.xDav.Element("principal"))
-                );
+
+            var resourceType = !allprop && props.All(x => x.Name != resourceTypeName)
+                ? null
+                : (resourceTypeName.Element(Common.xDav.Element("collection"), Common.xCalDav.Element("calendar"), Common.xDav.Element("principal")));
 
             var ownerName = Common.xDav.GetName("owner");
-            var owner = !allprop && !props.Any(x => x.Name == ownerName) ? null :
-                ownerName.Element(hrefName.Element(GetUserUrl()));
+            var owner = !allprop && props.All(x => x.Name != ownerName)
+                ? null
+                : ownerName.Element(hrefName.Element(GetUserUrl()));
 
             var displayNameName = Common.xDav.GetName("displayname");
-            var displayName = calendar == null || (!allprop && !props.Any(x => x.Name == displayNameName)) ? null :
-                displayNameName.Element(calendar.Name ?? calendar.ID);
+            var displayName = calendar == null || (!allprop && props.All(x => x.Name != displayNameName))
+                ? null
+                : displayNameName.Element(calendar.Name ?? calendar.ID);
 
             var calendarColorName = Common.xApple.GetName("calendar-color");
-            var calendarColor = !allprop && !props.Any(x => x.Name == calendarColorName) ? null :
-                calendarColorName.Element("FF5800");
+            var calendarColor = !allprop && props.All(x => x.Name != calendarColorName)
+                ? null
+                : calendarColorName.Element("FF5800");
 
             var calendarDescriptionName = Common.xCalDav.GetName("calendar-description");
-            var calendarDescription = calendar == null || (!allprop && !props.Any(x => x.Name == calendarDescriptionName)) ? null :
-                calendarDescriptionName.Element(calendar.Name);
+            var calendarDescription = calendar == null || (!allprop && props.All(x => x.Name != calendarDescriptionName))
+                ? null
+                : calendarDescriptionName.Element(calendar.Name);
 
             var supportedComponentsName = Common.xCalDav.GetName("supported-calendar-component-set");
-            var supportedComponents = !allprop && !props.Any(x => x.Name == supportedComponentsName) ? null :
-                new[]{
-					Common.xCalDav.Element("comp", new XAttribute("name", "VEVENT")),
-					Common.xCalDav.Element("comp", new XAttribute("name", "VTODO"))
-				};
+
+            var supportedComponents = !allprop && props.All(x => x.Name != supportedComponentsName)
+                ? null
+                : new[]
+                {
+                    Common.xCalDav.Element("comp", new XAttribute("name", "VEVENT")),
+                    Common.xCalDav.Element("comp", new XAttribute("name", "VTODO"))
+                };
 
             var getContentTypeName = Common.xDav.GetName("getcontenttype");
-            var getContentType = !allprop && !props.Any(x => x.Name == getContentTypeName) ? null :
+
+            var getContentType = !allprop && props.All(x => x.Name != getContentTypeName) ? null :
                 getContentTypeName.Element("text/calendar; component=vevent");
 
-            var supportedProperties = new HashSet<XName> { 
-				resourceTypeName, ownerName, supportedComponentsName, getContentTypeName,
-				displayNameName, calendarDescriptionName, calendarColorName,
-				currentUserPrincipalName, calendarHomeSetName, calendarUserAddressSetName,
-				supportedComponentsName
-			};
-            var prop404 = Common.xDav.Element("prop", props
-                        .Where(p => !supportedProperties.Contains(p.Name))
-                        .Select(p => new XElement(p.Name))
-                );
-            var propStat404 = Common.xDav.Element("propstat",
-                Common.xDav.Element("status", "HTTP/1.1 404 Not Found"), prop404);
+            //var resourceTypeName = Common.xCalDav.GetName("resourcetype");
+            //var ownerName = Common.xCalDav.GetName("owner");
+            var getcTagName = Common.xCalDav.GetName("getctag");
 
-            return new Result
+
+            var supportedProperties = new HashSet<XName>
+            {
+                resourceTypeName,
+                ownerName,
+                supportedComponentsName,
+                getContentTypeName,
+                displayNameName,
+                calendarDescriptionName,
+                calendarColorName,
+                currentUserPrincipalName,
+                calendarHomeSetName,
+                calendarUserAddressSetName,
+                supportedComponentsName
+            };
+
+            var prop404 = Common.xDav.Element("prop", props.Where(p => !supportedProperties.Contains(p.Name)).Select(p => new XElement(p.Name)));
+            var propStat404 = Common.xDav.Element("propstat", Common.xDav.Element("status", "HTTP/1.1 404 Not Found"), prop404);
+
+            Object status = prop404.Elements().Any() ? propStat404 : null;
+            status = null;
+
+            var response = Common.xDav.Element("response",
+                Common.xDav.Element("href", Request.RawUrl),
+                Common.xDav.Element("propstat",
+                    Common.xDav.Element("status", "HTTP/1.1 200 OK"),
+                    Common.xDav.Element("prop",
+                        resourceType, owner, supportedComponents, displayName,
+                        getContentType, calendarDescription, calendarHomeSet,
+                        currentUserPrincipal, supportedReportSet, calendarColor,
+                        calendarUserAddress)
+                    ), status);
+
+            var calendarObjects = repo.GetObjects(calendar).Where(x => x != null).ToArray();
+
+            var calendarItems = calendarObjects.Select(item => Common.xDav.Element("response",
+                                 hrefName.Element(GetCalendarObjectUrl(calendar.ID, item.UID)),
+                                 Common.xDav.Element("propstat",
+                                     Common.xDav.Element("status", "HTTP/1.1 200 OK"),
+                                     resourceType == null ? null : resourceTypeName.Element(),
+                                     (getContentType == null
+                                         ? null
+                                         : getContentTypeName.Element("text/calendar; component=v" + item.GetType().Name.ToLower())),
+                                     getetag == null
+                                         ? null
+                                         : getetagName.Element("\"" + Common.FormatDate(item.LastModified) + "\"")
+                                     ))).ToArray();
+
+
+            var objects = calendarItems; //(depth == 0 ? null : calendarItems);
+
+            var result = new Result
             {
                 Status = (System.Net.HttpStatusCode)207,
-                Content = Common.xDav.Element("multistatus",
-                    Common.xDav.Element("response",
-                    Common.xDav.Element("href", Request.RawUrl),
-                    Common.xDav.Element("propstat",
-                                Common.xDav.Element("status", "HTTP/1.1 200 OK"),
-                                Common.xDav.Element("prop",
-                                    resourceType, owner, supportedComponents, displayName,
-                                    getContentType, calendarDescription, calendarHomeSet,
-                                    currentUserPrincipal, supportedReportSet, calendarColor,
-                                    calendarUserAddress
-                                )
-                            ),
-
-                            (prop404.Elements().Any() ? propStat404 : null)
-                     ),
-
-                     (depth == 0 ? null :
-                         (repo.GetObjects(calendar)
-                         .Where(x => x != null)
-                         .ToArray()
-                            .Select(item => Common.xDav.Element("response",
-                                hrefName.Element(GetCalendarObjectUrl(calendar.ID, item.UID)),
-                                    Common.xDav.Element("propstat",
-                                        Common.xDav.Element("status", "HTTP/1.1 200 OK"),
-                                        resourceType == null ? null : resourceTypeName.Element(),
-                                        (getContentType == null ? null : getContentTypeName.Element("text/calendar; component=v" + item.GetType().Name.ToLower())),
-                                        getetag == null ? null : getetagName.Element("\"" + Common.FormatDate(item.LastModified) + "\"")
-                                    )
-                                ))
-                            .ToArray()))
-                 )
+                Content = Common.xDav.Element("multistatus", response, objects)
             };
+
+            return result;
         }
 
         public virtual ActionResult MakeCalendar(string id)

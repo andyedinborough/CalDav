@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CalDav.Server.Models
+namespace CalDav
 {
     public interface ICalendarInfo
     {

@@ -24,6 +24,7 @@ namespace CalDav
         public virtual ICollection<JournalEntry> JournalEntries { get; set; }
         public virtual ICollection<FreeBusy> FreeBusy { get; set; }
         public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
+        public string Scale { get; set; }
 
         public virtual IQueryable<ICalendarObject> Items
         {
@@ -37,15 +38,32 @@ namespace CalDav
 
         public virtual void AddItem(ICalendarObject obj)
         {
-            if (obj == null) return;
-            else if (obj is Event) Events.Add((Event)obj);
-            else if (obj is ToDo) ToDos.Add((ToDo)obj);
-            else if (obj is JournalEntry) JournalEntries.Add((JournalEntry)obj);
-            else if (obj is FreeBusy) FreeBusy.Add((FreeBusy)obj);
-            else throw new InvalidCastException();
-        }
+            if (obj == null)
+            {
+                return;
+            }
 
-        public string Scale { get; set; }
+            if (obj is Event)
+            {
+                Events.Add((Event)obj);
+            }
+            else if (obj is ToDo)
+            {
+                ToDos.Add((ToDo)obj);
+            }
+            else if (obj is JournalEntry)
+            {
+                JournalEntries.Add((JournalEntry)obj);
+            }
+            else if (obj is FreeBusy)
+            {
+                FreeBusy.Add((FreeBusy)obj);
+            }
+            else
+            {
+                throw new InvalidCastException();
+            }
+        }
 
         public virtual void Deserialize(System.IO.TextReader rdr, Serializer serializer = null)
         {
@@ -142,6 +160,14 @@ namespace CalDav
                 jn.Serialize(wrtr);
             }
             wrtr.EndBlock("VCALENDAR");
+        }
+
+        public void Save(string directory, string calendarId = "me", string uid = "")
+        {
+            var filename = System.IO.Path.Combine(directory, calendarId, uid + ".ics");
+
+            var serializer = new Serializer();
+            serializer.Serialize(filename, this);
         }
     }
 }

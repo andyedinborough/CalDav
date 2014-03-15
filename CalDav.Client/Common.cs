@@ -11,6 +11,7 @@ namespace CalDav.Client
         {
             return Request(url, method, content.Root, credentials, headers);
         }
+
         public static Tuple<System.Net.HttpStatusCode, string, System.Net.WebHeaderCollection> Request(Uri url, string method, XElement content, NetworkCredential credentials = null, System.Collections.Generic.Dictionary<string, object> headers = null)
         {
             return Request(url, method, (req, str) =>
@@ -65,10 +66,14 @@ namespace CalDav.Client
                 }
 
                 using (var res = GetResponse(req))
-                using (var str = res.GetResponseStream())
-                using (var rdr = new System.IO.StreamReader(str))
                 {
-                    return Tuple.Create(res.StatusCode, rdr.ReadToEnd(), res.Headers);
+                    using (var str = res.GetResponseStream())
+                    {
+                        using (var rdr = new System.IO.StreamReader(str))
+                        {
+                            return Tuple.Create(res.StatusCode, rdr.ReadToEnd(), res.Headers);
+                        }
+                    }
                 }
             }
         }
