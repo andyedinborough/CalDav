@@ -20,6 +20,14 @@ namespace Demo.MVC
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
             CalDav.Server.Controllers.CalDavController.RegisterRoutes(routes);
 
+            //http://localhost:59780/caldav/calendar/me/.ics
+
+            routes.MapRoute(
+                    "ICS",
+                    "caldav/calendar/{*path}",
+                    new { controller = "Home", action = "Ics" }
+            );
+
             routes.MapRoute(
                     "Default", // Route name
                     "{controller}/{action}/{id}", // URL with parameters

@@ -9,9 +9,10 @@ namespace ConsoleApp
         //http://www.phpkode.com/source/p/eyeos/eyeos-2.5/eyeos/system/Frameworks/Calendar/calDavLib/caldav-client.php
         //http://www.webdav.org/specs/rfc4791.html
         //https://bugzilla.mozilla.org/show_bug.cgi?id=702570
+
         static void Main(string[] args)
         {
-            var server = new CalDav.Client.Server("http://localhost:60399/caldav/");
+            var server = new CalDav.Client.Server("http://localhost:59780/caldav/");
 
             if (server.Supports("MKCALENDAR"))
             {

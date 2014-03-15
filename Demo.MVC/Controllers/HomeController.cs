@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Web.Mvc;
 using CalDav;
 using CalDav.MVC.Models;
 using CalDav.Server.Controllers;
@@ -31,6 +32,12 @@ namespace Demo.MVC.Controllers
 
             RegisterService(repository);
 
+        }
+
+        public ActionResult Ics(string path)
+        {
+            var file = @"C:\X\CalDAV\Demo.MVC\App_Data\Calendars\" + path.Replace("/", "\\");
+            return File(file, "text/calendar");
         }
     }
 }
