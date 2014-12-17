@@ -3,36 +3,49 @@ using System.Data.Entity.Infrastructure;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace Demo.MVC {
-	// Note: For instructions on enabling IIS6 or IIS7 classic mode, 
-	// visit http://go.microsoft.com/?LinkId=9394801
+namespace Demo.MVC
+{
+    // Note: For instructions on enabling IIS6 or IIS7 classic mode, 
+    // visit http://go.microsoft.com/?LinkId=9394801
 
-	public class MvcApplication : System.Web.HttpApplication {
-		public static void RegisterGlobalFilters(GlobalFilterCollection filters) {
-			filters.Add(new HandleErrorAttribute());
-		}
+    public class MvcApplication : System.Web.HttpApplication
+    {
+        public static void RegisterGlobalFilters(GlobalFilterCollection filters)
+        {
+            filters.Add(new HandleErrorAttribute());
+        }
 
-		public static void RegisterRoutes(RouteCollection routes) {
-			routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
-			CalDav.Server.Controllers.CalDavController.RegisterRoutes(routes);
+        public static void RegisterRoutes(RouteCollection routes)
+        {
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            CalDav.Server.CalDavController.RegisterRoutes(routes);
 
-			routes.MapRoute(
-					"Default", // Route name
-					"{controller}/{action}/{id}", // URL with parameters
-					new { controller = "Home", action = "Index", id = UrlParameter.Optional } // Parameter defaults
-			);
+            //http://localhost:59780/caldav/calendar/me/.ics
+
+            routes.MapRoute(
+                    "ICS",
+                    "caldav/calendar/{*path}",
+                    new { controller = "Home", action = "Ics" }
+            );
+
+            routes.MapRoute(
+                    "Default", // Route name
+                    "{controller}/{action}/{id}", // URL with parameters
+                    new { controller = "Home", action = "Index", id = UrlParameter.Optional } // Parameter defaults
+            );
 
 
-		}
+        }
 
-		protected void Application_Start() {
-			AreaRegistration.RegisterAllAreas();
+        protected void Application_Start()
+        {
+            AreaRegistration.RegisterAllAreas();
 
-			// Use LocalDB for Entity Framework by default
-			Database.DefaultConnectionFactory = new SqlConnectionFactory(@"Data Source=(localdb)\v11.0; Integrated Security=True; MultipleActiveResultSets=True");
+            // Use LocalDB for Entity Framework by default
+            Database.DefaultConnectionFactory = new SqlConnectionFactory(@"Data Source=(localdb)\v11.0; Integrated Security=True; MultipleActiveResultSets=True");
 
-			RegisterGlobalFilters(GlobalFilters.Filters);
-			RegisterRoutes(RouteTable.Routes);
-		}
-	}
+            RegisterGlobalFilters(GlobalFilters.Filters);
+            RegisterRoutes(RouteTable.Routes);
+        }
+    }
 }

@@ -1,6 +1,8 @@
 ﻿
-namespace CalDav {
-	public enum Classes {
-		CONFIDENTIAL, PRIVATE, PUBLIC
-	}
+namespace CalDav
+{
+    public enum Classes
+    {
+        CONFIDENTIAL, PRIVATE, PUBLIC
+    }
 }

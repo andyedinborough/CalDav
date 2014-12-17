@@ -34,8 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Shouldly">
-      <HintPath>..\packages\Shouldly.1.1.1.1\lib\35\Shouldly.dll</HintPath>
+    <Reference Include="Shouldly, Version=2.1.0.0, Culture=neutral, PublicKeyToken=6042cbcb05cbc941, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Shouldly.2.1.0\lib\net40\Shouldly.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,10 +55,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CalDav.Client\CalDav.Client.csproj">
-      <Project>{1b9b42a0-a34b-4bf6-a5d5-21c46ed0d9b3}</Project>
-      <Name>CalDav.Client</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CalDav\CalDav.csproj">
       <Project>{01a4c4cf-5ad1-4324-a391-dc922c84be1c}</Project>
       <Name>CalDav</Name>
