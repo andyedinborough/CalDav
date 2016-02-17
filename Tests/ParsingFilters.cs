@@ -4,13 +4,16 @@ using System;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace Tests {
-	[TestClass]
-	public class Filters {
-		[TestMethod]
-		public void TimeZone() {
+namespace Tests
+{
+    [TestClass]
+    public class Filters
+    {
+        [TestMethod]
+        public void TimeZone()
+        {
 
-			var xdoc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8"" ?>
+            var xdoc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <C:calendar-query xmlns:C=""urn:ietf:params:xml:ns:caldav"">
   <C:filter>
     <C:comp-filter name=""VCALENDAR"">
@@ -21,18 +24,20 @@ namespace Tests {
   </C:filter>
 </C:calendar-query>");
 
-			var f = new CalDav.Filter(xdoc.Root.Elements().First());
-			Test(f, x => {
-				x.Filters[0].Name.ShouldBe("VCALENDAR");
-				x.Filters[0].Filters[0].Name.ShouldBe("VTIMEZONE");
-				x.Filters[0].Filters[0].IsDefined.ShouldBe(true);
-			});
-		}
+            var f = new CalDav.Filter(xdoc.Root.Elements().First());
+            Test(f, x =>
+            {
+                x.Filters[0].Name.ShouldBe("VCALENDAR");
+                x.Filters[0].Filters[0].Name.ShouldBe("VTIMEZONE");
+                x.Filters[0].Filters[0].IsDefined.ShouldBe(true);
+            });
+        }
 
-		[TestMethod]
-		public void ParticipationStatus() {
+        [TestMethod]
+        public void ParticipationStatus()
+        {
 
-			var xdoc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8"" ?>
+            var xdoc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <C:calendar-query xmlns:C=""urn:ietf:params:xml:ns:caldav"">
    <C:filter>
     <C:comp-filter name=""VCALENDAR"">
@@ -49,23 +54,25 @@ namespace Tests {
   </C:filter>
 </C:calendar-query>");
 
-			var f = new CalDav.Filter(xdoc.Root.Elements().First());
-			Test(f, x => {
-				x.Filters[0].Name.ShouldBe("VCALENDAR");
-				x.Filters[0].Filters[0].Name.ShouldBe("VEVENT");
-				var prop = x.Filters[0].Filters[0].Properties[0];
-				prop.Name.ShouldBe("ATTENDEE");
-				prop.IgnoreCase.ShouldBe(true);
-				prop.Text.ShouldBe("mailto:jsmith@foo.org");
-				prop.Parameters[0].Name.ShouldBe("PARTSTAT");
-				prop.Parameters[0].Text.ShouldBe("NEEDS-ACTION");
-				prop.Parameters[0].IgnoreCase.ShouldBe(false);
-			});
-		}
+            var f = new CalDav.Filter(xdoc.Root.Elements().First());
+            Test(f, x =>
+            {
+                x.Filters[0].Name.ShouldBe("VCALENDAR");
+                x.Filters[0].Filters[0].Name.ShouldBe("VEVENT");
+                var prop = x.Filters[0].Filters[0].Properties[0];
+                prop.Name.ShouldBe("ATTENDEE");
+                prop.IgnoreCase.ShouldBe(true);
+                prop.Text.ShouldBe("mailto:jsmith@foo.org");
+                prop.Parameters[0].Name.ShouldBe("PARTSTAT");
+                prop.Parameters[0].Text.ShouldBe("NEEDS-ACTION");
+                prop.Parameters[0].IgnoreCase.ShouldBe(false);
+            });
+        }
 
-		[TestMethod]
-		public void UID() {
-			var xdoc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8"" ?>
+        [TestMethod]
+        public void UID()
+        {
+            var xdoc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <C:calendar-query xmlns:C=""urn:ietf:params:xml:ns:caldav"">
   <C:filter>
     <C:comp-filter name=""VCALENDAR"">
@@ -79,20 +86,22 @@ namespace Tests {
   </C:filter>
 </C:calendar-query>");
 
-			var f = new CalDav.Filter(xdoc.Root.Elements().First());
-			Test(f, x => {
-				x.Filters[0].Name.ShouldBe("VCALENDAR");
-				x.Filters[0].Filters[0].Name.ShouldBe("VEVENT");
-				var prop = x.Filters[0].Filters[0].Properties[0];
-				prop.Name.ShouldBe("UID");
-				prop.IgnoreCase.ShouldBe(false);
-				prop.Text.ShouldBe("20041121-FEEBDAED@foo.org");
-			});
-		}
+            var f = new CalDav.Filter(xdoc.Root.Elements().First());
+            Test(f, x =>
+            {
+                x.Filters[0].Name.ShouldBe("VCALENDAR");
+                x.Filters[0].Filters[0].Name.ShouldBe("VEVENT");
+                var prop = x.Filters[0].Filters[0].Properties[0];
+                prop.Name.ShouldBe("UID");
+                prop.IgnoreCase.ShouldBe(false);
+                prop.Text.ShouldBe("20041121-FEEBDAED@foo.org");
+            });
+        }
 
-		[TestMethod]
-		public void TimeRange() {
-			var xdoc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8"" ?>
+        [TestMethod]
+        public void TimeRange()
+        {
+            var xdoc = XDocument.Parse(@"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <C:calendar-query xmlns:C=""urn:ietf:params:xml:ns:caldav"">
     <C:filter>
     <C:comp-filter name=""VCALENDAR"">
@@ -106,21 +115,23 @@ namespace Tests {
   </C:filter>
 </C:calendar-query>");
 
-			var f = new CalDav.Filter(xdoc.Root.Elements().First());
-			Test(f, x => {
-				x.Filters[0].Name.ShouldBe("VCALENDAR");
-				x.Filters[0].Filters[0].Name.ShouldBe("VTODO");
-				x.Filters[0].Filters[0].Filters[0].Name.ShouldBe("VALARM");
-				var timerange = x.Filters[0].Filters[0].Filters[0].TimeRange;
-				timerange.Start.ShouldBe(new DateTime(2004, 11, 21, 0, 0, 0, DateTimeKind.Utc));
-				timerange.End.ShouldBe(new DateTime(2004, 11, 21, 23, 59, 59, DateTimeKind.Utc));
-			});
-		}
+            var f = new CalDav.Filter(xdoc.Root.Elements().First());
+            Test(f, x =>
+            {
+                x.Filters[0].Name.ShouldBe("VCALENDAR");
+                x.Filters[0].Filters[0].Name.ShouldBe("VTODO");
+                x.Filters[0].Filters[0].Filters[0].Name.ShouldBe("VALARM");
+                var timerange = x.Filters[0].Filters[0].Filters[0].TimeRange;
+                timerange.Start.ShouldBe(new DateTime(2004, 11, 21, 0, 0, 0, DateTimeKind.Utc));
+                timerange.End.ShouldBe(new DateTime(2004, 11, 21, 23, 59, 59, DateTimeKind.Utc));
+            });
+        }
 
-		private static void Test(CalDav.Filter filter, Action<CalDav.Filter> test){
-			test(filter);
-			filter = new CalDav.Filter((XElement)filter);
-			test(filter);
-		}
-	}
+        private static void Test(CalDav.Filter filter, Action<CalDav.Filter> test)
+        {
+            test(filter);
+            filter = new CalDav.Filter((XElement)filter);
+            test(filter);
+        }
+    }
 }
