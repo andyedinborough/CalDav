@@ -40,16 +40,16 @@
             this.startLabel = new System.Windows.Forms.Label();
             this.eventGroupBox = new System.Windows.Forms.GroupBox();
             this.connectionGroupBox = new System.Windows.Forms.GroupBox();
-            this.urlCombo = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.usernameTextBox = new System.Windows.Forms.TextBox();
-            this.usernameLabel = new System.Windows.Forms.Label();
-            this.passwordTextBox = new System.Windows.Forms.TextBox();
-            this.pswdLabel = new System.Windows.Forms.Label();
-            this.calidTextBox = new System.Windows.Forms.TextBox();
-            this.calidLabel = new System.Windows.Forms.Label();
-            this.fullUrlTextBox = new System.Windows.Forms.TextBox();
             this.fullUrlLabel = new System.Windows.Forms.Label();
+            this.fullUrlTextBox = new System.Windows.Forms.TextBox();
+            this.calidLabel = new System.Windows.Forms.Label();
+            this.calidTextBox = new System.Windows.Forms.TextBox();
+            this.pswdLabel = new System.Windows.Forms.Label();
+            this.passwordTextBox = new System.Windows.Forms.TextBox();
+            this.usernameLabel = new System.Windows.Forms.Label();
+            this.usernameTextBox = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.urlCombo = new System.Windows.Forms.ComboBox();
             this.eventGroupBox.SuspendLayout();
             this.connectionGroupBox.SuspendLayout();
             this.SuspendLayout();
@@ -179,80 +179,14 @@
             this.connectionGroupBox.TabStop = false;
             this.connectionGroupBox.Text = "Connection";
             // 
-            // urlCombo
+            // fullUrlLabel
             // 
-            this.urlCombo.FormattingEnabled = true;
-            this.urlCombo.Items.AddRange(new object[] {
-            "https://apidata.googleusercontent.com/caldav/v2/",
-            "https://caldav.calendar.yahoo.com/dav/aliasgarikh/Calendar/"});
-            this.urlCombo.Location = new System.Drawing.Point(64, 29);
-            this.urlCombo.Name = "urlCombo";
-            this.urlCombo.Size = new System.Drawing.Size(544, 21);
-            this.urlCombo.TabIndex = 12;
-            this.urlCombo.Text = "https://apidata.googleusercontent.com/caldav/v2/";
-            this.urlCombo.TextChanged += new System.EventHandler(this.urlCombo_TextChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(38, 33);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(20, 13);
-            this.label1.TabIndex = 13;
-            this.label1.Text = "Url";
-            // 
-            // usernameTextBox
-            // 
-            this.usernameTextBox.Location = new System.Drawing.Point(64, 108);
-            this.usernameTextBox.Name = "usernameTextBox";
-            this.usernameTextBox.Size = new System.Drawing.Size(544, 20);
-            this.usernameTextBox.TabIndex = 14;
-            this.usernameTextBox.Text = "aliasgarikh";
-            // 
-            // usernameLabel
-            // 
-            this.usernameLabel.AutoSize = true;
-            this.usernameLabel.Location = new System.Drawing.Point(6, 111);
-            this.usernameLabel.Name = "usernameLabel";
-            this.usernameLabel.Size = new System.Drawing.Size(55, 13);
-            this.usernameLabel.TabIndex = 15;
-            this.usernameLabel.Text = "Username";
-            // 
-            // passwordTextBox
-            // 
-            this.passwordTextBox.Location = new System.Drawing.Point(64, 134);
-            this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.Size = new System.Drawing.Size(544, 20);
-            this.passwordTextBox.TabIndex = 16;
-            this.passwordTextBox.Text = "Sha\'erNazer1969";
-            this.passwordTextBox.UseSystemPasswordChar = true;
-            // 
-            // pswdLabel
-            // 
-            this.pswdLabel.AutoSize = true;
-            this.pswdLabel.Location = new System.Drawing.Point(6, 137);
-            this.pswdLabel.Name = "pswdLabel";
-            this.pswdLabel.Size = new System.Drawing.Size(53, 13);
-            this.pswdLabel.TabIndex = 17;
-            this.pswdLabel.Text = "Password";
-            // 
-            // calidTextBox
-            // 
-            this.calidTextBox.Location = new System.Drawing.Point(64, 56);
-            this.calidTextBox.Name = "calidTextBox";
-            this.calidTextBox.Size = new System.Drawing.Size(544, 20);
-            this.calidTextBox.TabIndex = 18;
-            this.calidTextBox.Text = "Ali Asgari";
-            this.calidTextBox.TextChanged += new System.EventHandler(this.urlCombo_TextChanged);
-            // 
-            // calidLabel
-            // 
-            this.calidLabel.AutoSize = true;
-            this.calidLabel.Location = new System.Drawing.Point(27, 59);
-            this.calidLabel.Name = "calidLabel";
-            this.calidLabel.Size = new System.Drawing.Size(31, 13);
-            this.calidLabel.TabIndex = 19;
-            this.calidLabel.Text = "CalId";
+            this.fullUrlLabel.AutoSize = true;
+            this.fullUrlLabel.Location = new System.Drawing.Point(22, 85);
+            this.fullUrlLabel.Name = "fullUrlLabel";
+            this.fullUrlLabel.Size = new System.Drawing.Size(39, 13);
+            this.fullUrlLabel.TabIndex = 21;
+            this.fullUrlLabel.Text = "Full Url";
             // 
             // fullUrlTextBox
             // 
@@ -263,14 +197,80 @@
             this.fullUrlTextBox.TabIndex = 20;
             this.fullUrlTextBox.Text = "aliasgarikh@yahoo.com";
             // 
-            // fullUrlLabel
+            // calidLabel
             // 
-            this.fullUrlLabel.AutoSize = true;
-            this.fullUrlLabel.Location = new System.Drawing.Point(22, 85);
-            this.fullUrlLabel.Name = "fullUrlLabel";
-            this.fullUrlLabel.Size = new System.Drawing.Size(39, 13);
-            this.fullUrlLabel.TabIndex = 21;
-            this.fullUrlLabel.Text = "Full Url";
+            this.calidLabel.AutoSize = true;
+            this.calidLabel.Location = new System.Drawing.Point(27, 59);
+            this.calidLabel.Name = "calidLabel";
+            this.calidLabel.Size = new System.Drawing.Size(31, 13);
+            this.calidLabel.TabIndex = 19;
+            this.calidLabel.Text = "CalId";
+            // 
+            // calidTextBox
+            // 
+            this.calidTextBox.Location = new System.Drawing.Point(64, 56);
+            this.calidTextBox.Name = "calidTextBox";
+            this.calidTextBox.Size = new System.Drawing.Size(544, 20);
+            this.calidTextBox.TabIndex = 18;
+            this.calidTextBox.Text = "testcalendar";
+            this.calidTextBox.TextChanged += new System.EventHandler(this.urlCombo_TextChanged);
+            // 
+            // pswdLabel
+            // 
+            this.pswdLabel.AutoSize = true;
+            this.pswdLabel.Location = new System.Drawing.Point(6, 137);
+            this.pswdLabel.Name = "pswdLabel";
+            this.pswdLabel.Size = new System.Drawing.Size(53, 13);
+            this.pswdLabel.TabIndex = 17;
+            this.pswdLabel.Text = "Password";
+            // 
+            // passwordTextBox
+            // 
+            this.passwordTextBox.Location = new System.Drawing.Point(64, 134);
+            this.passwordTextBox.Name = "passwordTextBox";
+            this.passwordTextBox.Size = new System.Drawing.Size(544, 20);
+            this.passwordTextBox.TabIndex = 16;
+            this.passwordTextBox.Text = "Sha\'erNazer1969";
+            this.passwordTextBox.UseSystemPasswordChar = true;
+            // 
+            // usernameLabel
+            // 
+            this.usernameLabel.AutoSize = true;
+            this.usernameLabel.Location = new System.Drawing.Point(6, 111);
+            this.usernameLabel.Name = "usernameLabel";
+            this.usernameLabel.Size = new System.Drawing.Size(55, 13);
+            this.usernameLabel.TabIndex = 15;
+            this.usernameLabel.Text = "Username";
+            // 
+            // usernameTextBox
+            // 
+            this.usernameTextBox.Location = new System.Drawing.Point(64, 108);
+            this.usernameTextBox.Name = "usernameTextBox";
+            this.usernameTextBox.Size = new System.Drawing.Size(544, 20);
+            this.usernameTextBox.TabIndex = 14;
+            this.usernameTextBox.Text = "aliasgarikh";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(38, 33);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(20, 13);
+            this.label1.TabIndex = 13;
+            this.label1.Text = "Url";
+            // 
+            // urlCombo
+            // 
+            this.urlCombo.FormattingEnabled = true;
+            this.urlCombo.Items.AddRange(new object[] {
+            "https://apidata.googleusercontent.com/caldav/v2/",
+            "https://caldav.calendar.yahoo.com/dav/aliasgarikh/Calendar/"});
+            this.urlCombo.Location = new System.Drawing.Point(64, 29);
+            this.urlCombo.Name = "urlCombo";
+            this.urlCombo.Size = new System.Drawing.Size(544, 21);
+            this.urlCombo.TabIndex = 12;
+            this.urlCombo.Text = "https://caldav.calendar.yahoo.com/dav/aliasgarikh/Calendar/";
+            this.urlCombo.TextChanged += new System.EventHandler(this.urlCombo_TextChanged);
             // 
             // Main
             // 
