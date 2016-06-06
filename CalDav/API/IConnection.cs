@@ -10,6 +10,6 @@ namespace CalCli.API
 {
     public interface IConnection
     {
-        WebResponse Request(WebRequest request);
+        WebRequest Authorize(WebRequest request);
     }
 }

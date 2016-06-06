@@ -10,9 +10,15 @@ namespace CalDav.Client {
 		public NetworkCredential Credentials { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
+        public Common common { get; set; }
+
+        public Calendar(Common common)
+        {
+            this.common = common;
+        }
 
 		public void Initialize() {
-			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xDav.Element("propfind",
+			var result = common.Request(Url, "PROPFIND", CalDav.Common.xDav.Element("propfind",
 				CalDav.Common.xDav.Element("allprop")), Credentials, new Dictionary<string, object> {
 					{ "Depth", 0 }
 				});
@@ -31,7 +37,7 @@ namespace CalDav.Client {
 		}
 
 		public CalendarCollection Search(CalDav.CalendarQuery query) {
-			var result = Common.Request(Url, "REPORT", (XElement)query, Credentials, new Dictionary<string, object> {
+			var result = common.Request(Url, "REPORT", (XElement)query, Credentials, new Dictionary<string, object> {
 				{ "Depth", 1 }
 			});
 			var xdoc = XDocument.Parse(result.Item2);
@@ -48,12 +54,12 @@ namespace CalDav.Client {
 			if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
 			e.LastModified = DateTime.UtcNow;
 
-			var result = Common.Request(new Uri(Url, e.UID + ".ics"), "PUT", (req, str) => {
+			var result = common.Request(new Uri(Url, e.UID + ".ics"), "PUT", (req, str) => {
 				req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
 				req.ContentType = "text/calendar";
 				var calendar = new CalDav.Calendar();
 				e.Sequence = (e.Sequence ?? 0) + 1;
-				calendar.Events.Add(e);
+				//calendar.Events.Add(e);
 				Common.Serialize(str, calendar);
 
 			}, Credentials);
@@ -65,7 +71,7 @@ namespace CalDav.Client {
 		}
 
 		public CalendarCollection GetAll() {
-			var result = Common.Request(Url, "PROPFIND", CalDav.Common.xCalDav.Element("calendar-multiget",
+			var result = common.Request(Url, "PROPFIND", CalDav.Common.xCalDav.Element("calendar-multiget",
 			CalDav.Common.xDav.Element("prop",
 				CalDav.Common.xDav.Element("getetag"),
 				CalDav.Common.xCalDav.Element("calendar-data")
@@ -79,7 +85,7 @@ namespace CalDav.Client {
 		}
 
 		public CalendarCollection GetObject(string uid) {
-			var result = Common.Request(Url, "REPORT", CalDav.Common.xCalDav.Element("calendar-multiget",
+			var result = common.Request(Url, "REPORT", CalDav.Common.xCalDav.Element("calendar-multiget",
 				CalDav.Common.xDav.Element("prop",
 					CalDav.Common.xDav.Element("getetag"),
 					CalDav.Common.xCalDav.Element("calendar-data")

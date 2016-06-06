@@ -5,22 +5,27 @@ using System.Xml.Linq;
 
 namespace CalDav.Client {
 	public class Server {
+        private Common Common;
 		public Uri Url { get; set; }
 		public System.Net.NetworkCredential Credentials { get; set; }
-		public Server(string url, string username = null, string password = null)
-			: this(new Uri(url), username, password) { }
+		public Server(string url, CalCli.API.IConnection connection, string username = null, string password = null)
+			: this(new Uri(url), connection, username, password) { }
 
-		private HashSet<string> _Options;
+        private HashSet<string> _Options;
+        private string v;
+        private CalCli.API.IConnection connection;
 
-		public Server(Uri url, string username = null, string password = null) {
+        public Server(Uri url, CalCli.API.IConnection connection, string username = null, string password = null) {
+            Common = new Common(connection);
 			Url = url;
 			if (username != null && password != null) {
 				Credentials = new System.Net.NetworkCredential(username, password);
 			}
 			_Options = GetOptions();
 		}
+        
 
-		public HashSet<string> Options {
+        public HashSet<string> Options {
 			get {
 				if (_Options == null)
 					lock (this)
@@ -58,12 +63,13 @@ namespace CalDav.Client {
 
 			if (string.IsNullOrEmpty(result.Item2))
 				return new[]{
-					 new Calendar { Url =  Url, Credentials = Credentials }
+					 new Calendar(Common) { Url =  Url, Credentials = Credentials }
 				};
 
 			var xdoc = XDocument.Parse(result.Item2);
-			var hrefs = xdoc.Descendants(xcollectionset).SelectMany(x => x.Descendants(CalDav.Common.xDav.GetName("href")));
-			return hrefs.Select(x => new Calendar { Url = new Uri(Url, x.Value), Credentials = Credentials }).ToArray();
+            //var hrefs = xdoc.Descendants(xcollectionset).SelectMany(x => x.Descendants(CalDav.Common.xDav.GetName("href")));
+            var hrefs = xdoc.Descendants(CalDav.Common.xDav.GetName("href"));
+			return hrefs.Select(x => new Calendar (Common) { Url = new Uri(Url, x.Value), Credentials = Credentials }).ToArray();
 		}
 
 

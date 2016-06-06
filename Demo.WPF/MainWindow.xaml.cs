@@ -17,11 +17,12 @@ namespace Demo.WPF {
 		CalDav.Client.Calendar _Calendar;
 
 		void MainWindow_Loaded(object sender, RoutedEventArgs e) {
-			_Server = new CalDav.Client.Server("https://www.google.com/calendar/dav/andy.edinborough@gmail.com/events/", "andy.edinborough@gmail.com", "Gboey6Emo!");
-			_Calendar = _Server.GetCalendars().FirstOrDefault();
+   //         CalCli.API.IConnection c = 
+			//_Server = new CalDav.Client.Server("https://www.google.com/calendar/dav/andy.edinborough@gmail.com/events/", c, "andy.edinborough@gmail.com", "Gboey6Emo!");
+			//_Calendar = _Server.GetCalendars().FirstOrDefault();
 
-			this.AsyncUI(_Calendar.Initialize, () => lblCalendarName.Content = _Calendar.Name);
-			LoadEvents();
+			//this.AsyncUI(_Calendar.Initialize, () => lblCalendarName.Content = _Calendar.Name);
+			//LoadEvents();
 		}
 
 		void LoadEvents() {

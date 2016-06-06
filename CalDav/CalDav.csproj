@@ -43,6 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alarm.cs" />
+    <Compile Include="API\IAlarm.cs" />
+    <Compile Include="API\ICalendar.cs" />
+    <Compile Include="API\IConnection.cs" />
+    <Compile Include="API\IEvent.cs" />
+    <Compile Include="API\IToDo.cs" />
     <Compile Include="Calendar.cs" />
     <Compile Include="CalendarCollection.cs" />
     <Compile Include="CalendarQuery.cs" />

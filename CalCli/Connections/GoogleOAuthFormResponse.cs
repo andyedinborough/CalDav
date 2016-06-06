@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CalCli.UI
+namespace CalCli.Connections
 {
     public class GoogleOAuthFormResponse
     {

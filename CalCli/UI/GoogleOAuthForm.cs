@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.IO;
 using Newtonsoft.Json.Linq;
+using CalCli.Connections;
 
 namespace CalCli.UI
 {

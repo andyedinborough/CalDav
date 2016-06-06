@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.authButton = new System.Windows.Forms.Button();
-            this.authWebBrowser = new System.Windows.Forms.WebBrowser();
+            this.createEventButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // authButton
@@ -42,21 +42,22 @@
             this.authButton.UseVisualStyleBackColor = true;
             this.authButton.Click += new System.EventHandler(this.testButton_Click);
             // 
-            // authWebBrowser
+            // createEventButton
             // 
-            this.authWebBrowser.Location = new System.Drawing.Point(122, 12);
-            this.authWebBrowser.MinimumSize = new System.Drawing.Size(20, 20);
-            this.authWebBrowser.Name = "authWebBrowser";
-            this.authWebBrowser.Size = new System.Drawing.Size(846, 504);
-            this.authWebBrowser.TabIndex = 1;
-            this.authWebBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.authWebBrowser_Navigating);
+            this.createEventButton.Location = new System.Drawing.Point(12, 41);
+            this.createEventButton.Name = "createEventButton";
+            this.createEventButton.Size = new System.Drawing.Size(104, 23);
+            this.createEventButton.TabIndex = 1;
+            this.createEventButton.Text = "Create Event";
+            this.createEventButton.UseVisualStyleBackColor = true;
+            this.createEventButton.Click += new System.EventHandler(this.createEventButton_Click);
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(980, 528);
-            this.Controls.Add(this.authWebBrowser);
+            this.Controls.Add(this.createEventButton);
             this.Controls.Add(this.authButton);
             this.Name = "Main";
             this.Text = "CalCli Demo";
@@ -67,7 +68,7 @@
         #endregion
 
         private System.Windows.Forms.Button authButton;
-        private System.Windows.Forms.WebBrowser authWebBrowser;
+        private System.Windows.Forms.Button createEventButton;
     }
 }
 

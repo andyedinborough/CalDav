@@ -54,6 +54,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CalCli\CalCli.csproj">
+      <Project>{dbefed7e-dc69-48c0-9ac3-428b2168a17a}</Project>
+      <Name>CalCli</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CalDav.Client\CalDav.Client.csproj">
       <Project>{1b9b42a0-a34b-4bf6-a5d5-21c46ed0d9b3}</Project>
       <Name>CalDav.Client</Name>

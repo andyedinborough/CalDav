@@ -8,7 +8,7 @@ namespace ConsoleApp {
 		//http://www.webdav.org/specs/rfc4791.html
 		//https://bugzilla.mozilla.org/show_bug.cgi?id=702570
 		static void Main(string[] args) {
-			var server = new CalDav.Client.Server("http://localhost:60399/caldav/");
+			var server = new CalDav.Client.Server("http://localhost:60399/caldav/", new CalCli.Connections.GoogleConnection(" "));
 
 			if (server.Supports("MKCALENDAR"))
 				server.CreateCalendar("me");
