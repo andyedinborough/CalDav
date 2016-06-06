@@ -8,9 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CalCli.UI;
-using CalCli.API;
 using CalCli.Connections;
 using System.IO;
+using CalDav.Client;
 
 namespace Demo.CalCli
 {

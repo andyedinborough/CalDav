@@ -1,16 +1,8 @@
-﻿using System;
-using System.Net;
-using CalCli.API;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Net;
+﻿using System.Net;
 
 namespace CalCli.Connections
 {
-    public class GoogleConnection : API.IConnection
+    public class GoogleConnection : CalDav.Client.IConnection
     {
         private string token;
 

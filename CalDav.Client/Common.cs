@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Xml.Linq;
-using CalCli.API;
+using CalDav.Client;
 
 namespace CalDav.Client {
 	public class Common {

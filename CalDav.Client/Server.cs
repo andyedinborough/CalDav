@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using CalDav.Client;
 
 namespace CalDav.Client {
 	public class Server {
         private Common Common;
 		public Uri Url { get; set; }
 		public System.Net.NetworkCredential Credentials { get; set; }
-		public Server(string url, CalCli.API.IConnection connection, string username = null, string password = null)
+		public Server(string url, IConnection connection, string username = null, string password = null)
 			: this(new Uri(url), connection, username, password) { }
 
         private HashSet<string> _Options;
-        private string v;
-        private CalCli.API.IConnection connection;
+        // private string v;
+        // private IConnection connection;
 
-        public Server(Uri url, CalCli.API.IConnection connection, string username = null, string password = null) {
+        public Server(Uri url, IConnection connection, string username = null, string password = null) {
             Common = new Common(connection);
 			Url = url;
 			if (username != null && password != null) {

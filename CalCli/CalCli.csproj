@@ -46,6 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\IAlarm.cs" />
+    <Compile Include="API\ICalendar.cs" />
+    <Compile Include="API\IEvent.cs" />
+    <Compile Include="API\IToDo.cs" />
     <Compile Include="Connections\GoogleConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\GoogleOAuthForm.cs">
