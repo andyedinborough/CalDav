@@ -11,6 +11,7 @@ using CalCli.UI;
 using CalCli.Connections;
 using System.IO;
 using CalDav.Client;
+using CalCli;
 
 namespace Demo.CalCli
 {
@@ -25,21 +26,26 @@ namespace Demo.CalCli
 
         private void testButton_Click(object sender, EventArgs e)
         {
-            // urn:ietf:wg:oauth:2.0:oob
-            //authWebBrowser.Navigate("https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=urn:ietf:wg:oauth:2.0:oob&client_id=562771573604-thtg508t2k88730qveaalj8fuq43iuki.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/calendar");
-            if (File.Exists("token"))
+            if (fullUrlTextBox.Text == "https://apidata.googleusercontent.com/caldav/v2/altostratous@gmail.com/events/")
             {
-                StreamReader sr = new StreamReader("token");
-                connection = new GoogleConnection(sr.ReadLine());
-                sr.Close();
-                return;
+                if (File.Exists("token"))
+                {
+                    StreamReader sr = new StreamReader("token");
+                    connection = new GoogleConnection(sr.ReadLine());
+                    sr.Close();
+                    return;
+                }
+                GoogleOAuthForm form = new GoogleOAuthForm();
+                form.ShowDialog();
+                connection = new GoogleConnection(form.Result.Token);
+                StreamWriter sw = new StreamWriter("token");
+                sw.WriteLine(form.Result.Token);
+                sw.Close();
             }
-            GoogleOAuthForm form =  new GoogleOAuthForm();
-            form.ShowDialog();
-            connection = new GoogleConnection(form.Result.Token);
-            StreamWriter sw = new StreamWriter("token");
-            sw.WriteLine(form.Result.Token);
-            sw.Close();
+            else
+            {
+                connection = new BasicConnection(usernameTextBox.Text, passwordTextBox.Text);
+            }
         }
 
         private void createEventButton_Click(object sender, EventArgs e)
@@ -59,6 +65,24 @@ namespace Demo.CalCli
                 End = DateTime.UtcNow.AddHours(2)
             };
             calendar.Save(ev);
+        }
+
+        private void updateFulllUrl()
+        {
+            if(urlCombo.Text.EndsWith("/"))
+            {
+
+            }
+            else
+            {
+                urlCombo.Text += "/";
+            }
+            fullUrlTextBox.Text = urlCombo.Text + calidTextBox.Text + "/events/";
+        }
+
+        private void urlCombo_TextChanged(object sender, EventArgs e)
+        {
+            updateFulllUrl();
         }
     }
 }
