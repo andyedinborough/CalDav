@@ -83,6 +83,21 @@ namespace CalDav.Client {
 		}
 
 		public static void Serialize(System.IO.Stream stream, CalDav.Calendar ical, System.Text.Encoding encoding = null) {
+            //System.IO.StreamWriter sr = new System.IO.StreamWriter(stream);
+            //sr.WriteLine("BEGIN: VCALENDAR");
+            //sr.WriteLine("VERSION:2.0");
+            //sr.WriteLine("PRODID: CalCli");
+            //sr.WriteLine("BEGIN:VEVENT");
+            //var enumer = ical.Events.GetEnumerator();
+            //enumer.MoveNext();
+            //sr.WriteLine("UID:"+enumer.Current.UID);
+            //sr.WriteLine("DTSTAMP:20060712T182145Z");
+            //sr.WriteLine("DTSTART:20060714T170000Z");
+            //sr.WriteLine("DTEND:20060715T040000Z");
+            //sr.WriteLine("SUMMARY:Bastille Day Party");
+            //sr.WriteLine("END:VEVENT");
+            //sr.WriteLine("END:VCALENDAR");
+            //return 
 			var serializer = new CalDav.Serializer();
 			serializer.Serialize(stream, ical, encoding);
 		}

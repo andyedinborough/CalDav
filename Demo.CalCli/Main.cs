@@ -48,13 +48,15 @@ namespace Demo.CalCli
             //https://apidata.googleusercontent.com/caldav/v2/altostratous@gmail.com/user
             CalDav.Client.Server server = new CalDav.Client.Server("https://apidata.googleusercontent.com/caldav/v2/altostratous@gmail.com/events/", connection, "altostratous", "Sha'erNazer");
             var sets = server.GetCalendars();
-            MessageBox.Show(sets.Length.ToString() + "Calendars found.");
+            //MessageBox.Show(sets.Length.ToString() + "Calendars found.");
             CalDav.Client.Calendar calendar = sets[0];
             var ev = new CalDav.Event
             {
                 Description = "this is a description",
                 Summary = "summary",
-                Sequence = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalMilliseconds,
+                Sequence = (int)(DateTime.UtcNow.AddHours(1) - new DateTime(1970, 1, 1)).TotalSeconds,
+                Start = DateTime.UtcNow.AddHours(1),
+                End = DateTime.UtcNow.AddHours(2)
             };
             calendar.Save(ev);
         }

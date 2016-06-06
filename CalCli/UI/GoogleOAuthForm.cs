@@ -25,7 +25,9 @@ namespace CalCli.UI
 
         private void GoogleOAuthForm_Load(object sender, EventArgs e)
         {
-            authWebBrowser.Navigate("https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=urn:ietf:wg:oauth:2.0:oob:auto&client_id=562771573604-thtg508t2k88730qveaalj8fuq43iuki.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/calendar");
+            authWebBrowser.Navigate("https://accounts.google.com/o/oauth2/auth?response_type=code&redirect_uri=urn:ietf:wg:oauth:2.0:oob:auto&" +
+                "client_id=562771573604-thtg508t2k88730qveaalj8fuq43iuki.apps.googleusercontent.com&" +
+                "scope=https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.readonly");
         }
 
         private void authWebBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)

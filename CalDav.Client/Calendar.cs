@@ -56,10 +56,11 @@ namespace CalDav.Client {
 
 			var result = common.Request(new Uri(Url, e.UID + ".ics"), "PUT", (req, str) => {
 				req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
-				req.ContentType = "text/calendar";
+                req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                req.ContentType = "text/calendar";
 				var calendar = new CalDav.Calendar();
 				e.Sequence = (e.Sequence ?? 0) + 1;
-				//calendar.Events.Add(e);
+				calendar.Events.Add(e);
 				Common.Serialize(str, calendar);
 
 			}, Credentials);
