@@ -55,14 +55,14 @@ namespace CalDav.Client {
 		}
 
 		public Calendar[] GetCalendars() {
-			var xcollectionset = CalDav.Common.xCalDav.GetName("calendar-collection-set");
-			var result = Common.Request(Url, "propfind", new XDocument(
-					new XElement(CalDav.Common.xDav.GetName("options"),
-						new XElement(xcollectionset)
-						)
-				), Credentials, new System.Collections.Generic.Dictionary<string, object> { { "Depth", 0 } });
-
-			if (string.IsNullOrEmpty(result.Item2))
+            var xcollectionset = CalDav.Common.xCalDav.GetName("calendar-home-set");
+            var result = Common.Request(Url, "propfind", new XDocument(
+                    new XElement(CalDav.Common.xDav.GetName("propfind"),
+                        new XElement(xcollectionset)
+                        )
+                ), Credentials, new System.Collections.Generic.Dictionary<string, object> { { "Depth", 0 } });
+            
+            if (string.IsNullOrEmpty(result.Item2))
 				return new[]{
 					 new Calendar(Common) { Url =  Url, Credentials = Credentials }
 				};
