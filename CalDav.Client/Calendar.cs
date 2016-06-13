@@ -71,8 +71,28 @@ namespace CalDav.Client {
 
 			GetObject(e.UID);
 		}
+        public void Save(ToDo e)
+        {
+            if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
+            e.LastModified = DateTime.UtcNow;
 
-		public CalendarCollection GetAll() {
+            var result = common.Request(new Uri(Url, e.UID + ".ics"), "PUT", (req, str) => {
+                req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                req.ContentType = "text/calendar";
+                var calendar = new CalDav.Calendar();
+                e.Sequence = (e.Sequence ?? 0) + 1;
+                calendar.ToDos.Add(e);
+                Common.Serialize(str, calendar);
+
+            }, Credentials);
+            if (result.Item1 != System.Net.HttpStatusCode.Created && result.Item1 != HttpStatusCode.NoContent)
+                throw new Exception("Unable to save event: " + result.Item1);
+            // e.Url = new Uri(Url, result.Item3[System.Net.HttpResponseHeader.Location]);
+
+            GetObject(e.UID);
+        }
+        public CalendarCollection GetAll() {
 			var result = common.Request(Url, "PROPFIND", CalDav.Common.xCalDav.Element("calendar-multiget",
 			CalDav.Common.xDav.Element("prop",
 				CalDav.Common.xDav.Element("getetag"),
@@ -99,5 +119,17 @@ namespace CalDav.Client {
 			return null;
 
 		}
-	}
+
+        public void Save(IEvent e)
+        {
+            Event ev = (Event)e;
+            Save(ev);
+        }
+
+        public void Save(IToDo t)
+        {
+            ToDo todo = (ToDo)t;
+            Save(todo);
+        }
+    }
 }
