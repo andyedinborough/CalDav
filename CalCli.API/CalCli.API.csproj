@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DBEFED7E-DC69-48C0-9AC3-428B2168A17A}</ProjectGuid>
+    <ProjectGuid>{2C258FAE-97ED-4916-B5A3-4723700D675D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CalCli</RootNamespace>
-    <AssemblyName>CalCli</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>CalCli.API</RootNamespace>
+    <AssemblyName>CalCli.API</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,14 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,35 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Connections\BasicConnection.cs" />
-    <Compile Include="Connections\GoogleConnection.cs" />
+    <Compile Include="IAlarm.cs" />
+    <Compile Include="ICalendar.cs" />
+    <Compile Include="IEvent.cs" />
+    <Compile Include="IToDo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI\GoogleOAuthForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="UI\GoogleOAuthForm.Designer.cs">
-      <DependentUpon>GoogleOAuthForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Connections\GoogleOAuthFormResponse.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CalDav.Client\CalDav.Client.csproj">
-      <Project>{1b9b42a0-a34b-4bf6-a5d5-21c46ed0d9b3}</Project>
-      <Name>CalDav.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CalDav\CalDav.csproj">
-      <Project>{01a4c4cf-5ad1-4324-a391-dc922c84be1c}</Project>
-      <Name>CalDav</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="UI\GoogleOAuthForm.resx">
-      <DependentUpon>GoogleOAuthForm.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

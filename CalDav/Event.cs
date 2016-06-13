@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CalCli.API;
 
 namespace CalDav {
-	public class Event : ICalendarObject {
+	public class Event : ICalendarObject, IEvent {
 		private DateTime DTSTAMP = DateTime.UtcNow;
 
 		public Event() {

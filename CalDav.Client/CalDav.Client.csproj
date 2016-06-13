@@ -48,6 +48,10 @@
     <Compile Include="Server.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CalCli.API\CalCli.API.csproj">
+      <Project>{2c258fae-97ed-4916-b5a3-4723700d675d}</Project>
+      <Name>CalCli.API</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CalDav\CalDav.csproj">
       <Project>{01a4c4cf-5ad1-4324-a391-dc922c84be1c}</Project>
       <Name>CalDav</Name>

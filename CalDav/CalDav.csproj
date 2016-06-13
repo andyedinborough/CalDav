@@ -43,7 +43,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alarm.cs" />
-    <Compile Include="IConnection.cs" />
     <Compile Include="Calendar.cs" />
     <Compile Include="CalendarCollection.cs" />
     <Compile Include="CalendarQuery.cs" />
@@ -71,6 +70,12 @@
     <None Include="CalDav.nuspec">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CalCli.API\CalCli.API.csproj">
+      <Project>{2c258fae-97ed-4916-b5a3-4723700d675d}</Project>
+      <Name>CalCli.API</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CalCli.API
 {
-    interface ICalendar
+    public interface IToDo
     {
     }
 }

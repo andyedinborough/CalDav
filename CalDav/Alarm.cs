@@ -1,6 +1,6 @@
-﻿
+﻿using CalCli.API;
 namespace CalDav {
-	public class Alarm : ISerializeToICAL {
+	public class Alarm : ISerializeToICAL, IAlarm {
 		public string Action { get; set; }
 		public string Description { get; set; }
 		public Trigger Trigger { get; set; }

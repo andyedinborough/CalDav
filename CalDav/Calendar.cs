@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CalCli.API;
 
 namespace CalDav {
-	public class Calendar : ISerializeToICAL {
+	public class Calendar : ISerializeToICAL, ICalendar {
 		public Calendar() {
 			Events = new List<Event>();
 			TimeZones = new List<TimeZone>();
