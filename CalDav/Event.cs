@@ -41,7 +41,29 @@ namespace CalDav {
 
 		public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
-		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
+        ICollection<IAlarm> IEvent.Alarms
+        {
+            get
+            {
+                List<IAlarm> result = new List<IAlarm>();
+                foreach(Alarm alarm in Alarms)
+                {
+                    result.Add(alarm); 
+                }
+                return result;
+            }
+
+            set
+            {
+                Alarms.Clear();
+                foreach(IAlarm alarm in value)
+                {
+                    Alarms.Add((Alarm)alarm);
+                }
+            }
+        }
+
+        public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
