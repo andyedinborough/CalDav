@@ -1,8 +1,9 @@
 ﻿using System.Net;
+using CalCli.API;
 
 namespace CalCli.Connections
 {
-    public class GoogleConnection : CalDav.Client.IConnection
+    public class GoogleConnection : IConnection
     {
         private string token;
 

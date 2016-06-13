@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using CalCli.UI;
 using CalCli.Connections;
 using System.IO;
-using CalDav.Client;
+using CalCli.API;
 using CalCli;
 
 namespace Demo.CalCli

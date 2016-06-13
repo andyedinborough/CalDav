@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Net;
-using CalDav.Client;
+using CalCli.API;
 
 namespace CalCli
 {

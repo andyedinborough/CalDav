@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using CalDav.Client;
+using CalCli.API;
 
 namespace CalDav.Client {
-	public class Server {
+	public class Server : IServer {
         private Common Common;
 		public Uri Url { get; set; }
 		public System.Net.NetworkCredential Credentials { get; set; }

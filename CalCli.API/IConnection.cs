@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.IO;
 
-namespace CalDav.Client
+namespace CalCli.API
 {
     public interface IConnection
     {

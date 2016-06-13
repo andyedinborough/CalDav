@@ -4,7 +4,7 @@ using System.Linq;
 using CalCli.API;
 
 namespace CalDav {
-	public class Calendar : ISerializeToICAL, ICalendar {
+	public class Calendar : ISerializeToICAL {
 		public Calendar() {
 			Events = new List<Event>();
 			TimeZones = new List<TimeZone>();

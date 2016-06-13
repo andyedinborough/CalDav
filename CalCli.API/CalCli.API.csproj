@@ -43,7 +43,9 @@
   <ItemGroup>
     <Compile Include="IAlarm.cs" />
     <Compile Include="ICalendar.cs" />
+    <Compile Include="IConnection.cs" />
     <Compile Include="IEvent.cs" />
+    <Compile Include="IServer.cs" />
     <Compile Include="IToDo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

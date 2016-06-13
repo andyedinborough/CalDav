@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
+using CalCli.API;
 
 namespace CalDav.Client {
-	public class Calendar {
+	public class Calendar : ICalendar {
 		public Uri Url { get; set; }
 		public NetworkCredential Credentials { get; set; }
 		public string Name { get; set; }

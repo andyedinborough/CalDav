@@ -79,6 +79,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CalCli.API\CalCli.API.csproj">
+      <Project>{2c258fae-97ed-4916-b5a3-4723700d675d}</Project>
+      <Name>CalCli.API</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CalCli\CalCli.csproj">
       <Project>{dbefed7e-dc69-48c0-9ac3-428b2168a17a}</Project>
       <Name>CalCli</Name>
