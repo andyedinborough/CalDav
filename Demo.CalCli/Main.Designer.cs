@@ -276,7 +276,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(877, 253);
+            this.ClientSize = new System.Drawing.Size(871, 249);
             this.Controls.Add(this.connectionGroupBox);
             this.Controls.Add(this.eventGroupBox);
             this.Name = "Main";

@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using CalCli.API;
-using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
+//using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 
 namespace CalCli.Connections
 {

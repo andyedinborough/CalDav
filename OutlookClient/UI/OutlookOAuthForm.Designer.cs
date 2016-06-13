@@ -37,14 +37,16 @@
             this.authBrowser.Location = new System.Drawing.Point(0, 0);
             this.authBrowser.MinimumSize = new System.Drawing.Size(20, 20);
             this.authBrowser.Name = "authBrowser";
-            this.authBrowser.Size = new System.Drawing.Size(777, 498);
+            this.authBrowser.Size = new System.Drawing.Size(976, 601);
             this.authBrowser.TabIndex = 0;
+            this.authBrowser.Navigated += new System.Windows.Forms.WebBrowserNavigatedEventHandler(this.authBrowser_Navigated);
+            this.authBrowser.Navigating += new System.Windows.Forms.WebBrowserNavigatingEventHandler(this.authBrowser_Navigating);
             // 
             // OutlookOAuthForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(777, 498);
+            this.ClientSize = new System.Drawing.Size(976, 601);
             this.Controls.Add(this.authBrowser);
             this.Name = "OutlookOAuthForm";
             this.Text = "OutlookOAuthForm";
