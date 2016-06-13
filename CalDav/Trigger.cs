@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Specialized;
+using CalCli.API;
 
 namespace CalDav {
-	public class Trigger : IHasParameters {
-		public enum Relateds {
-			Start, End
-		}
+	public class Trigger : IHasParameters, ITrigger {
+		//public enum Relateds {
+		//	Start, End
+		//}
 		public Relateds Related { get; set; }
 		public TimeSpan? Duration { get; set; }
 		public DateTime? DateTime { get; set; }

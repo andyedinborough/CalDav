@@ -8,5 +8,8 @@ namespace CalCli.API
 {
     public interface IAlarm
     {
+        AlarmActions Action { get; set; }
+        string Description { get; set; }
+        ITrigger Trigger { get; set; }
     }
 }

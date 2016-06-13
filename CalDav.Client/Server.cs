@@ -8,6 +8,7 @@ using CalCli.API;
 namespace CalDav.Client {
 	public class Server : IServer {
         private Common Common;
+        private IConnection connection;
 		public Uri Url { get; set; }
 		public System.Net.NetworkCredential Credentials { get; set; }
 		public Server(string url, IConnection connection, string username = null, string password = null)
@@ -37,7 +38,21 @@ namespace CalDav.Client {
 			}
 		}
 
-		private HashSet<string> GetOptions() {
+        public IConnection Connection
+        {
+            get
+            {
+                return connection;
+            }
+
+            set
+            {
+                connection = value;
+                Common = new Common(connection);
+            }
+        }
+
+        private HashSet<string> GetOptions() {
 			var result = Common.Request(Url, "options", credentials: Credentials);
 			if (result.Item3["WWW-Authenticate"] != null)
 				throw new Exception("Authentication is required");
@@ -78,5 +93,16 @@ namespace CalDav.Client {
 		public bool Supports(string option) {
 			return Options.Contains(option);
 		}
-	}
+
+        ICalendar[] IServer.GetCalendars()
+        {
+            return GetCalendars();
+        }
+
+        public void CreateCalendar(ICalendar calendar)
+        {
+            Calendar cal = (Calendar)calendar;
+            CreateCalendar(cal);
+        }
+    }
 }

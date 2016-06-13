@@ -1,7 +1,7 @@
 ﻿using CalDav;
 using Shouldly;
 using System;
-using CalCli.API
+using CalCli.API;
 
 namespace ConsoleApp {
 	class Program {

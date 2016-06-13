@@ -41,13 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlarmActions.cs" />
     <Compile Include="IAlarm.cs" />
     <Compile Include="ICalendar.cs" />
     <Compile Include="IConnection.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IServer.cs" />
     <Compile Include="IToDo.cs" />
+    <Compile Include="ITrigger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Relateds.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

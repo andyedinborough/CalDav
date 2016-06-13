@@ -1,23 +1,60 @@
-﻿using CalCli.API;
+﻿using System;
+using CalCli.API;
 namespace CalDav {
 	public class Alarm : ISerializeToICAL, IAlarm {
-		public string Action { get; set; }
+		public AlarmActions Action { get; set; }
 		public string Description { get; set; }
-		public Trigger Trigger { get; set; }
+		public Trigger CalDavTrigger { get; set; }
 
-		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
+        public ITrigger Trigger
+        {
+            get
+            {
+                return Trigger;
+            }
+        }
+
+        ITrigger IAlarm.Trigger
+        {
+            get
+            {
+                return CalDavTrigger;
+            }
+
+            set
+            {
+                CalDavTrigger = (CalDav.Trigger)value;
+            }
+        }
+
+        public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
 				switch (name) {
-					case "ACTION": Action = value; break;
+					case "ACTION": Action = getAlarmActions(value); break;
 					case "DESCRIPTION": Description = value; break;
-					case "TRIGGER": Trigger = serializer.GetService<Trigger>(); Trigger.Deserialize(value, parameters); break;
+					case "TRIGGER": CalDavTrigger = serializer.GetService<Trigger>(); CalDavTrigger.Deserialize(value, parameters); break;
 				}
 			}
 		}
 
-		public void Serialize(System.IO.TextWriter wrtr) {
+        private AlarmActions getAlarmActions(string value)
+        {
+            switch(value)
+            {
+                case "EMAIL":
+                    return AlarmActions.EMAIL;
+                case "AUDIO":
+                    return AlarmActions.AUDIO;
+                case "DISPLAY":
+                    return AlarmActions.DISPLAY;
+                default:
+                    throw new Exception("Action is not valid for alarm.");
+            }
+        }
+
+        public void Serialize(System.IO.TextWriter wrtr) {
 			wrtr.BeginBlock("VALARM");
 			wrtr.Property("ACTION", Action);
 			wrtr.Property("DESCRIPTION", Description);

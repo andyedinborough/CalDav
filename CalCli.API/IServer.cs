@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace CalCli.API
 {
     public interface IServer
     {
+        Uri Url { get; set; }
+        IConnection Connection { get; set; }
+        ICalendar[] GetCalendars();
+        void CreateCalendar(ICalendar calendar);
     }
 }
