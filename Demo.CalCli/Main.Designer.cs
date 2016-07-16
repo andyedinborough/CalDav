@@ -50,6 +50,7 @@
             this.usernameTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.urlCombo = new System.Windows.Forms.ComboBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.eventGroupBox.SuspendLayout();
             this.connectionGroupBox.SuspendLayout();
             this.SuspendLayout();
@@ -272,11 +273,22 @@
             this.urlCombo.Text = "https://caldav.calendar.yahoo.com/dav/aliasgarikh/Calendar/";
             this.urlCombo.TextChanged += new System.EventHandler(this.urlCombo_TextChanged);
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(12, 260);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(104, 23);
+            this.button1.TabIndex = 22;
+            this.button1.Text = "Athenticate";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(871, 249);
+            this.ClientSize = new System.Drawing.Size(871, 295);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.connectionGroupBox);
             this.Controls.Add(this.eventGroupBox);
             this.Name = "Main";
@@ -313,6 +325,7 @@
         private System.Windows.Forms.TextBox fullUrlTextBox;
         private System.Windows.Forms.Label calidLabel;
         private System.Windows.Forms.TextBox calidTextBox;
+        private System.Windows.Forms.Button button1;
     }
 }
 
