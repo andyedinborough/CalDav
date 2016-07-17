@@ -19,14 +19,55 @@ namespace CalDav.Client {
         // private IConnection connection;
 
         public Server(Uri url, IConnection connection, string username = null, string password = null) {
+            this.connection = connection;
             Common = new Common(connection);
-			Url = url;
+            Url = url;
 			if (username != null && password != null) {
 				Credentials = new System.Net.NetworkCredential(username, password);
 			}
 			_Options = GetOptions();
+            completeUrl();
 		}
-        
+
+        private void completeUrl()
+        {
+            var xcollectionset = CalDav.Common.xDav.GetName("current-user-principal");
+            var result = Common.Request(Url, "propfind", new XDocument(
+                    new XElement(CalDav.Common.xDav.GetName("propfind"),
+                        new XElement(CalDav.Common.xDav.GetName("prop"),
+                            new XElement(xcollectionset)
+                            )
+
+                        )
+                ), Credentials, new System.Collections.Generic.Dictionary<string, object> { { "Depth", 0 } });
+            
+            var xdoc = XDocument.Parse(result.Item2);
+            Uri userprincipal = Url;
+            foreach(XNode node in xdoc.Descendants(xcollectionset))
+            {
+                foreach (XElement href in xdoc.Descendants(CalDav.Common.xDav.GetName("href")))
+                {
+                    if (href.Parent == node)
+                    {
+                        userprincipal = new Uri(Url, href.Value);
+                    }
+                }
+            }
+            // get homeset
+            xcollectionset = CalDav.Common.xCalDav.GetName("calendar-home-set");
+            result = Common.Request(userprincipal, "propfind", new XDocument(
+                    new XElement(CalDav.Common.xDav.GetName("propfind"),
+                        new XElement(CalDav.Common.xDav.GetName("prop"),
+                            new XElement(xcollectionset)
+                            )
+
+                        )
+                ), Credentials, new System.Collections.Generic.Dictionary<string, object> { { "Depth", 0 } });
+            
+            xdoc = XDocument.Parse(result.Item2);
+            var hrefs = xdoc.Descendants(xcollectionset).SelectMany(x => x.Descendants(CalDav.Common.xDav.GetName("href")));
+            Url = new Uri(Url, hrefs.First().Value);
+        }
 
         public HashSet<string> Options {
 			get {
@@ -74,9 +115,12 @@ namespace CalDav.Client {
             var xcollectionset = CalDav.Common.xCalDav.GetName("calendar-home-set");
             var result = Common.Request(Url, "propfind", new XDocument(
                     new XElement(CalDav.Common.xDav.GetName("propfind"),
-                        new XElement(xcollectionset)
+                        new XElement(CalDav.Common.xDav.GetName("allprop")//,
+                            //new XElement(xcollectionset)
+                            )
+
                         )
-                ), Credentials, new System.Collections.Generic.Dictionary<string, object> { { "Depth", 0 } });
+                ), Credentials, new System.Collections.Generic.Dictionary<string, object> { { "Depth", 1 } });
             
             if (string.IsNullOrEmpty(result.Item2))
 				return new[]{
@@ -84,9 +128,18 @@ namespace CalDav.Client {
 				};
 
 			var xdoc = XDocument.Parse(result.Item2);
-            //var hrefs = xdoc.Descendants(xcollectionset).SelectMany(x => x.Descendants(CalDav.Common.xDav.GetName("href")));
-            var hrefs = xdoc.Descendants(CalDav.Common.xDav.GetName("href"));
-			return hrefs.Select(x => new Calendar (Common) { Url = new Uri(Url, x.Value), Credentials = Credentials }).ToArray();
+            var responses = xdoc.Descendants(CalDav.Common.xDav.GetName("response"));
+            List<Calendar> calendars = new List<Calendar>();
+            // var hrefs = xdoc.Descendants(CalDav.Common.xDav.GetName("href"));
+            foreach(XElement response in responses)
+            {
+                if(response.Descendants(CalDav.Common.xCalDav.GetName("calendar")).Count() > 0)
+                {
+                    string href = response.Descendants(CalDav.Common.xDav.GetName("href")).First().Value;
+                    calendars.Add(new Calendar(Common) { Url = new Uri(Url, href), Credentials = Credentials });
+                }
+            }
+            return calendars.ToArray();
 		}
 
 
@@ -102,7 +155,7 @@ namespace CalDav.Client {
         public void CreateCalendar(ICalendar calendar)
         {
             Calendar cal = (Calendar)calendar;
-            CreateCalendar(cal);
+            CreateCalendar(cal.Name);
         }
     }
 }

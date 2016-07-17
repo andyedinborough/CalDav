@@ -55,7 +55,7 @@ namespace CalDav.Client {
 			if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
 			e.LastModified = DateTime.UtcNow;
 
-			var result = common.Request(new Uri(Url, e.UID + ".ics"), "PUT", (req, str) => {
+			var result = common.Request(new Uri(Url,e.UID + ".ics"), "PUT", (req, str) => {
 				req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
                 req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
                 req.ContentType = "text/calendar";
@@ -93,7 +93,7 @@ namespace CalDav.Client {
             GetObject(e.UID);
         }
         public CalendarCollection GetAll() {
-			var result = common.Request(Url, "PROPFIND", CalDav.Common.xCalDav.Element("calendar-multiget",
+			var result = common.Request(Url, "REPORT", CalDav.Common.xCalDav.Element("calendar-multiget",
 			CalDav.Common.xDav.Element("prop",
 				CalDav.Common.xDav.Element("getetag"),
 				CalDav.Common.xCalDav.Element("calendar-data")

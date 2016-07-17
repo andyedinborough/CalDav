@@ -213,7 +213,6 @@
             this.calidTextBox.Name = "calidTextBox";
             this.calidTextBox.Size = new System.Drawing.Size(544, 20);
             this.calidTextBox.TabIndex = 18;
-            this.calidTextBox.Text = "testcalendar";
             this.calidTextBox.TextChanged += new System.EventHandler(this.urlCombo_TextChanged);
             // 
             // pswdLabel
@@ -231,7 +230,7 @@
             this.passwordTextBox.Name = "passwordTextBox";
             this.passwordTextBox.Size = new System.Drawing.Size(544, 20);
             this.passwordTextBox.TabIndex = 16;
-            this.passwordTextBox.Text = "Sha\'erNazer1969";
+            this.passwordTextBox.Text = "Aliasgarikh20";
             this.passwordTextBox.UseSystemPasswordChar = true;
             // 
             // usernameLabel
@@ -249,7 +248,7 @@
             this.usernameTextBox.Name = "usernameTextBox";
             this.usernameTextBox.Size = new System.Drawing.Size(544, 20);
             this.usernameTextBox.TabIndex = 14;
-            this.usernameTextBox.Text = "aliasgarikh";
+            this.usernameTextBox.Text = "aliasgarikh@icloud.com";
             // 
             // label1
             // 
@@ -264,13 +263,14 @@
             // 
             this.urlCombo.FormattingEnabled = true;
             this.urlCombo.Items.AddRange(new object[] {
+            "https://p49-caldav.icloud.com/",
             "https://apidata.googleusercontent.com/caldav/v2/",
             "https://caldav.calendar.yahoo.com/dav/aliasgarikh/Calendar/"});
             this.urlCombo.Location = new System.Drawing.Point(64, 29);
             this.urlCombo.Name = "urlCombo";
             this.urlCombo.Size = new System.Drawing.Size(544, 21);
             this.urlCombo.TabIndex = 12;
-            this.urlCombo.Text = "https://caldav.calendar.yahoo.com/dav/aliasgarikh/Calendar/";
+            this.urlCombo.Text = "https://p49-caldav.icloud.com/";
             this.urlCombo.TextChanged += new System.EventHandler(this.urlCombo_TextChanged);
             // 
             // button1

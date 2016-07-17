@@ -18,8 +18,8 @@ namespace CalDav.Client {
 		public Tuple<System.Net.HttpStatusCode, string, System.Net.WebHeaderCollection> Request(Uri url, string method, XElement content, NetworkCredential credentials = null, System.Collections.Generic.Dictionary<string, object> headers = null) {
 			return Request(url, method, (req, str) => {
 				req.ContentType = "text/xml";
-				var xml = content.ToString();
-				using (var wrtr = new System.IO.StreamWriter(str))
+                var xml = content.ToString();
+                using (var wrtr = new System.IO.StreamWriter(str))
 					wrtr.Write(xml);
 			}, credentials, headers);
 		}
@@ -48,13 +48,13 @@ namespace CalDav.Client {
 					else req.Headers[header.Key] = value;
 				}
 
-			//if (credentials != null) {
-			//	//req.Credentials = credentials;
-			//	var b64 = credentials.UserName + ":" + credentials.Password;
-			//	b64 = System.Convert.ToBase64String(System.Text.Encoding.Default.GetBytes(b64));
-			//	req.Headers[HttpRequestHeader.Authorization] = "Basic " + b64;
-			//}
-
+            //if (credentials != null) {
+            //	//req.Credentials = credentials;
+            //	var b64 = credentials.UserName + ":" + credentials.Password;
+            //	b64 = System.Convert.ToBase64String(System.Text.Encoding.Default.GetBytes(b64));
+            //	req.Headers[HttpRequestHeader.Authorization] = "Basic " + b64;
+            //}
+            connection.Authorize(req);
 			using (var stream = req.GetRequestStream()) {
 				if (content != null) {
 					content(req, stream);

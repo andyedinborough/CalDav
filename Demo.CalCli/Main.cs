@@ -22,37 +22,35 @@ namespace Demo.CalCli
 
         private void testButton_Click(object sender, EventArgs e)
         {
-            OutlookOAuthForm form = new OutlookOAuthForm();
-            form.ShowDialog();
-            //if (fullUrlTextBox.Text == "https://apidata.googleusercontent.com/caldav/v2/altostratous@gmail.com/events/")
-            //{
-            //    if (File.Exists("token"))
-            //    {
-            //        StreamReader sr = new StreamReader("token");
-            //        connection = new GoogleConnection(sr.ReadLine());
-            //        sr.Close();
-            //        return;
-            //    }
-            //    GoogleOAuthForm form = new GoogleOAuthForm();
-            //    form.ShowDialog();
-            //    connection = new GoogleConnection(form.Result.Token);
-            //    StreamWriter sw = new StreamWriter("token");
-            //    sw.WriteLine(form.Result.Token);
-            //    sw.Close();
-            //}
-            //else
-            //{
-            //    connection = new BasicConnection(usernameTextBox.Text, passwordTextBox.Text);
-            //}
+            if (fullUrlTextBox.Text == "https://apidata.googleusercontent.com/caldav/v2/altostratous@gmail.com/events/")
+            {
+                if (File.Exists("token"))
+                {
+                    StreamReader sr = new StreamReader("token");
+                    connection = new GoogleConnection(sr.ReadLine());
+                    sr.Close();
+                    return;
+                }
+                GoogleOAuthForm form = new GoogleOAuthForm();
+                form.ShowDialog();
+                connection = new GoogleConnection(form.Result.Token);
+                StreamWriter sw = new StreamWriter("token");
+                sw.WriteLine(form.Result.Token);
+                sw.Close();
+            }
+            else
+            {
+                connection = new BasicConnection(usernameTextBox.Text, passwordTextBox.Text);
+            }
         }
 
         private void createEventButton_Click(object sender, EventArgs e)
         {
             //http://server/calendars/domain/user@domain/Calendar
 
-            IServer server = new CalDav.Client.Server(fullUrlTextBox.Text, connection);
+            IServer server = new CalDav.Client.Server(fullUrlTextBox.Text, connection, usernameTextBox.Text, passwordTextBox.Text);
             var sets = server.GetCalendars();
-            ICalendar calendar = sets[0];
+            CalDav.Client.Calendar calendar = (CalDav.Client.Calendar) sets[1];
             IEvent ev = new CalDav.Event
             {
                 Description = eventDescriptionTextBox.Text,
