@@ -15,6 +15,7 @@ namespace CalCli.API
         ICollection<string> Categories { get; set; }
         int? Priority { get; set; }
         int? Sequence { get; set; }
+        Statuses? Status { get; set; }
         DateTime? Completed { get; set; }
     }
 }

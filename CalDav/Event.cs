@@ -9,7 +9,7 @@ namespace CalDav {
 
 		public Event() {
 			Attendees = new List<Contact>();
-			Alarms = new List<Alarm>();
+			Alarms = new List<IAlarm>();
 			Categories = new List<string>();
 			Recurrences = new List<Recurrence>();
 			Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
@@ -18,7 +18,7 @@ namespace CalDav {
 
 		public virtual Calendar Calendar { get; set; }
 		public virtual ICollection<Contact> Attendees { get; set; }
-		public virtual ICollection<Alarm> Alarms { get; set; }
+		public virtual ICollection<IAlarm> Alarms { get; set; }
 		public virtual ICollection<string> Categories { get; set; }
 		public virtual ICollection<Uri> Attachments { get; set; }
 		public virtual Classes? Class { get; set; }
@@ -157,7 +157,7 @@ namespace CalDav {
 
 			if (Alarms != null)
 				foreach (var alarm in Alarms)
-					alarm.Serialize(wrtr);
+					((Alarm)alarm).Serialize(wrtr);
 			wrtr.EndBlock("VEVENT");
 		}
 	}

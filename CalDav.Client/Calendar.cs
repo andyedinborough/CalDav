@@ -18,7 +18,15 @@ namespace CalDav.Client {
             this.common = common;
         }
 
-		public void Initialize() {
+        public Calendar(Common common, Uri Url)
+        {
+            this.Url = Url;
+            this.common = common;
+            Initialize();
+        }
+        
+
+        public void Initialize() {
 			var result = common.Request(Url, "PROPFIND", CalDav.Common.xDav.Element("propfind",
 				CalDav.Common.xDav.Element("allprop")), Credentials, new Dictionary<string, object> {
 					{ "Depth", 0 }
@@ -52,12 +60,16 @@ namespace CalDav.Client {
 		}
 
 		public void Save(Event e) {
-			if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
+            bool update = !string.IsNullOrEmpty(e.UID);
+        
+            if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
 			e.LastModified = DateTime.UtcNow;
 
 			var result = common.Request(new Uri(Url,e.UID + ".ics"), "PUT", (req, str) => {
-				req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
-                req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                if (!update)
+                {
+                    req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                }
                 req.ContentType = "text/calendar";
 				var calendar = new CalDav.Calendar();
 				e.Sequence = (e.Sequence ?? 0) + 1;
@@ -73,12 +85,16 @@ namespace CalDav.Client {
 		}
         public void Save(ToDo e)
         {
+            bool update = !string.IsNullOrEmpty(e.UID);
+           
             if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
             e.LastModified = DateTime.UtcNow;
 
             var result = common.Request(new Uri(Url, e.UID + ".ics"), "PUT", (req, str) => {
-                req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
-                req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                if (!update)
+                {
+                    req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                }
                 req.ContentType = "text/calendar";
                 var calendar = new CalDav.Calendar();
                 e.Sequence = (e.Sequence ?? 0) + 1;
@@ -130,6 +146,22 @@ namespace CalDav.Client {
         {
             ToDo todo = (ToDo)t;
             Save(todo);
+        }
+
+        public IToDo createToDo()
+        {
+            CalDav.ToDo todo = new CalDav.ToDo();
+            return todo;
+        }
+
+        public ITrigger createTrigger()
+        {
+            return new Trigger();
+        }
+
+        public IAlarm createAlarm()
+        {
+            return new Alarm();
         }
     }
 }

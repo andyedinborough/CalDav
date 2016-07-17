@@ -4,13 +4,13 @@ namespace CalDav {
 	public class Alarm : ISerializeToICAL, IAlarm {
 		public AlarmActions Action { get; set; }
 		public string Description { get; set; }
-		public Trigger CalDavTrigger { get; set; }
+        public Trigger CalDavTrigger { get; set; }
 
         public ITrigger Trigger
         {
             get
             {
-                return Trigger;
+                return CalDavTrigger;
             }
         }
 
@@ -58,7 +58,7 @@ namespace CalDav {
 			wrtr.BeginBlock("VALARM");
 			wrtr.Property("ACTION", Action);
 			wrtr.Property("DESCRIPTION", Description);
-			wrtr.Property("TRIGGER", Trigger);
+            wrtr.Property("TRIGGER", Trigger);
 			wrtr.EndBlock("VALARM");
 		}
 	}

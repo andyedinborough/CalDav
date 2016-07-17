@@ -53,6 +53,7 @@
     <Compile Include="ITrigger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Relateds.cs" />
+    <Compile Include="Statuses.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -136,7 +136,7 @@ namespace CalDav.Client {
                 if(response.Descendants(CalDav.Common.xCalDav.GetName("calendar")).Count() > 0)
                 {
                     string href = response.Descendants(CalDav.Common.xDav.GetName("href")).First().Value;
-                    calendars.Add(new Calendar(Common) { Url = new Uri(Url, href), Credentials = Credentials });
+                    calendars.Add(new Calendar(Common, new Uri(Url, href)) { Credentials = Credentials });
                 }
             }
             return calendars.ToArray();

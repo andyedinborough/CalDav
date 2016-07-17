@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Connections\OutlookConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Servers\OutlookServer.cs" />
     <Compile Include="UI\OutlookOAuthForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,7 +73,6 @@
     <Folder Include="Alarms\" />
     <Folder Include="Calendars\" />
     <Folder Include="Events\" />
-    <Folder Include="Servers\" />
     <Folder Include="ToDos\" />
   </ItemGroup>
   <ItemGroup>
