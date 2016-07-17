@@ -8,6 +8,7 @@ using Outlook = Microsoft.Office.Interop.Outlook;
 namespace OutlookClient {
     public class OutlookEvent : IEvent
     {
+        public Outlook.AppointmentItem Appointment { get { return appointment; } }
         Outlook.Application application;
         Outlook.AppointmentItem appointment;
         public OutlookEvent(Outlook.Application app)
@@ -20,7 +21,7 @@ namespace OutlookClient {
             get
             {
                 return new List<IAlarm> {
-                    new OutlookAlarm()
+                    new OutlookAlarm(application)
                     {
                         Action = AlarmActions.DISPLAY,
                         Trigger = new Trigger()
@@ -47,7 +48,7 @@ namespace OutlookClient {
                         {
                             value.First().Trigger.Duration = value.First().Trigger.DateTime - appointment.Start;
                         }
-                        appointment.ReminderMinutesBeforeStart = (int)value.First().Trigger.Duration.Value.TotalMinutes;
+                        appointment.ReminderMinutesBeforeStart = 1;// (int)value.First().Trigger.Duration.Value.TotalMinutes;
                     }
                 }
             }

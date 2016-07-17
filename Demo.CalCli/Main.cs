@@ -43,7 +43,7 @@ namespace Demo.CalCli
                 }
                 server = null;
             }
-            else if (urlCombo.Text.Contains("outlook"))
+            else if (urlCombo.Text.Contains("Outlook"))
             {
                 connection = new BasicConnection(null, null);
                 server = new OutlookClient.OutlookServer();
@@ -111,15 +111,13 @@ namespace Demo.CalCli
             trigger.Related = Relateds.Start;
             alarm.Action = AlarmActions.DISPLAY;
             alarms.Add(alarm);
-            IEvent ev = new CalDav.Event
-            {
-                Description = eventDescriptionTextBox.Text,
-                Summary = eventSummaryTextBox.Text,
-                Sequence = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds,
-                Start = eventStartPicker.Value,
-                End = eventEndPicker.Value,
-                Alarms = alarms
-            };
+            IEvent ev = calendars[comboBox1.SelectedIndex].createEvent();
+
+            ev.Description = eventDescriptionTextBox.Text;
+            ev.Summary = eventSummaryTextBox.Text;
+            ev.Start = eventStartPicker.Value;
+            ev.End = eventEndPicker.Value;
+            ev.Alarms = alarms;
             calendars[comboBox1.SelectedIndex].Save(ev);
         }
 

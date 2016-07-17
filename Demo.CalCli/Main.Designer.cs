@@ -248,7 +248,8 @@
             this.urlCombo.Items.AddRange(new object[] {
             "https://caldav.icloud.com/",
             "https://apidata.googleusercontent.com/caldav/v2/",
-            "https://caldav.calendar.yahoo.com/dav/"});
+            "https://caldav.calendar.yahoo.com/dav/",
+            "Outlook"});
             this.urlCombo.Location = new System.Drawing.Point(64, 29);
             this.urlCombo.Name = "urlCombo";
             this.urlCombo.Size = new System.Drawing.Size(486, 21);

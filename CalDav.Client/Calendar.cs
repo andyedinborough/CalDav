@@ -163,5 +163,10 @@ namespace CalDav.Client {
         {
             return new Alarm();
         }
+
+        public IEvent createEvent()
+        {
+            return new CalDav.Event();
+        }
     }
 }

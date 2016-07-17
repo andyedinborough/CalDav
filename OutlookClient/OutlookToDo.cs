@@ -30,12 +30,14 @@ namespace OutlookClient {
         {
             get
             {
-                throw new NotImplementedException();
+                return taskItem.DateCompleted;
             }
 
             set
             {
-                throw new NotImplementedException();
+                if(value == null)
+                    throw new Exception("Completion date cannot be null.");
+                taskItem.DateCompleted = (DateTime)value;
             }
         }
 
@@ -43,12 +45,15 @@ namespace OutlookClient {
         {
             get
             {
-                throw new NotImplementedException();
+                return taskItem.DueDate;
             }
 
             set
             {
-                throw new NotImplementedException();
+
+                if (value == null)
+                    throw new Exception("Due cannot be null.");
+                taskItem.DueDate = (DateTime)value;
             }
         }
 
@@ -56,12 +61,12 @@ namespace OutlookClient {
         {
             get
             {
-                throw new NotImplementedException();
+                throw new Exception("Not supported for outlook.");
             }
 
             set
             {
-                throw new NotImplementedException();
+                throw new Exception("Not supported for outlook.");
             }
         }
 
@@ -69,25 +74,33 @@ namespace OutlookClient {
         {
             get
             {
-                throw new NotImplementedException();
+                return (int)(taskItem.DueDate - taskItem.StartDate).TotalSeconds;
             }
 
             set
             {
-                throw new NotImplementedException();
+                if(taskItem.DueDate != null && taskItem.StartDate != null)
+                {
+                    throw new Exception("Dates are already set.");
+                }
+
             }
         }
+
 
         public DateTime? Start
         {
             get
             {
-                throw new NotImplementedException();
+                return taskItem.StartDate;
             }
 
             set
             {
-                throw new NotImplementedException();
+                if (value == null)
+                    throw new Exception("Start cannot be null.");
+                taskItem.StartDate = (DateTime)value;
+
             }
         }
 
@@ -95,12 +108,15 @@ namespace OutlookClient {
         {
             get
             {
-                throw new NotImplementedException();
+                if (taskItem.Complete)
+                    return Statuses.COMPLETED;
+                else
+                    return Statuses.NEEDS_ACTION;
             }
 
             set
             {
-                throw new NotImplementedException();
+                taskItem.Complete = value == Statuses.COMPLETED;
             }
         }
 
@@ -108,30 +124,29 @@ namespace OutlookClient {
         {
             get
             {
-                throw new NotImplementedException();
+                return taskItem.Subject;
             }
 
             set
             {
-                throw new NotImplementedException();
+                taskItem.Subject = value;
             }
         }
 
         public string UID
         {
+            get; set;
+        }
+        public Outlook.TaskItem TaskItem
+        {
             get
             {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
+                return taskItem;
             }
         }
 
         public OutlookToDo(Outlook.Application app) {
-            app.CreateItem(Microsoft.Office.Interop.Outlook.OlItemType.olTaskItem);
+            taskItem = app.CreateItem(Microsoft.Office.Interop.Outlook.OlItemType.olTaskItem);
 		}
 	}
 }

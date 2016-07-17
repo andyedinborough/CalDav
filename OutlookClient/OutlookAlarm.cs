@@ -5,10 +5,11 @@ using CalDav;
 namespace OutlookClient {
     public class OutlookAlarm : IAlarm
     {
-        public OutlookAlarm()
+        public OutlookAlarm(Outlook.Application application)
         {
-            reminder = new Outlook.Reminder();
+            this.application = application;
         }
+
         Outlook.Reminder reminder;
         public AlarmActions Action
         {
@@ -38,6 +39,7 @@ namespace OutlookClient {
         }
 
         private Trigger trigger;
+        private Outlook.Application application;
 
         public ITrigger Trigger
         {

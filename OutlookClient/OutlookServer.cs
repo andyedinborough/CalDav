@@ -42,7 +42,7 @@ namespace OutlookClient {
 
         public ICalendar[] GetCalendars()
         {
-            return new ICalendar[] { new OutlookCalendar() };
+            return new ICalendar[] { new OutlookCalendar(application) };
         }
     }
 }

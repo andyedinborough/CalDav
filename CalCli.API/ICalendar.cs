@@ -15,5 +15,6 @@ namespace CalCli.API
         IToDo createToDo();
         ITrigger createTrigger();
         IAlarm createAlarm();
+        IEvent createEvent();
     }
 }
