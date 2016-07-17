@@ -7,6 +7,7 @@ using CalCli.API;
 using CalCli;
 using Outlook = Microsoft.Office.Interop.Outlook;
 using System.Collections.Generic;
+using CalCli.Util;
 
 namespace Demo.CalCli
 {
@@ -182,6 +183,54 @@ namespace Demo.CalCli
                     calendars[comboBox1.SelectedIndex].Save(todos[i]);
                 }
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            try {
+                server = AutoConfiguration.GetCalendarServer(calendarTypeFromText(comboBox2.Text), usernameTextBox.Text, passwordTextBox.Text);
+            }
+            catch(Exception ex)
+            {
+                if (ex.Message == "Authentication is required")
+                    MessageBox.Show("Could not login.");
+                else {
+                    MessageBox.Show("Could not login.");
+                    return;
+                }
+                
+            }
+            try
+            {
+                calendars = server.GetCalendars();
+            }
+            catch (NullReferenceException ex)
+            {
+                MessageBox.Show("Could not login.");
+                return;
+            }
+            comboBox1.Items.Clear();
+            foreach (ICalendar calendar in calendars)
+            {
+                comboBox1.Items.Add(calendar.Name);
+            }
+            if (comboBox1.Items.Count > 0)
+            {
+                comboBox1.Text = (string)comboBox1.Items[0];
+            }
+        }
+
+        private CalendarTypes calendarTypeFromText(string text)
+        {
+            if (text == "Google")
+                return CalendarTypes.Google;
+            if (text == "iCloud")
+                return CalendarTypes.iCloud;
+            if (text == "Yahoo")
+                return CalendarTypes.Yahoo;
+            if (text == "Outlook")
+                return CalendarTypes.Outlook;
+            return CalendarTypes.Google;
         }
     }
 }

@@ -51,6 +51,8 @@
             this.checkList = new System.Windows.Forms.CheckedListBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.button2 = new System.Windows.Forms.Button();
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.button3 = new System.Windows.Forms.Button();
             this.eventGroupBox.SuspendLayout();
             this.connectionGroupBox.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -164,6 +166,8 @@
             // 
             // connectionGroupBox
             // 
+            this.connectionGroupBox.Controls.Add(this.button3);
+            this.connectionGroupBox.Controls.Add(this.comboBox2);
             this.connectionGroupBox.Controls.Add(this.comboBox1);
             this.connectionGroupBox.Controls.Add(this.calidLabel);
             this.connectionGroupBox.Controls.Add(this.pswdLabel);
@@ -285,6 +289,30 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // comboBox2
+            // 
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Items.AddRange(new object[] {
+            "Google",
+            "iCloud",
+            "Yahoo",
+            "Outlook"});
+            this.comboBox2.Location = new System.Drawing.Point(367, 135);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(82, 21);
+            this.comboBox2.TabIndex = 23;
+            this.comboBox2.Text = "Google";
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(448, 134);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(102, 23);
+            this.button3.TabIndex = 24;
+            this.button3.Text = "Auto Config";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -330,6 +358,8 @@
         private System.Windows.Forms.CheckedListBox checkList;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.ComboBox comboBox2;
     }
 }
 

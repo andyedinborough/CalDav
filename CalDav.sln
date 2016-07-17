@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalCli.API", "CalCli.API\Ca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookClient", "OutlookClient\OutlookClient.csproj", "{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalCli.Util", "CalCli.Util\CalCli.Util.csproj", "{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

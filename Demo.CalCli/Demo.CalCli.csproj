@@ -89,6 +89,10 @@
       <Project>{2c258fae-97ed-4916-b5a3-4723700d675d}</Project>
       <Name>CalCli.API</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CalCli.Util\CalCli.Util.csproj">
+      <Project>{00b20f5c-ee2c-4a3d-9bb6-ea426a02c985}</Project>
+      <Name>CalCli.Util</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CalCli\CalCli.csproj">
       <Project>{dbefed7e-dc69-48c0-9ac3-428b2168a17a}</Project>
       <Name>CalCli</Name>
