@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
-using CalDav.Client;
 using CalCli.API;
+using Outlook = Microsoft.Office.Interop.Outlook;
 
-namespace CalDav.Client.Servers {
+namespace OutlookClient {
     public class OutlookServer : IServer
     {
+        Outlook.Application application = new Outlook.Application();
         public IConnection Connection
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
 
             set
             {
-                throw new NotImplementedException();
+
             }
         }
 
@@ -25,23 +26,23 @@ namespace CalDav.Client.Servers {
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
 
             set
             {
-                throw new NotImplementedException();
+
             }
         }
 
         public void CreateCalendar(ICalendar calendar)
         {
-            throw new NotImplementedException();
+            throw new Exception("Outlook doesn't support creating calendars.");
         }
 
         public ICalendar[] GetCalendars()
         {
-            throw new NotImplementedException();
+            return new ICalendar[] { new OutlookCalendar() };
         }
     }
 }

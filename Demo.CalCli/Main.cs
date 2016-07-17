@@ -46,7 +46,7 @@ namespace Demo.CalCli
             else if (urlCombo.Text.Contains("outlook"))
             {
                 connection = new BasicConnection(null, null);
-                server = new CalDav.Client.Servers.OutlookServer();
+                server = new OutlookClient.OutlookServer();
             }
             else
             {
