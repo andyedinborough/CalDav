@@ -163,6 +163,7 @@ namespace CalDav {
 				} else part += c;
 				c0 = c;
 			}
+			if(part != string.Empty) yield return part;
 		}
 
 		internal static bool Property(this System.IO.TextReader rdr, out string name, out string value, NameValueCollection parameters) {
