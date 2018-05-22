@@ -35,8 +35,9 @@ namespace CalDav {
 					case "ACTION": Action = getAlarmActions(value); break;
 					case "DESCRIPTION": Description = value; break;
 					case "TRIGGER": CalDavTrigger = serializer.GetService<Trigger>(); CalDavTrigger.Deserialize(value, parameters); break;
-				}
-			}
+                    case "END": return;
+                }
+            }
 		}
 
         private AlarmActions getAlarmActions(string value)
@@ -49,6 +50,8 @@ namespace CalDav {
                     return AlarmActions.AUDIO;
                 case "DISPLAY":
                     return AlarmActions.DISPLAY;
+                case "NONE":
+                    return AlarmActions.NONE;
                 default:
                     throw new Exception("Action is not valid for alarm.");
             }
