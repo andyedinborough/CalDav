@@ -38,7 +38,7 @@ namespace CalDav {
                     case "END": return;
                 }
             }
-		}
+        }
 
         private AlarmActions getAlarmActions(string value)
         {
