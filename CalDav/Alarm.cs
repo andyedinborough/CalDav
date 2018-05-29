@@ -8,23 +8,23 @@ namespace CalDav {
 
 		public ITrigger Trigger
 		{
-				get
-				{
-						return CalDavTrigger;
-				}
+			get
+			{
+				return CalDavTrigger;
+			}
 		}
 
 		ITrigger IAlarm.Trigger
 		{
-				get
-				{
-						return CalDavTrigger;
-				}
+			get
+			{
+				return CalDavTrigger;
+			}
 
-				set
-				{
-						CalDavTrigger = (CalDav.Trigger)value;
-				}
+			set
+			{
+				CalDavTrigger = (CalDav.Trigger)value;
+			}
 		}
 
 		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
@@ -44,16 +44,16 @@ namespace CalDav {
 		{
 			switch(value)
 			{
-					case "EMAIL":
-							return AlarmActions.EMAIL;
-					case "AUDIO":
-							return AlarmActions.AUDIO;
-					case "DISPLAY":
-							return AlarmActions.DISPLAY;
-					case "NONE":
-							return AlarmActions.NONE;
-					default:
-							throw new Exception("Action is not valid for alarm.");
+				case "EMAIL":
+					return AlarmActions.EMAIL;
+				case "AUDIO":
+					return AlarmActions.AUDIO;
+				case "DISPLAY":
+					return AlarmActions.DISPLAY;
+				case "NONE":
+					return AlarmActions.NONE;
+				default:
+					throw new Exception("Action is not valid for alarm.");
 			}
 		}
 
