@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "Console\Console.csproj", "{EE946C60-392B-4A4F-B0A5-9D9A32C283DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{FABD2E1F-315B-4DCB-8DDA-FDE9263F99E1}"
@@ -26,6 +28,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Create-Package.ps1 = Create-Package.ps1
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalCli", "CalCli\CalCli.csproj", "{DBEFED7E-DC69-48C0-9AC3-428B2168A17A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo.CalCli", "Demo.CalCli\Demo.CalCli.csproj", "{4ED47A68-871A-4069-8B20-1D3D7AD163E6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalCli.API", "CalCli.API\CalCli.API.csproj", "{2C258FAE-97ED-4916-B5A3-4723700D675D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlookClient", "OutlookClient\OutlookClient.csproj", "{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CalCli.Util", "CalCli.Util\CalCli.Util.csproj", "{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +73,26 @@ Global
 		{9164611E-4CAF-4FE1-B707-397CC1D515C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9164611E-4CAF-4FE1-B707-397CC1D515C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9164611E-4CAF-4FE1-B707-397CC1D515C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBEFED7E-DC69-48C0-9AC3-428B2168A17A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBEFED7E-DC69-48C0-9AC3-428B2168A17A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBEFED7E-DC69-48C0-9AC3-428B2168A17A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBEFED7E-DC69-48C0-9AC3-428B2168A17A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4ED47A68-871A-4069-8B20-1D3D7AD163E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4ED47A68-871A-4069-8B20-1D3D7AD163E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4ED47A68-871A-4069-8B20-1D3D7AD163E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4ED47A68-871A-4069-8B20-1D3D7AD163E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C258FAE-97ED-4916-B5A3-4723700D675D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C258FAE-97ED-4916-B5A3-4723700D675D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C258FAE-97ED-4916-B5A3-4723700D675D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C258FAE-97ED-4916-B5A3-4723700D675D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01AF789A-F9CE-47F7-A66C-D3BAE82AECC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00B20F5C-EE2C-4A3D-9BB6-EA426A02C985}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

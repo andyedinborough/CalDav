@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CalCli.API;
 
 namespace CalDav {
-	public class ToDo : ICalendarObject {
+	public class ToDo : ICalendarObject,  IToDo{
 		public ToDo() {
 			Categories = new List<string>();
 			Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();

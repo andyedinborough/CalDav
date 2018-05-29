@@ -1,4 +1,5 @@
-﻿using CalDav;
+﻿using CalCli.API;
+using CalDav;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shouldly;
 using System;
@@ -65,7 +66,7 @@ namespace Tests {
 
 			text = "TRIGGER;RELATED=END:-P1W3DT2H3M45S";
 			trigger = Deserialize<Trigger>(text);
-			trigger.Related.ShouldBe(CalDav.Trigger.Relateds.End);
+			trigger.Related.ShouldBe(Relateds.End);
 			trigger.Duration.ShouldBe(-(new TimeSpan(1 * 7 + 3, 2, 3, 45, 0)));
 			text2 = Serialize("TRIGGER", trigger);
 			text2.ShouldBe(text);
