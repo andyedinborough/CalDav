@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using CalCli.API;
 
@@ -41,29 +42,29 @@ namespace CalDav {
 
 		public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
-        ICollection<IAlarm> IEvent.Alarms
-        {
-            get
-            {
-                List<IAlarm> result = new List<IAlarm>();
-                foreach(Alarm alarm in Alarms)
-                {
-                    result.Add(alarm); 
-                }
-                return result;
-            }
+		ICollection<IAlarm> IEvent.Alarms
+		{
+			get
+			{
+				List<IAlarm> result = new List<IAlarm>();
+				foreach(Alarm alarm in Alarms)
+				{
+					result.Add(alarm); 
+				}
+				return result;
+			}
 
-            set
-            {
-                Alarms.Clear();
-                foreach(IAlarm alarm in value)
-                {
-                    Alarms.Add((Alarm)alarm);
-                }
-            }
-        }
+			set
+			{
+				Alarms.Clear();
+				foreach(IAlarm alarm in value)
+				{
+					Alarms.Add((Alarm)alarm);
+				}
+			}
+		}
 
-        public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
+			public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
@@ -88,9 +89,29 @@ namespace CalDav {
 					case "CLASS": Class = value.ToEnum<Classes>(); break;
 					case "CREATED": Created = value.ToDateTime(); break;
 					case "DESCRIPTION": Description = value; break;
-					case "DTEND": End = value.ToDateTime(); break;
+					case "DTEND":
+						End = value.ToDateTime();
+						if (End == null)
+						{
+							DateTime endDate;
+							if (DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out endDate))
+							{
+								End = endDate;
+							}
+						}
+						break;
 					case "DTSTAMP": DTSTAMP = value.ToDateTime().GetValueOrDefault(); break;
-					case "DTSTART": Start = value.ToDateTime(); break;
+					case "DTSTART":
+						Start = value.ToDateTime();
+						if (Start == null)
+						{
+							DateTime startDate;
+							if (DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate))
+							{
+								Start = startDate;
+							}
+						}
+						break;
 					case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
 					case "LOCATION": Location = value; break;
 					case "ORGANIZER":

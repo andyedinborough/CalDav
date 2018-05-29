@@ -7,6 +7,7 @@ namespace CalCli.API
 {
     public enum AlarmActions
     {
+        NONE,
         AUDIO,
         DISPLAY,
         EMAIL
