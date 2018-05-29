@@ -89,30 +89,30 @@ namespace CalDav {
 					case "CLASS": Class = value.ToEnum<Classes>(); break;
 					case "CREATED": Created = value.ToDateTime(); break;
 					case "DESCRIPTION": Description = value; break;
-                    case "DTEND":
-                        End = value.ToDateTime();
-                        if (End == null)
-                        {
-                            DateTime endDate;
-                            if (DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out endDate))
-                            {
-                                End = endDate;
-                            }
-                        }
-                        break;
-                    case "DTSTAMP": DTSTAMP = value.ToDateTime().GetValueOrDefault(); break;
-                    case "DTSTART":
-                        Start = value.ToDateTime();
-                        if (Start == null)
-                        {
-                            DateTime startDate;
-                            if (DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate))
-                            {
-                                Start = startDate;
-                            }
-                        }
-                        break;
-                    case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
+					case "DTEND":
+							End = value.ToDateTime();
+							if (End == null)
+							{
+									DateTime endDate;
+									if (DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out endDate))
+									{
+											End = endDate;
+									}
+							}
+							break;
+					case "DTSTAMP": DTSTAMP = value.ToDateTime().GetValueOrDefault(); break;
+					case "DTSTART":
+							Start = value.ToDateTime();
+							if (Start == null)
+							{
+									DateTime startDate;
+									if (DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate))
+									{
+											Start = startDate;
+									}
+							}
+							break;
+					case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
 					case "LOCATION": Location = value; break;
 					case "ORGANIZER":
 						Organizer = serializer.GetService<Contact>();
