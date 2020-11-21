@@ -83,6 +83,31 @@ namespace CalDav.Client {
 
 			GetObject(e.UID);
 		}
+        public void Delete(Event e)
+        {
+            bool update = !string.IsNullOrEmpty(e.UID);
+
+            if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
+            e.LastModified = DateTime.UtcNow;
+
+            var result = common.Request(new Uri(Url, e.UID + ".ics"), "DELETE", (req, str) => {
+                if (!update)
+                {
+                    req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                }
+                req.ContentType = "text/calendar";
+                var calendar = new CalDav.Calendar();
+                e.Sequence = (e.Sequence ?? 0) + 1;
+                calendar.Events.Add(e);
+                Common.Serialize(str, calendar);
+
+            }, Credentials);
+            if (result.Item1 != System.Net.HttpStatusCode.Created && result.Item1 != HttpStatusCode.NoContent)
+                throw new Exception("Unable to save event: " + result.Item1);
+            e.Url = new Uri(Url, result.Item3[System.Net.HttpResponseHeader.Location]);
+
+            GetObject(e.UID);
+        }
         public void Save(ToDo e)
         {
             bool update = !string.IsNullOrEmpty(e.UID);
@@ -91,6 +116,31 @@ namespace CalDav.Client {
             e.LastModified = DateTime.UtcNow;
 
             var result = common.Request(new Uri(Url, e.UID + ".ics"), "PUT", (req, str) => {
+                if (!update)
+                {
+                    req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
+                }
+                req.ContentType = "text/calendar";
+                var calendar = new CalDav.Calendar();
+                e.Sequence = (e.Sequence ?? 0) + 1;
+                calendar.ToDos.Add(e);
+                Common.Serialize(str, calendar);
+
+            }, Credentials);
+            if (result.Item1 != System.Net.HttpStatusCode.Created && result.Item1 != HttpStatusCode.NoContent)
+                throw new Exception("Unable to save event: " + result.Item1);
+            // e.Url = new Uri(Url, result.Item3[System.Net.HttpResponseHeader.Location]);
+
+            GetObject(e.UID);
+        }
+        public void Delete(ToDo e)
+        {
+            bool update = !string.IsNullOrEmpty(e.UID);
+
+            if (string.IsNullOrEmpty(e.UID)) e.UID = Guid.NewGuid().ToString();
+            e.LastModified = DateTime.UtcNow;
+
+            var result = common.Request(new Uri(Url, e.UID + ".ics"), "DELETE", (req, str) => {
                 if (!update)
                 {
                     req.Headers[System.Net.HttpRequestHeader.IfNoneMatch] = "*";
@@ -141,11 +191,21 @@ namespace CalDav.Client {
             Event ev = (Event)e;
             Save(ev);
         }
+        public void Delete(IEvent e)
+        {
+            Event ev = (Event)e;
+            Delete(ev);
+        }
 
         public void Save(IToDo t)
         {
             ToDo todo = (ToDo)t;
             Save(todo);
+        }
+        public void Delete(IToDo t)
+        {
+            ToDo todo = (ToDo)t;
+            Delete(todo);
         }
 
         public IToDo createToDo()
