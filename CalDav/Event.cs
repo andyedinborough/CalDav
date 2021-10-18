@@ -159,9 +159,17 @@ namespace CalDav {
 			wrtr.Property("CLASS", Class);
 			wrtr.Property("CREATED", Created);
 			wrtr.Property("DESCRIPTION", Description);
-			wrtr.Property("DTEND", IsAllDay ? (End ?? Start.Value).Date : End);
+			if (IsAllDay)
+			{
+				wrtr.Property("DTEND;VALUE=DATE", (End ?? Start.Value).ToString("yyyyMMdd"));
+				wrtr.Property("DTSTART;VALUE=DATE", (Start ?? End.Value).ToString("yyyyMMdd"));
+			}
+			else
+			{
+				wrtr.Property("DTEND", End);
+				wrtr.Property("DTSTART", Start);
+			}
 			wrtr.Property("DTSTAMP", DTSTAMP);
-			wrtr.Property("DTSTART", IsAllDay ? (Start ?? End.Value).Date : Start);
 			wrtr.Property("LAST-MODIFIED", LastModified);
 			wrtr.Property("LOCATION", Location);
 			wrtr.Property("ORGANIZER", Organizer);
