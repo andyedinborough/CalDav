@@ -97,9 +97,9 @@ namespace CalDav {
 
 		private static string PropertyEncode(string value) {
 			return value
-				.Replace("\n", "\\n")
 				.Replace("\r", "\\r")
 				.Replace("\\", "\\\\")
+				.Replace("\n", "\\n")
 				.Replace(";", "\\;")
 				.Replace(",", "\\,")
 				.Replace("\r", "");

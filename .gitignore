@@ -6,3 +6,4 @@ packages/
 TestResults/
 */App_Data/
 *.suo
+.vs

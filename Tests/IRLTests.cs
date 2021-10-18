@@ -10,7 +10,7 @@ namespace Tests {
 		public void ParseFeed() {
 			var calendar = new CalDav.Calendar();
 			var serializer = new Serializer();
-			var req = System.Net.HttpWebRequest.Create("http://www.nasa.gov/templateimages/redesign/calendar/iCal/nasa_calendar.ics");
+			var req = System.Net.HttpWebRequest.Create("https://canada-holidays.ca/ics");
 			using (var res = req.GetResponse())
 			using (var str = res.GetResponseStream())
 			using (var rdr = new System.IO.StreamReader(str))
