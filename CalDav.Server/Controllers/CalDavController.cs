@@ -6,6 +6,8 @@ using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Xml.Linq;
+using CalDavController = CalDav.Server.Controllers.CalDavController;
+
 //http://greenbytes.de/tech/webdav/draft-dusseault-caldav-05.html
 //http://wwcsd.net/principals/__uids__/wiki-ilovemysmartboard/
 

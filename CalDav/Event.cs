@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using CalCli.API;
 
 namespace CalDav {
-	public class Event : ICalendarObject {
+	public class Event : ICalendarObject, IEvent {
 		private DateTime DTSTAMP = DateTime.UtcNow;
 
 		public Event() {
 			Attendees = new List<Contact>();
-			Alarms = new List<Alarm>();
+			Alarms = new List<IAlarm>();
 			Categories = new List<string>();
 			Recurrences = new List<Recurrence>();
 			Properties = new List<Tuple<string, string, System.Collections.Specialized.NameValueCollection>>();
@@ -17,7 +19,7 @@ namespace CalDav {
 
 		public virtual Calendar Calendar { get; set; }
 		public virtual ICollection<Contact> Attendees { get; set; }
-		public virtual ICollection<Alarm> Alarms { get; set; }
+		public virtual ICollection<IAlarm> Alarms { get; set; }
 		public virtual ICollection<string> Categories { get; set; }
 		public virtual ICollection<Uri> Attachments { get; set; }
 		public virtual Classes? Class { get; set; }
@@ -40,7 +42,29 @@ namespace CalDav {
 
 		public ICollection<Tuple<string, string, System.Collections.Specialized.NameValueCollection>> Properties { get; set; }
 
-		public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
+		ICollection<IAlarm> IEvent.Alarms
+		{
+			get
+			{
+				List<IAlarm> result = new List<IAlarm>();
+				foreach(Alarm alarm in Alarms)
+				{
+					result.Add(alarm); 
+				}
+				return result;
+			}
+
+			set
+			{
+				Alarms.Clear();
+				foreach(IAlarm alarm in value)
+				{
+					Alarms.Add((Alarm)alarm);
+				}
+			}
+		}
+
+			public void Deserialize(System.IO.TextReader rdr, Serializer serializer) {
 			string name, value;
 			var parameters = new System.Collections.Specialized.NameValueCollection();
 			while (rdr.Property(out name, out value, parameters) && !string.IsNullOrEmpty(name)) {
@@ -65,9 +89,29 @@ namespace CalDav {
 					case "CLASS": Class = value.ToEnum<Classes>(); break;
 					case "CREATED": Created = value.ToDateTime(); break;
 					case "DESCRIPTION": Description = value; break;
-					case "DTEND": End = value.ToDateTime(); break;
+					case "DTEND":
+						End = value.ToDateTime();
+						if (End == null)
+						{
+							DateTime endDate;
+							if (DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out endDate))
+							{
+								End = endDate;
+							}
+						}
+						break;
 					case "DTSTAMP": DTSTAMP = value.ToDateTime().GetValueOrDefault(); break;
-					case "DTSTART": Start = value.ToDateTime(); break;
+					case "DTSTART":
+						Start = value.ToDateTime();
+						if (Start == null)
+						{
+							DateTime startDate;
+							if (DateTime.TryParseExact(value, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate))
+							{
+								Start = startDate;
+							}
+						}
+						break;
 					case "LAST-MODIFIED": LastModified = value.ToDateTime(); break;
 					case "LOCATION": Location = value; break;
 					case "ORGANIZER":
@@ -115,9 +159,17 @@ namespace CalDav {
 			wrtr.Property("CLASS", Class);
 			wrtr.Property("CREATED", Created);
 			wrtr.Property("DESCRIPTION", Description);
-			wrtr.Property("DTEND", IsAllDay ? (End ?? Start.Value).Date : End);
+			if (IsAllDay)
+			{
+				wrtr.Property("DTEND;VALUE=DATE", (End ?? Start.Value).ToString("yyyyMMdd"));
+				wrtr.Property("DTSTART;VALUE=DATE", (Start ?? End.Value).ToString("yyyyMMdd"));
+			}
+			else
+			{
+				wrtr.Property("DTEND", End);
+				wrtr.Property("DTSTART", Start);
+			}
 			wrtr.Property("DTSTAMP", DTSTAMP);
-			wrtr.Property("DTSTART", IsAllDay ? (Start ?? End.Value).Date : Start);
 			wrtr.Property("LAST-MODIFIED", LastModified);
 			wrtr.Property("LOCATION", Location);
 			wrtr.Property("ORGANIZER", Organizer);
@@ -134,7 +186,7 @@ namespace CalDav {
 
 			if (Alarms != null)
 				foreach (var alarm in Alarms)
-					alarm.Serialize(wrtr);
+					((Alarm)alarm).Serialize(wrtr);
 			wrtr.EndBlock("VEVENT");
 		}
 	}

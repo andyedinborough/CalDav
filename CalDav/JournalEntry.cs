@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CalCli.API;
 
 namespace CalDav {
 	public class JournalEntry : ICalendarObject {
